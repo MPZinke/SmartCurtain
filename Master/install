@@ -11,9 +11,9 @@ sudo /etc/init.d/apache2 restart
 
 sudo rm /var/www/html/index.html
 sudo mkdir /var/www/html/connections
-sudo mv /home/pi/PHP/API.php /var/www/html/connections
-sudo mv /home/pi/PHP/DBConnect.php /var/www/html/connections
-sudo mv /home/pi/PHP/DBFunctions.php /var/www/html/connections
+sudo mv ./PHP/API.php /var/www/html/connections
+sudo mv ./PHP/DBConnect.php /var/www/html/connections
+sudo mv ./PHP/DBFunctions.php /var/www/html/connections
 
 sudo mariadb -uroot -praspberry -e "CREATE USER 'php_db_user'@'localhost' IDENTIFIED BY ''; GRANT ALL PRIVILEGES ON *.* TO 'php_db_user'@'localhost';"
 sudo mariadb -uroot -praspberry -e "CREATE USER 'python_db_user'@'localhost' IDENTIFIED BY ''; GRANT ALL PRIVILEGES ON *.* TO 'python_db_user'@'localhost';"
@@ -26,3 +26,10 @@ pip3 install mysql-connector-python
 pip3 install adafruit-io
 pip3 install astral
 
+# then copy Python files
+
+
+# then make service
+
+
+# then print errors
