@@ -159,12 +159,12 @@ def predict_events(events):
 
 def set_events(cnx, cursor, curtain, events):
 	for event in events:
-		if not DBFunctions.event_set_at_approximate_time(cursor, curtain, event.datetime) \
-		and event_is_not_past_current_time(event.datetime):
+		if not DBFunctions.event_set_at_approximate_time(cursor, curtain, event.datetime):
 			DBFunctions.add_event(cnx, cursor, curtain, event.position, event.datetime)
 
 
 # ————————————————— MAIN LOOP ——————————————————
+
 
 def predictor_loop():
 	while True:
@@ -182,11 +182,9 @@ def predictor_loop():
 					predicted_events = predict_events(open_event_times)
 					set_events(cnx, cursor, curtain, predicted_events)
 
-			cnx.close()
-			if current_time_is_past_sleep_point(): sleep_time = time_to_next_day()
-			else: sleep_time = EVENT_PREDICTOR_SLEEP
-			sleep(sleep_time)  # wait a day
+			sleep(EVENT_PREDICTOR_SLEEP)  # wait a day
 
+			cnx.close()
 
 		except Exception as error:
 			try:

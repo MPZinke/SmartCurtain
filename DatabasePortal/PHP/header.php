@@ -6,6 +6,7 @@
 	*
 	***************************************************/
 
+	session_start();
 	date_default_timezone_set("America/Chicago");
 
 	// ———— load page info ————
@@ -14,21 +15,16 @@
 	include_once ($_SERVER['DOCUMENT_ROOT'].'/supporting/Curtain.php');
 	include_once ($_SERVER['DOCUMENT_ROOT'].'/supporting/Event.php');
 
+	if(isset($_SESSION["message"]))
+	{
+		echo "<script> window.onload = function() 
+					{ alert('$_SESSION[message]'); };</script>";
+		unset($_SESSION["message"]);
+	}
+
 	// ———— load curtain info ————
 	$curtains = all_curtains();
-	
-	if(filter_input(INPUT_GET, 'message'))
-	{
-		$landing_message = str_replace('_', ' ', filter_input(INPUT_GET, 'message'));
-		$page_url = strtok($_SERVER["REQUEST_URI"],'?');
-		$curtain_get_info = $_GET["curtain"] ? "?curtain=$_GET[curtain]" : "";
-		echo "<script> window.onload = function() 
-					{
-						alert('$landing_message');
-						window.location.replace('$page_url$curtain_get_info');
-					};
-				</script>";
-	}
+
 	if(filter_input(INPUT_GET, 'curtain')) $selected_curtain = new Curtain($_GET["curtain"]);
 	elseif(count($curtains)) $selected_curtain = $curtains[0];
 	else $selected_curtain = new Curtain(0);
@@ -70,7 +66,7 @@
 						<span style="font-size:30px;cursor:pointer;" onclick="openNav()" class="header">&nbsp; &#9776;</span>
 					</td>
 					<td style='width:60%;margin:auto'>
-						<select id='curtain_select' name='curtain_select' class='select' onchange='redirect_to_curtain(this);'>
+						<select id='curtain_select' name='curtain_select' class='select dark' onchange='redirect_to_curtain(this);'>
 							<?php
 								foreach($curtains as $curtain)
 								{

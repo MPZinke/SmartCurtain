@@ -52,18 +52,17 @@ function new_future_event($curtain, $position_percentage, $time)
 {
 	if(!is_object($curtain) || !$curtain->curtain_id) return false;
 
-	if(!DateTime::createFromFormat('Y-m-d H:M:S', $time)) return false;
-
+	global $mysqli;
 	// get open position
 	$results = $mysqli->query(	"SELECT `curtain_length` FROM `curtains` 
-									WHERE `curtain_id` = $curtain;");
+									WHERE `curtain_id` = $curtain->curtain_id;");
 	if(!$results) return false;
 	$max = $results->fetch_assoc()["curtain_length"];
 
 	// add event for now to DB
-	$position = $position_percentage * $max / 100;
+	$position = intval($position_percentage * $max / 100);
 	$mysqli->query(	"INSERT INTO `events` (`curtain_id`, `event_position`, `event_activated`, `event_time`)
-						VALUES ('$curtain->curtain_id', '$position', FALSE, '$time');");
+						VALUES ($curtain->curtain_id, $position, FALSE, '$time');");
 	return $mysqli->commit();
 }
 
@@ -80,8 +79,8 @@ function open_immediately($curtain_id)
 	if(!$results) return false;
 	$max = $results->fetch_assoc()["curtain_length"];
 
-	$mysqli->query(	"INSERT INTO `events` (`event_position`, `event_activated`)
-						VALUES ('$max', FALSE);");
+	$mysqli->query(	"INSERT INTO `events` (`curtain_id`, `event_position`, `event_activated`)
+						VALUES ($curtain_id, $max, FALSE);");
 	return $mysqli->commit();
 }
 

@@ -24,65 +24,89 @@ import ErrorWriter
 
 # —————————————————— UTILITY ——————————————————–
 
-def steps_to_take(cursor, event_position):
-	total_steps = DBFunctions.curtain_length(cursor)
-	event_position_steps = total_steps * event_position / 100
-	return DBFunctions.current_position() - event_position_steps
+def curtain_id_and_action_for_feed(feed_name):
+	cnx, cursor = DBFunctions.connect_to_DB()
+	feed_keys = DBFunctions.active_adafruit_feeds(cursor)
+	cnx.close()
+
+	for key in feed_keys:
+		if feed_name == feed_keys[key]["open"]: return key, "open"
+		if feed_name == feed_keys[key]["close"]: return key, "close"
+
+	return None, None
 
 
 # —————————————— ADAFRUIT CLIENT —————————————————
 
 def connect_to_feeds(client):
-	for feed in [OPEN_KEY, CLOSE_KEY]:
-		client.subscribe(feed)
+	# subscribe to individual rooms
+	cnx, cursor = DBFunctions.connect_to_DB()
+	feeds = DBFunctions.active_adafruit_feeds(cursor)
+	cnx.close()
+
+	for key in feeds:
+		if feeds[key]["open"]: client.subscribe(feeds[key]["open"])
+		if feeds[key]["close"]: client.subscribe(feeds[key]["close"])
+
+	# subscribe to all activating feeds
+	for feed in ALL_CURTAIN_FEED:
+		client.subscribe(ALL_CURTAIN_FEED[feed])
 
 
-def disconnect(client):
+def disconnected(client):
+	print("Adafruit Client Disconnected")
 	raise Exception("MQTTClient disconnected")
 
 
-def feed_actions(client, feed_id, payload):
+def activate_message(client, feed_id, position_payload):
 	from datetime import datetime
+
+	try: position_percentage = int(position_payload)
+	except: return
 
 	cnx, cursor = DBFunctions.connect_to_DB()
 
-	try: curtain = int(payload)
-	except: return
-	if feed_id == OPEN_KEY:
-		DBFunctions.full_open_immediate_event(cnx, cursor, curtain)
-	elif feed_id == CLOSE_KEY:
-		DBFunctions.close_immediate_event(cnx, cursor, curtain)
+	if feed_id == ALL_CURTAIN_FEED["open"]:
+		DBFunctions.open_all_curtains(cnx, cursor, position_percentage)
+	elif feed_id == ALL_CURTAIN_FEED["close"]:
+		DBFunctions.close_all_curtains(cnx, cursor)
+	else:
+		curtain, action = curtain_id_and_action_for_feed(feed_id)
+		if not curtain and not action: return close_cnx_and_return(cnx)  # id not recognized
+
+		if action == "open":
+			DBFunctions.open_immediate_event(cnx, cursor, curtain, position_percentage)
+		elif action == "close":
+			DBFunctions.close_immediate_event(cnx, cursor, curtain)
 
 	cnx.close()
 
 
-def active_feed(client):
-	client.connect()
-	client.loop_blocking()
+def subscribe(client, userdata, mid, granted_qos):
+	pass
 
-
-def feed_loop(client):
-	while True:
-		cnx, cursor = DBFunctions.connect_to_DB()
-
-		for curtain in DBFunctions.curtain_ids(cursor):
-			feed_option_is_selected =  DBFunctions.adafruit_feed(cursor, curtain) 
-			if feed_option_is_selected and not client.is_connected():
-				thread = Thread(target=activate_feed, args=(client,))
-				thread.start()
-				thread.join()
-			elif not feed_option_is_selected and client.is_connected():
-				client.disconnect()
-
-		cnx.close()
-		sleep(FEED_CLIENT_CHECK_LOOP)
 
 
 def start_client_loop():
-	client = MQTTClient(USER_FEED_NAME, USER_FEED_KEY)
+	while True:
+		try:
+			client = MQTTClient(USER_FEED_NAME, USER_FEED_KEY)
 
-	client.on_connect = connect_to_feeds
-	client.on_disconnect = disconnect
-	client.on_message = feed_actions
+			client.on_connect = connect_to_feeds
+			client.on_disconnect = disconnected
+			client.on_message = activate_message
+			client.on_subscribe  = subscribe
+			
+			client.connect()
+			client.loop_blocking()
 
-	feed_loop(client)
+		except Exception as error:
+			try:
+				import ErrorWriter
+				ErrorWriter.write_error(error)
+			except: pass
+			sleep(ERROR_WAIT)
+
+
+if __name__ == '__main__':
+	start_client_loop()

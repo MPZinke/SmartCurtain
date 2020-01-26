@@ -5,9 +5,15 @@ __author__ = "MPZinke"
 ###########################################################################
 #
 #	created by: MPZinke
-#	on ..
+#	on 01.25.20
 #
-#	DESCRIPTION:
+#	DESCRIPTION: Daytime events include closing at sundown and opening at sunup.
+#		These are set individually (sunset is sepparate from sunrise).  Each event setter has
+#		its own thread created in Master.py with a try-catch loop to maintain process errors 
+#		that may arrise.  The use of this module requires a CITY definition for geo-location
+#		that is in the Astral library.  This information is then checked if any events are
+#		scheduled soon to it (to prevent double scheduling).  If it nothing is there it will set the
+#		event.
 #	BUGS:
 #	FUTURE:
 #
@@ -16,6 +22,7 @@ __author__ = "MPZinke"
 from time import sleep
 
 from Definitions import *
+import DBFunctions
 import ErrorWriter
 
 
@@ -26,30 +33,32 @@ def sunset_time():
 
 	astr_object = Astral()
 	astr_object.solar_depression = "civil"
-	try: return astr_object[CITY].sun(local=True)["sunset"]
-	except Exception as error:
-		ErrorWriter.write_error(error)
-		return None
+	return astr_object[CITY].sun(local=True)["sunset"]
 
 
 def sunset_loop():
-	from DBFunctions import 	add_event, connect_to_DB, curtain_ids, \
-								event_set_at_approximate_time, sunset_close
-
 	while True:
-		cnx, cursor = connect_to_DB()
+		try:
+			cnx, cursor = DBFunctions.connect_to_DB()
 
-		for curtain in curtain_ids(cursor):
-			if sunset_close(cursor, curtain):
-				sunset = sunset_time()
-				if is_null_sleep_then(sunset): continue
-				# check if sunset event already set
-				if not event_set_at_approximate_time(cursor, curtain, 0, sunset):
-					add_event(cnx, cursor, curtain, 0, sunset)
+			for curtain in DBFunctions.curtain_ids(cursor):
+				if DBFunctions.sunset_close(cursor, curtain):
+					sunset = sunset_time()
+					if is_null_sleep_then(sunset): continue
+					# check if sunset event already set
+					if not DBFunctions.event_set_at_approximate_time_with_range(cursor, curtain, range(0,1), sunset) \
+					and event_is_not_past_current_time(sunset):
+						DBFunctions.add_event(cnx, cursor, curtain, 0, sunset)
 
-		sleep(SUNSET_LOOP_WAIT)
+			cnx.close()
+			sleep(SUNSET_LOOP_WAIT)
+		except Exception as error:
+			try:
+				import ErrorWriter
+				ErrorWriter.write_error(error)
+			except: pass
+			sleep(ERROR_WAIT)
 
-		cnx.close()
 
 
 # —————————————————— SUNRISE ——————————————————
@@ -59,27 +68,35 @@ def sunrise_time():
 
 	astr_object = Astral()
 	astr_object.solar_depression = "civil"
-	try: return astr_object[CITY].sun(local=True)["sunrise"]
-	except Exception as error:
-		ErrorWriter.write_error(error)
-		return None
+	return astr_object[CITY].sun(local=True)["sunrise"]
 
 
 def sunrise_loop():
-	from DBFunctions import 	add_event, connect_to_DB, curtain_ids, curtain_length, \
-								event_set_at_approximate_time, sunrise_open
-
 	while True:
-		cnx, cursor = connect_to_DB()
+		try:
+			cnx, cursor = DBFunctions.connect_to_DB()
 
-		for curtain in curtain_ids(cursor):
-			if sunrise_open(cursor, curtain):
-				sunrise = sunrise_time()
-				if is_null_sleep_then(sunrise): continue
-				open_position = curtain_length(cursor)
-				if not event_set_at_approximate_time(cursor, curtain, open_position, sunrise):
-					add_event(cnx, cursor, curtain, open_position, sunrise)
+			for curtain in DBFunctions.curtain_ids(cursor):
+				if DBFunctions.sunrise_open(cursor, curtain):
+					sunrise = sunrise_time()
+					if is_null_sleep_then(sunrise): continue
+					open_position = DBFunctions.curtain_length(cursor, curtain)
+					if not DBFunctions.event_set_at_approximate_time_with_range(cursor, curtain, range(1,open_position+1), sunrise) \
+					and event_is_not_past_current_time(sunrise):
+						DBFunctions.add_event(cnx, cursor, curtain, open_position, sunrise)
 
-		sleep(SUNRISE_LOOP_WAIT)
+			cnx.close()
+			if current_time_is_past_sleep_point(): sleep_time = time_to_next_day()
+			else: sleep_time = SUNRISE_LOOP_WAIT
+			sleep(sleep_time)
+		except Exception as error:
+			try:
+				import ErrorWriter
+				ErrorWriter.write_error(error)
+			except: pass
+			sleep(ERROR_WAIT)
 
-		cnx.close()
+
+if __name__ == '__main__':
+	# sunrise_loop()
+	sunset_loop()

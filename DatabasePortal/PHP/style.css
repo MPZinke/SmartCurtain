@@ -9,6 +9,7 @@
 	--background_color: #363636;
 }
 
+/* PAGE */
 
 html {
 	font-family: Helvetica;
@@ -25,6 +26,8 @@ html {
 	margin: auto;
 	text-align: center;
 }
+
+/* MENU */
 
 header {
 	text-align: left;
@@ -64,80 +67,6 @@ header {
 	margin-left: 50px;
 }
 
-
-button:disabled {
-	background-color: #A0B9D0;
-	color: #525252;
-}
-
-
-.button {
-	background-color: #2196F3;
-	border-radius: 5px;
-	border: 1px;
-	color: white;
-	padding: 15px 32px;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-	font-size: 16px;
-}
-
-
-.button-danger {
-	background-color: #aa0000;
-}
-
-.button-cancel {
-	background-color: #B7B0B0;
-	color: #000000;
-}
-
-.input {
-	width: 80%;
-	border-radius: 5px;
-	border: none;
-	height: 40px;
-	text-align: center;
-}
-
-.select {
-	width: 100%;
-	border-radius: 5px;
-	border: none;
-	height: 40px;
-	text-align: center;
-	color: #FFFFFF;
-	background-color: #000000;
-}
-
-.table {
-	width: 100%;
-}
-
-.table td {
-	height: 50px;
-	text-align: center;
-}
-
-
-.v_space-20 {
-	padding-top: 20px;
-}
-
-.left {
-	float: left;
-	padding: 10px 10px;
-	margin: 10px;
-}
-
-.right {
-	float: right;
-	padding: 10px 10px;
-	margin: 5px;
-}
-
-
 #state_title {
 	padding-top: 100px;
 }
@@ -162,6 +91,98 @@ button:disabled {
 }
 
 
+/* UTILITY */
+
+.v_space-20 {
+	padding-top: 20px;
+}
+
+.left {
+	float: left;
+	padding: 10px 10px;
+	margin: 10px;
+}
+
+.right {
+	float: right;
+	padding: 10px 10px;
+	margin: 5px;
+}
+
+
+/* BLOCKS */
+
+button:disabled {
+	background-color: #A0B9D0;
+	color: #525252;
+}
+
+.button {
+	background-color: #2196F3;
+	border-radius: 5px;
+	border: 1px;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+}
+
+.input {
+	width: 80%;
+	border-radius: 5px;
+	border: none;
+	height: 40px;
+	text-align: center;
+}
+
+.select {
+	width: 100%;
+	border-radius: 5px;
+	border: none;
+	height: 40px;
+	text-align: center;
+}
+
+.size {
+	height: 100%;
+	width: 100%;
+	border-radius: 5px;
+}
+
+.table {
+	width: 100%;
+}
+
+.table td {
+	height: 50px;
+	text-align: center;
+}
+
+.alternate > tbody > tr:nth-child(odd) > td {
+	background-color: rgb(100, 100, 100);
+}
+
+
+/* THEMES */
+
+.dark {
+	color: #FFFFFF;
+	background-color: #000000;
+}
+
+.danger {
+	background-color: #aa0000;
+}
+
+.cancel {
+	background-color: #B7B0B0;
+	color: #000000;
+}
+
+
+/* SPECIAL */
 
 .window_outline {
 	background-color:#111111;
@@ -170,7 +191,6 @@ button:disabled {
 	width:70%;
 	left:15%;
 	border-radius: 5px;
-	/*border: 3px solid #000000;*/
 }
 
 

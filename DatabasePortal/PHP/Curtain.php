@@ -109,20 +109,16 @@ class Curtain
 										ORDER BY `event_time` DESC");
 
 		if($results)
-		{
 			while($row = $results->fetch_assoc()) $this->events[] = new Event($row["event_id"]);
-		}
 
 		$results = $mysqli->query(	"SELECT `event_id` FROM `events` 
 										WHERE `curtain_id` = $this->curtain_id
-										AND CURRENT_TIME < `event_time`
+										AND CURRENT_TIME > `event_time`
 										ORDER BY `event_time` DESC
 										LIMIT 50");
 
 		if($results)
-		{
 			while($row = $results->fetch_assoc()) $this->passed_events[] = new Event($row["event_id"]);
-		}
 	}
 
 

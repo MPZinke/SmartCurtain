@@ -135,10 +135,10 @@ elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["get_all_curtain_det
 // —————————————————— WEB ————————————————————
 // ————————————————————————————————————————
 
-elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["get_activation_and_position"]))
+elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["get_activation_and_percentage_position"]))
 {
-	$curtain = $_POST["get_activation_and_position"];
-	$details = get_activation_and_width($curtain);
+	$curtain = $_POST["get_activation_and_percentage_position"];
+	$details = get_activation_and_percentage_position($curtain);
 	if(!$details) echo_failed();
 	else echo json_encode($details);
 }

@@ -29,7 +29,7 @@
 				window.location = `${page}?curtain=${curtain_id}`;
 			}
 
-			function collapse_expand_div(button, div, button_text)
+			function collapse_expand_div(button, div, button_text, initiated_function)
 			{
 				if(button.innerHTML == button_text)
 				{
@@ -41,6 +41,7 @@
 					button.innerHTML = button_text;
 					$(div).hide();
 				}
+				if(initiated_function) initiated_function();
 			}
 
 			// ————————————— CURRENT STATUS —————————————
@@ -54,12 +55,12 @@
 					url: "./connections/API.php",
 					type: "POST",
 					dataType: "json",
-					data: {"get_activation_and_width" : curtain},
+					data: {"get_activation_and_percentage_position" : curtain},
 					success: function(response) {
 						if("success" in response) return;
 
 						var current_light = document.getElementById("current_light");
-						if(response["curtain_activated"])
+						if(parseInt(response["curtain_activated"]))
 						{
 							current_light.style["background-color"] = "#33FF33";
 							current_light.style.width = '100%';
@@ -68,6 +69,7 @@
 						{
 							var width = response["curtain_percent_position"];
 							current_light.style.width = `${width}%`;
+							console.log(current_light.style.width);
 							current_light.style["background-color"] = `#FFFF${Math.floor(width * 255 / 100).toString(16)}`;
 						}
 					}

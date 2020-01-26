@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS `curtains` (
 );
 
 
-INSERT INTO `curtains` (`curtain_length`, `curtain_position`, `curtain_direction`) VALUES
-('0', '0', FALSE);
+INSERT INTO `curtains` (`curtain_length`, `curtain_position`, `curtain_direction`, `curtain_name`) VALUES
+(1000, 500, FALSE, 'Office');
 
 
 
@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS `events` (
 DROP TABLE IF EXISTS `options`;
 CREATE TABLE IF NOT EXISTS `options` (
 	`curtain_id` int(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	`adafruit_feed` BOOLEAN DEFAULT FALSE,
+	`adafruit_feed_close` varchar(35) DEFAULT NULL,
+	`adafruit_feed_open` varchar(35) DEFAULT NULL,
 	`auto_calibration` BOOLEAN DEFAULT FALSE,
 	`auto_correct` BOOLEAN DEFAULT FALSE,
 	`event_predictor` BOOLEAN DEFAULT FALSE,
@@ -53,5 +54,6 @@ CREATE TABLE IF NOT EXISTS `options` (
 );
 
 
-INSERT INTO `options` (`adafruit_feed`, `auto_calibration`, `auto_correct`, `event_predictor`, `sunrise_open`, `sunset_close`) VALUES
-(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE);
+INSERT INTO `options` (`adafruit_feed_open`, `adafruit_feed_close`, `auto_calibration`, 
+		`auto_correct`, `event_predictor`, `sunrise_open`, `sunset_close`) VALUES
+(NULL, NULL, TRUE, TRUE, FALSE, FALSE, TRUE);
