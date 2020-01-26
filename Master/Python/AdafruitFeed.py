@@ -5,11 +5,16 @@ __author__ = "MPZinke"
 ###########################################################################
 #
 #	created by: MPZinke
-#	on ..
+#	on 01.25.20
 #
-#	DESCRIPTION:
-#	BUGS:
-#	FUTURE:
+#	DESCRIPTION: Google Assistant (or other) activation using MQTT client from Adafruit.
+#		Creates a client in the try-catch loop, subscribing to individual feeds from DB 
+#		`options` table.  Once a message is received, it determines what kind of an event &
+#		for what curtain it is using curtain_id_and_action_for_feed(.).  It then uses the event
+#		type information to create an event in the DB.
+#	BUGS:		-MQTTClient::connect() can fail without recording errors, but does not crash
+#				 thread
+#	FUTURE:	-Time based event creation
 #
 ###########################################################################
 
@@ -24,6 +29,7 @@ import ErrorWriter
 
 # —————————————————— UTILITY ——————————————————–
 
+# return the `curtain_id` and action type for the desired feed name
 def curtain_id_and_action_for_feed(feed_name):
 	cnx, cursor = DBFunctions.connect_to_DB()
 	feed_keys = DBFunctions.active_adafruit_feeds(cursor)
@@ -87,6 +93,7 @@ def subscribe(client, userdata, mid, granted_qos):
 
 
 
+# thread called by Master.py
 def start_client_loop():
 	while True:
 		try:

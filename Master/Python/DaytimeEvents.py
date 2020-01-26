@@ -36,6 +36,7 @@ def sunset_time():
 	return astr_object[CITY].sun(local=True)["sunset"]
 
 
+# thread called by Master.py
 def sunset_loop():
 	while True:
 		try:
@@ -51,7 +52,9 @@ def sunset_loop():
 						DBFunctions.add_event(cnx, cursor, curtain, 0, sunset)
 
 			cnx.close()
-			sleep(SUNSET_LOOP_WAIT)
+			if current_time_is_past_sleep_point(): sleep_time = time_to_next_day()
+			else: sleep_time = SUNSET_LOOP_WAIT
+			sleep(sleep_time)
 		except Exception as error:
 			try:
 				import ErrorWriter
@@ -71,6 +74,7 @@ def sunrise_time():
 	return astr_object[CITY].sun(local=True)["sunrise"]
 
 
+# thread called by Master.py
 def sunrise_loop():
 	while True:
 		try:

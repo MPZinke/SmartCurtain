@@ -5,9 +5,10 @@ __author__ = "MPZinke"
 ###########################################################################
 #
 #	created by: MPZinke
-#	on ..
+#	on 01.25.20
 #
-#	DESCRIPTION:
+#	DESCRIPTION: Defined information for user and curtain.  Additionally contains functions
+#		that are useful across multiple modules.
 #	BUGS:
 #	FUTURE:
 #
@@ -15,12 +16,10 @@ __author__ = "MPZinke"
 
 # —————————————— USER SPECIFIC EVENTS ——————————————
 
-CITY = "Dallas"
-USER_FEED_KEY = "7aad007f269d46219ac27a4b602571ce"
-USER_FEED_NAME = "MPZinke"
-ALL_CURTAIN_FEED = {"open" : "all.curtain-open", "close" : "all.curtain-close"}
-OPEN_FEED = "open-curtain"
-CLOSE_FEED = "MPZinke/feeds/office.close"
+CITY = ""
+USER_FEED_KEY = ""
+USER_FEED_NAME = ""
+ALL_CURTAIN_FEED = {"open" : "<ALL_OPEN_FEED>", "close" : "<ALL_CLOSE_FEED>"}
 
 
 # ——————————————— DAYTIME EVENTS ————————————————
@@ -51,23 +50,22 @@ CLUSTER_TIME_SPREAD = 1  # multiply by 2 for total diameter
 
 # —————————————————— RPI.GPIO ——————————————————
 
-DIRECTION_PIN = 7
-PULSE_PIN = 11
-ENABLE_PIN = 13
+# DIRECTION_PIN = 7
+# PULSE_PIN = 11
+# ENABLE_PIN = 13
 
-OPEN_STOP_PIN = 16
-CLOSED_STOP_PIN = 18
+# OPEN_STOP_PIN = 16
+# CLOSED_STOP_PIN = 18
 
-PULSE_WAIT = .0000001
+# PULSE_WAIT = .0000001
 
 
 # —————————————————— SLEEP ———————————————————
 
 ERROR_WAIT = 5
 EVENT_PREDICTOR_SLEEP = 86400
-FEED_CLIENT_CHECK_LOOP = 20
-INTERVAL_BETWEEN_MANUAL_MOVEMENT_CHECKS = 10
-MOTOR_LOOP_RUN_WAIT = 1
+# INTERVAL_BETWEEN_MANUAL_MOVEMENT_CHECKS = 10
+# MOTOR_LOOP_RUN_WAIT = 1
 SUNRISE_LOOP_WAIT = 86400
 SUNSET_LOOP_WAIT = 86400
 
@@ -86,16 +84,19 @@ CLUSTER_SPAN = 4  # number of weeks looked back on to determine applicable logs
 
 # —————————————————— OTHER ———————————————————
 
-STOPPED_PERCENT_LENIENCY = 5  # percentage of remaining steps before
+# STOPPED_PERCENT_LENIENCY = 5  # percentage of remaining steps before recalcuating
 
 
+# —————————————————— SUGAR ———————————————————
 
+# called to close and return from process in 1 line. EG
+# >>> return close_cnx_and_return(cnx)
 def close_cnx_and_return(cnx):
 	cnx.close()
 	return None
 
 
-#SUGAR: used in if statements: check if value null; if null, sleep; return truthiness
+# used in if statements: check if value null; if null, sleep; return truthiness
 def is_null_sleep_then(evalutated_value, sleep_amount=5):
 	if not evalutated_value: sleep(sleep_amount)
 	return not bool(evalutated_value)
@@ -119,6 +120,7 @@ def current_time_is_past_sleep_point():
 def event_is_not_past_current_time(event_time):
 	from datetime import datetime
 
+	# time without timezone encoding
 	naive_time = datetime(year=event_time.year, month=event_time.month, 
 								day=event_time.day, hour=event_time.hour, 
 								minute=event_time.minute, second=event_time.second)

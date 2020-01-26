@@ -7,9 +7,17 @@ __author__ = "MPZinke"
 #	created by: MPZinke
 #	on ..
 #
-#	DESCRIPTION: Function library to pull from curtain.sql to get/set values & events.
-#						`curtains` table should contain 1 entry for storing primary curtain
-#						data.
+#	DESCRIPTION: K-Means clustering is used to determine possible events for day based
+#		on events for that particular day of week for the last 4 weeks (hard coded).  Events 
+#		contain the datetime object pulled from the DB, and converts it to a decimal 
+#		representation of it for smoother calculation  A centroid is created for the ceil(average
+#		number of events for that weekdat).  This centroid then finds its surrounding event 
+#		times over 20 iterations or once all the centroid averages remain constant over 2 
+#		iterations.  Each centroid then checks if it is valid—3 events within ±30 minutes 
+#		(hardcoded) of the average.  Commented is code that will find the tightest grouping & 
+#		check that it is valid, however it is deemed as unnecessary at the moment.  If a 
+#		centroid is valid, it will average the position of each event and create a new event at
+#		that position average.
 #	BUGS:
 #	FUTURE:
 #
@@ -74,23 +82,27 @@ class Centroid:
 # —————————————— INITIALIZE VALUES —————————————————
 
 # divide events evenly into groups for each centroid
+# EG [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] => [[1, 2, 3], [4, 5, 6], [7, 8, 9, 10]]
 def initial_groups(events):
 	number_of_centroids = int(ceil(len(events) / 4))
+	if not number_of_centroids: return []  # division by 0 error prevention
 
 	initial_centroid_lists = [[] for x in range(number_of_centroids)]
 	events_per_centroid = int(len(events) / number_of_centroids)
 	last_index = 0
+	# place evenly divisible amounts into arrays EG [[1, 2, 3], [4, 5, 6]]
 	for x in range(number_of_centroids-1):
 		for y in range(x * events_per_centroid, (x + 1) * events_per_centroid):
 			initial_centroid_lists[x].append(events[y])
 			last_index = y
+	# place rest into last array EG , [7, 8, 9, 10]]
 	for x in range(last_index, len(events)):
 		initial_centroid_lists[-1].append(events[x])
 
 	return initial_centroid_lists
 
 
-# calculate averages and make centroids
+# calculate average number of events for day and make centroids
 def initialize_initial_centroids(initial_centroid_lists):
 	initial_centroids = []
 	for x in range(len(initial_centroid_lists)):
@@ -109,6 +121,7 @@ def all_events_assigned_to_correct_centroids(centroids, centroid_event_lists):
 	return all_events_are_set
 
 
+# return index of the closes centroid for a given event
 def closest_centroid_index(event, centroids):
 	closest_index = 0
 	for x in range(1, len(centroids)):
@@ -134,6 +147,7 @@ def k_means(events, initial_centroid_lists):
 
 # ———————————————— EVENT CREATION ———————————————
 
+# create event objects for predicted events using centroid time avg & ::events position avg
 def create_new_events(centroids):
 	today = datetime.today()
 	beginning_of_day = datetime(year=today.year, month=today.month, day=today.day, 
@@ -142,10 +156,12 @@ def create_new_events(centroids):
 			for centroid in centroids if centroid.is_valid()]
 
 
+# event obj list for times and positions pulled by DB
 def create_event_objects(results):
 	return [EventTime(result[0], result[1]) for result in results]
 
 
+# mathematical workhorse; creates centroids, does k-means & returns valid predicted events
 def predict_events(events):
 	initial_centroid_lists = initial_groups(events)
 	centroids = k_means(events, initial_centroid_lists)
@@ -157,6 +173,7 @@ def predict_events(events):
 
 # —————————————————— OTHER ———————————————————
 
+# sets events if all events that do not have surrounding events & not already passed
 def set_events(cnx, cursor, curtain, events):
 	for event in events:
 		if not DBFunctions.event_set_at_approximate_time(cursor, curtain, event.datetime) \
@@ -166,6 +183,7 @@ def set_events(cnx, cursor, curtain, events):
 
 # ————————————————— MAIN LOOP ——————————————————
 
+# thread called by Master.py
 def predictor_loop():
 	while True:
 		try:

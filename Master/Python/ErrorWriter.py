@@ -5,11 +5,13 @@ __author__ = "MPZinke"
 ###########################################################################
 #
 #	created by: MPZinke
-#	on ..
+#	on 01.25.20
 #
-#	DESCRIPTION:
+#	DESCRIPTION: Write an error to the specified text file.  If no function name is provided,
+#		it creates the error traceback.  Then it writes the traceback, error message, & current
+#		timestamp of the error
 #	BUGS:
-#	FUTURE:
+#	FUTURE:	-Have the outfile be a .log file
 #
 ###########################################################################
 

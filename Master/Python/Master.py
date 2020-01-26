@@ -16,12 +16,11 @@ __author__ = "MPZinke"
 #		all functions for accessing the DB shared with PHP & Slave.  Definitions.py contains
 #		global and defined data.  ErrorWriter.py is used for recording most errors to an error
 #		text log—this does not include errors that occur in the Adafruit IO abstracted thread
-#		MQTTClient::connect()
+#		MQTTClient::connect().  For future event creating threads (ie EventPredictor, Sunrise,
+#		sunset), if the event is for a time that has already passed, it does not create the event
 #	BUGS:		-MQTTClient::connect() can fail without recording errors, but does not crash
 #				 thread
-#	FUTURE:	-Make future events (ie Sunrise, Sunset, & Predicted Events) search & 
-#				 schedule to next day instead of current day.  This will prevent possibly 
-#				 missing events due to starting RPi at a late time in day.
+#	FUTURE:
 #
 ###########################################################################
 
