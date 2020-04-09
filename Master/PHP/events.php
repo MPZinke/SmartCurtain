@@ -1,6 +1,6 @@
 <?php
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/supporting/header.php');
+include_once($_SERVER['DOCUMENT_ROOT'].'/SmartCurtain/Supporting/header.php');
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["position_percentage_input"]))
 {
@@ -116,7 +116,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["position_percentage_inp
 </table>
 
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'].'/supporting/footer.php');
+include_once("$_SERVER[DOCUMENT_ROOT]/Supporting/footer.php");
 ?>
 
 <script>

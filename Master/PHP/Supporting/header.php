@@ -10,10 +10,10 @@
 	date_default_timezone_set("America/Chicago");
 
 	// ———— load page info ————
-	include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/DBConnect.php');
-	include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/DBFunctions.php');
-	include_once ($_SERVER['DOCUMENT_ROOT'].'/supporting/Curtain.php');
-	include_once ($_SERVER['DOCUMENT_ROOT'].'/supporting/Event.php');
+	include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Connections/DBConnect.php");
+	include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Connections/DBFunctions.php");
+	include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Supporting/Curtain.php");
+	include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Supporting/Event.php");
 
 	if(isset($_SESSION["message"]))
 	{
@@ -53,10 +53,10 @@
 ?>
 	<html>
 		<head>
-			<link rel="icon" href="./Media/icon.png">
+			<link rel="icon" href="<?php echo "http://$_SERVER[HTTP_HOST]/SmartCurtain/Media/icon.png"; ?>">
 			<meta name="viewport" content="width=device-width,initial-scale=1">
 			<meta name="theme-color" content="#555556"/>
-			<link rel="stylesheet" type="text/css" href="./supporting/style.css"/>
+			<link rel="stylesheet" type="text/css" href="<?php echo "http://$_SERVER[HTTP_HOST]/SmartCurtain/Supporting/style.css"; ?>"/>
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		</head>
 		<header class='header'>

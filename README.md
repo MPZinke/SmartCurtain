@@ -1,5 +1,32 @@
 
+# Smart Curtain
 This project is not yet complete.
+
+## About
+### Features
+- Immediate movement to a specified position
+- Move to a position at a specified time
+- Event predition
+- Sunrise opening and sunset closing
+- Google Assistant integration
+- Device knows if it has been manually opened
+
+### Improvements
+- End stop sensing to prevent curtain from going out of travel length
+- Position specific commands—device has knowledge of length of curtain and current position
+
+### Hardware
+- Raspberry Pi with W/LAN capabilities  (Raspberry Pi 3B+)
+- ESP-32 Arduino Dev Board
+- Stepper Motor and Controller  (Nema 17 & TB 6600)
+- 2 End Stop Sensors
+
+
+Smart Curtain is an automation of curtains to open curtains to a certain position either immediately, at a specified time, at a predicted time, at sunrise/sunset, or from a Google Assistant command.
+It a master-slave system.  The master runs using a PHP server for local network interfacing, a MySQL server for storing curtains, their states and user variables, and a python instance for automatic event creation.  The slave runs on Arduino compiles and bootloaded code. 
+
+
+
 
 Complete .stl files can be found at https://www.thingiverse.com/thing:3361474
 

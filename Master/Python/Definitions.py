@@ -16,10 +16,10 @@ __author__ = "MPZinke"
 
 # —————————————— USER SPECIFIC EVENTS ——————————————
 
-CITY = ""
-USER_FEED_KEY = ""
-USER_FEED_NAME = ""
-ALL_CURTAIN_FEED = {"open" : "<ALL_OPEN_FEED>", "close" : "<ALL_CLOSE_FEED>"}
+CITY = "Dallas"
+USER_FEED_KEY = "aio_rfaj87mCBf59F8ACxCjjRJztQ9lH"
+USER_FEED_NAME = "MPZinke"
+ALL_CURTAIN_FEED = {"open" : "all.curtain-open", "close" : "all.curtain-close"}
 
 
 # ——————————————— DAYTIME EVENTS ————————————————

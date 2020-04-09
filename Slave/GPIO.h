@@ -50,9 +50,9 @@
 		while(digitalRead(opposing_stop_pin))
 		{
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			step_count += 2;
 		}
 		return step_count;
@@ -79,17 +79,17 @@
 		while(!digitalRead(CLOSE_PIN) && !digitalRead(OPEN_PIN))
 		{
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 		}
 	}
 
@@ -118,17 +118,17 @@
 		while(digitalRead(CLOSE_PIN))
 		{
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 		}
 	}
 
@@ -139,17 +139,17 @@
 		while(digitalRead(OPEN_PIN))
 		{
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 		}
 	}
 
@@ -162,17 +162,17 @@
 		while(0 < move_steps)
 		{
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, HIGH);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
-			delay(PULSE_WAIT);
+			delayMicroseconds(PULSE_WAIT);
 			move_steps -= 3;
 			if(!digitalRead(opposing_stop_pin)) 
 				return move_steps > STEPS_FOR_CALIBRATION ? move_steps : 0;

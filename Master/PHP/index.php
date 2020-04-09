@@ -1,6 +1,6 @@
 <?php
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/supporting/header.php');
+include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Supporting/header.php");
 
 $fail_message = "Failed to set event";
 
@@ -126,5 +126,5 @@ else
 }
 
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/supporting/footer.php');
+include_once("$_SERVER[DOCUMENT_ROOT]/SmartCurtain/Supporting/footer.php");
 ?>

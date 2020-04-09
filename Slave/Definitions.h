@@ -24,7 +24,7 @@
 	#define SSID "Zinc_Home"
 	#define WIFI_PASSWORD "WelcomeToZinke123!@#"
 
-	#define REQUEST_ADDRESS "http://10.0.0.11/connections/API.php"
+	#define REQUEST_ADDRESS "http://10.0.0.11/SmartCurtain/Connections/API.php"
 
 	// ———— GPIO ————
 	#define ENABLE_PIN '\32'  // char version of int 26
@@ -43,7 +43,7 @@
 	#define HTTP_FAIL_RESPONSE_WAIT 5000
 	#define LOOP_WAIT 500
 	#define MANUAL_MOVEMENT_CHECK_WAIT 10000
-	#define PULSE_WAIT 1
+	#define PULSE_WAIT 15
 
 	// ———— OTHER ————
 	#define IGNORE_MOVEMENT_SIMILARITY 10  // max step difference to ignore event

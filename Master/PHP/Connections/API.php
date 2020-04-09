@@ -12,8 +12,8 @@
 ***********************************************************************************************************/
 
 
-include_once($_SERVER['DOCUMENT_ROOT']."/connections/DBConnect.php");
-include_once($_SERVER['DOCUMENT_ROOT']."/connections/DBFunctions.php");
+include_once($_SERVER['DOCUMENT_ROOT']."/SmartCurtain/Connections/DBConnect.php");
+include_once($_SERVER['DOCUMENT_ROOT']."/SmartCurtain/Connections/DBFunctions.php");
 
 
 // ————————————————— SLAVES ———————————————————
@@ -24,7 +24,7 @@ include_once($_SERVER['DOCUMENT_ROOT']."/connections/DBFunctions.php");
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["auto_calibration_option"]))
 {
 	$curtain = $_POST["auto_calibration_option"];
-	$details = auto_correct_option($curtain);
+	$details = auto_calibration_option($curtain);
 	echo json_encode(array("auto_calibration" => $details));
 }
 

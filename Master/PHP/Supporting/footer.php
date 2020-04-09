@@ -44,6 +44,8 @@
 				if(initiated_function) initiated_function();
 			}
 
+			console.log("<?php echo "http://$_SERVER[HTTP_HOST]"; ?>");
+
 			// ————————————— CURRENT STATUS —————————————
 
 			function refresh_activation_and_percent_position()
@@ -52,7 +54,7 @@
 
 				if(!curtain) return;
 				$.ajax({
-					url: "./connections/API.php",
+					url: "<?php echo "http://$_SERVER[HTTP_HOST]/SmartCurtain/Connections/API.php"; ?>",
 					type: "POST",
 					dataType: "json",
 					data: {"get_activation_and_percentage_position" : curtain},

@@ -78,7 +78,8 @@ void loop()
 			if(curtain_event_travels_full_span(event.event_position, details.curtain_length))
 			{
 				if(auto_calibration_option())
-					reset_curtain_length(move_to_opposite_and_calibrate_curtain(details.curtain_direction));
+					// not curtain direction because XOR used to find direction
+					reset_curtain_length(move_to_opposite_and_calibrate_curtain(!details.curtain_direction));
 				else
 				{
 					if(current_activated_pin() == CLOSE_PIN)
@@ -104,7 +105,7 @@ void loop()
 void assume_length_and_move_to_desired_position(CURTAIN_DETAILS* details, long event_position)
 {
 	char current_pin = current_activated_pin();
-	step_motor_to_location_or_end(direction(current_pin, details->curtain_direction), 
+	step_motor_to_location_or_end(direction(current_pin, details->curtain_direction),  // opposite direction
 		needed_steps(current_pin, details->curtain_length, event_position), 
 		current_pin == CLOSE_PIN ? OPEN_PIN : CLOSE_PIN);
 }
@@ -155,7 +156,7 @@ bool direction(long current_position, long event_position, bool DB_move_directio
 
 bool direction(char current_pin, bool DB_move_direction)
 {
-	(current_pin == OPEN_PIN) ^ DB_move_direction;
+	return (current_pin == OPEN_PIN) ^ DB_move_direction;
 }
 
 
