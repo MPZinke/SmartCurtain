@@ -16,9 +16,9 @@ __author__ = "MPZinke"
 
 # —————————————— USER SPECIFIC EVENTS ——————————————
 
-CITY = "Dallas"
-USER_FEED_KEY = "aio_rfaj87mCBf59F8ACxCjjRJztQ9lH"
-USER_FEED_NAME = "MPZinke"
+CITY = ""  #REQUIRED_EDIT
+USER_FEED_KEY = ""  #REQUIRED_EDIT
+USER_FEED_NAME = ""  #REQUIRED_EDIT
 ALL_CURTAIN_FEED = {"open" : "all.curtain-open", "close" : "all.curtain-close"}
 
 

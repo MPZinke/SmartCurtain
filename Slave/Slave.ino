@@ -42,12 +42,6 @@ void setup()
 	digitalWrite(LED_BUILTIN, HIGH);
 
 	delay(4000);  // delay necessary
- 
-	WiFi.begin(SSID, WIFI_PASSWORD); 
-	while(WiFi.status() != WL_CONNECTED) delay(1000);  // check connection
-
-	xTaskCreatePinnedToCore(	manual_move_loop, "Manual Move Checker", 10000, 
-									NULL, 1, &manual_move_task, 0);
 }
 
 
@@ -162,7 +156,7 @@ bool direction(char current_pin, bool DB_move_direction)
 
 long needed_steps(long current_position, long event_position)
 {
-	return abs(event_position - current_position);
+	return labs(event_position - current_position);
 }
 
 

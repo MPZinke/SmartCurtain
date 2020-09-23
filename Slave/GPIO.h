@@ -53,6 +53,10 @@
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
 			step_count += 2;
 		}
 		return step_count;

@@ -14,9 +14,6 @@
 #ifndef DB_COMMUNICATION_H
 #define DB_COMMUNICATION_H
 
-	#include<HTTPClient.h>
-
-
 	long read_next_number_from_json(const char json[], bool reset=0)
 	{
 		static char json_pos = 0;  // max string size as 255 chars
