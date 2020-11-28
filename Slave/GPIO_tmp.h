@@ -3,6 +3,12 @@
 #ifndef _GPIO_
 #define _GPIO_
 
+#include "Global.h"
+
+namespace GPIO
+{
+
+	const uint16_t PULSE_WAIT = 16;
 
 
 	// —————————————————— SUGAR —————————————————
@@ -37,6 +43,13 @@
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
 		}
+	}
+
+
+	CurtainState state()
+	{
+		if(is_open()) return OPEN;
+		if(is_closed()) return CLOSED;
 	}
 
 	// —————————————————— TRACKING ————————————————
@@ -112,5 +125,7 @@
 			delayMicroseconds(PULSE_WAIT);
 		}
 	}
+
+}  // end namespace GPIO
 
 #endif

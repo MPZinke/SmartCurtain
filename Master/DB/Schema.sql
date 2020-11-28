@@ -5,7 +5,7 @@ USE `curtain`;
 DROP TABLE IF EXISTS `Curtains`;
 CREATE TABLE IF NOT EXISTS `Curtains`
 (
-	`id` INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	`id` INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	`is_activated` BOOLEAN NOT NULL DEFAULT FALSE,
 	`direction` BOOLEAN NOT NULL DEFAULT FALSE,
 	`last_connection` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -15,15 +15,13 @@ CREATE TABLE IF NOT EXISTS `Curtains`
 );
 
 
--- TODO: rewrite
-INSERT INTO `curtains` (`curtain_length`, `curtain_position`, `curtain_direction`, `curtain_name`) VALUES
-(1000, 500, FALSE, 'Office');
+INSERT INTO `Curtains` (`length`, `name`) VALUES (1000, 'Office');
 
 
 DROP TABLE IF EXISTS `Options`;
 CREATE TABLE IF NOT EXISTS `Options`
 (
-	`id` INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	`id` INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	`description` VARCHAR(256) NOT NULL DEFAULT '',
 	`is_current` BOOLEAN NOT NULL DEFAULT TRUE,
 	`name` VARCHAR(32) NOT NULL
@@ -44,7 +42,7 @@ INSERT INTO `Options` (`name`) VALUES
 DROP TABLE IF EXISTS `CurtainsOptions`;
 CREATE TABLE IF NOT EXISTS `CurtainsOptions`
 (
-	`id` INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	`id` INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	`Curtains.id` INT NOT NULL,
 	FOREIGN KEY (`Curtains.id`) REFERENCES `Curtains`(`id`),
 	`Options.id` INT NOT NULL,
@@ -64,19 +62,6 @@ INSERT INTO `CurtainsOptions` (`Curtains.id`, `Options.id`, `is_on`) VALUES
 (1, 8, TRUE);
 
 
-DROP TABLE IF EXISTS `error_log`;
-CREATE TABLE IF NOT EXISTS `error_log`
-(
-	`error_log_key` int(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	`curtain_id` int(11) NOT NULL,
-	`curtain_position` BIGINT UNSIGNED NOT NULL,
-	`event_position` BIGINT UNSIGNED NOT NULL,
-	`error` text DEFAULT NULL,
-	`path` text DEFAULT NULL,
-	`time` datetime DEFAULT CURRENT_TIMESTAMP
-) CHARSET=utf8;
-
-
 DROP TABLE IF EXISTS `Events`;
 CREATE TABLE IF NOT EXISTS `Events`
 (
@@ -88,4 +73,19 @@ CREATE TABLE IF NOT EXISTS `Events`
 	`event_position` INT UNSIGNED NOT NULL,
 	`is_current` BOOLEAN DEFAULT TRUE,
 	`time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `Errors`;
+CREATE TABLE IF NOT EXISTS `Errors`
+(
+	`id` INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	`Curtains.id` INT NOT NULL,
+	FOREIGN KEY (`Curtains.id`) REFERENCES `Curtains`(`id`),
+	`Curtains.position` INT UNSIGNED NOT NULL,
+	`Events.id` INT UNSIGNED NOT NULL,
+	FOREIGN KEY (`Events.id`) REFERENCES `Events`(`id`),
+	`error` TEXT DEFAULT NULL,
+	`path` TEXT DEFAULT NULL,
+	`time` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) CHARSET=utf8;

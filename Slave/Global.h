@@ -26,39 +26,40 @@
 // ————————————————————————————————————————————————————— ENVIROMENT —————————————————————————————————————————————————————
 
 // ———— WAIT ————
-#define HTTP_FAIL_RESPONSE_WAIT 5000
 #define LOOP_WAIT 1024
-#define PULSE_WAIT 16
 
-
+namespace Global
+{
 // ———— OTHER ————
-#define IGNORE_MOVEMENT_SIMILARITY 10  // max step difference to ignore event
-#define WIGGLE_ROOM 5  // steps within ends to consider "end zones"
-#define STEPS_FOR_CALIBRATION 5  // how picky the program should be movement
+	const uint32_t IGNORE_MOVEMENT_SIMILARITY 10  // max step difference to ignore event
+	const uint32_t WIGGLE_ROOM 5  // steps within ends to consider "end zones"
+	const uint32_t STEPS_FOR_CALIBRATION 5  // how picky the program should be movement
+
+
+};
 
 
 // ———————————————————————————————————————————————————— CURTAIN INFO ————————————————————————————————————————————————————
 
-#define CALIBRATE 2  // bit of bool values for options in transmission. bit-and-ed with options char
-#define CORRECT 4  // bit of bool values for options in transmission. bit-and-ed with options char
-#define DIRECTION 8  // bit of bool values for options in transmission. bit-and-ed with options char
+typedef enum
+{
+	CLOSED = -1,
+	MIDDLE,
+	OPEN
+} CurtainState;
+
 
 // holds current information about curtain
-typedef struct Transmission
+typedef struct
 {
-	// options::calibrate—if the curtain has opportunity to move full span, count steps & return value
-	// options::correct—if position is unexpected, go to expected position
-	// options::direction—XOR for direction (to switch which way is open)
-	uint8_t options;  // see above :)
-	uint8_t current_position;  // the current length according to the RPi
+	uint8_t calibrate;  // if the curtain has opportunity to move full span, count steps & return value
+	uint8_t correct;  // if position is unexpected, go to expected position
+	uint8_t direction;  // XOR for direction (to switch which way is open)
+	uint32_t current_position;  // the current length according to the RPi
 	uint32_t desired_position;  // desired position according to the curtain
 	uint32_t length;  // overall length of the curtain [steps]
-} Transmission;
+} Curtain;
 
-// ——————————————————————————————————————————————————— TRANSMISSION ———————————————————————————————————————————————————
-
-#define PACKET_LENGTH 10  // if this ever changes, change Transmissions::message_length(.) to match number of digits
-#define VALID_RESPONSE_STR "HTTP/1.1 200 OK"  // initial string for valid response from device
 
 // —————————————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————————————
 
