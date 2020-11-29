@@ -219,7 +219,7 @@ namespace Curtain
 	}
 
 
-	// COULD BE WRONG.
+	// ASSUMES _desired_position WAS REACHED IF NOT AT AN END. COULD BE WRONG.
 	// Sets the location of the curtain based on GPIO if possible, other wise desired location.
 	void Curtain::set_location()
 	{
