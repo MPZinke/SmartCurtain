@@ -14,18 +14,40 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef _Transmissions_
-#define _Transmissions_
+#ifndef _Transmission_
+#define _Transmission_
 
-
+#include "assert.h"
 #include "Global.h"
 
-
-namespace Transmissions
+namespace Transmission
 {
+	void ensure_connection();
+	void post_data(String);
+	void post_data(char[]);
+	bool read_state_response_successfully_into_buffer(byte[]);
+	bool buffer_matches_string(const char[], uint8_t);
+	bool buffer_matches_string(const char[]);
+	byte buffer_mismatches_string(const char[], uint8_t);
+	byte buffer_mismatches_string(const char[]);
+	bool checksum_packet(byte[]);
+	bool clear_buffer_and_return_false();
+	bool clear_buffer_and_return_true();
+	uint8_t message_length();
+	uint64_t message_length(uint8_t);
+	bool first_line_is_invalid();
+	bool return_whether_buffer_is_empty_and_clear_it_if_not();
+	uint8_t string_length(const char[]);
 
-	const uint8_t PACKET_LENGTH = 10;  // if this ever changes, change Transmissions::message_length(.) to match number of digits
+	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
+
+	// ———— STRING LITERALS ————
+	const char CONTENT_LENGTH_CONST_CSTR[] = "Content-Length: ";
 	const char VALID_RESPONSE_STR[] = "HTTP/1.1 200 OK";  // initial string for valid response from device
+
+	// ———— ENCODING ————
+	// if PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
+	const uint8_t PACKET_LENGTH = 11;
 
 	const uint8_t OPTIONS = 0;  // location in transmission of options bits
 	const uint8_t CURRENT_LOW = 1;  // location in transmission of lower 7 bits of current known curtain position
@@ -49,50 +71,17 @@ namespace Transmissions
 	};
 
 
-	// ———————————————————————————————————————————————— READING/WRITING ————————————————————————————————————————————————
+	// —————————————————————————————————————————————————— CONNECTION ——————————————————————————————————————————————————
 
-	// Reads base128 data points from packet byte array.
-	// Takes the location of the packet array.
-	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
-	// the uint32_t number. Places segment into number. Stores numbers into Transmision struct.
-	// Returns Transmission struct of decoded data.
-	Curtain decode_response()
+	// Checks whether server is connected.
+	// If not, continually tries to connect to server.
+	void ensure_connection()
 	{
-		Curtain curtain = {0, 0, 0, 0, 0, 0};
-		curtain.calibrate = PACKET_BUFFER[OPTIONS] & CALIBRATE;
-		curtain.correct = PACKET_BUFFER[OPTIONS] & CORRECT;
-		curtain.direction = PACKET_BUFFER[OPTIONS] & DIRECTION;
-
-		curtain.current_position =	PACKET_BUFFER[CURRENT_UP] - 1 << 14
-									  | PACKET_BUFFER[CURRENT_MID] - 1 << 7
-									  | PACKET_BUFFER[CURRENT_LOW] - 1;
-
-		curtain.desired_position =	(PACKET_BUFFER[DESIRED_UP] - 1 << 14)
-									  | (PACKET_BUFFER[DESIRED_MID] - 1 << 7)
-									  | PACKET_BUFFER[DESIRED_LOW] - 1;
-
-		curtain.length =	(PACKET_BUFFER[LENGTH_UP] - 1 << 14)
-							  | (PACKET_BUFFER[LENGTH_MID] - 1 << 7)
-							  | PACKET_BUFFER[LENGTH_LOW] - 1;
-
-		return curtain;
-	}
-
-
-	// Writes relevent datat to packet array.
-	// Takes location of packet array, the location of curtain (to prevent needing to copy).
-	// Sets current position and length in base 128 + 1 equivalent values.
-	void encode_curtain(Curtain& curtain)
-	{
-		for(int x = 0; x < PACKET_LENGTH; x++) PACKET_BUFFER[x] = 1;  // reset PACKET_BUFFER
-
-		PACKET_BUFFER[CURRENT_LOW] = (curtain.current_position & 0x7F) + 1;
-		PACKET_BUFFER[CURRENT_MID] = (curtain.current_position >> 7 & 0x7F) + 1;
-		PACKET_BUFFER[CURRENT_UP] = (curtain.current_position >> 14 & 0x7F) + 1;
-
-		PACKET_BUFFER[LENGTH_LOW] = (curtain.length & 0x7F) + 1;
-		PACKET_BUFFER[LENGTH_MID] = (curtain.length >> 7 & 0x7F) + 1;
-		PACKET_BUFFER[LENGTH_UP] = (curtain.length >> 14 & 0x7F) + 1;
+		while(!Global::client.connected()) 
+		{
+			delay(1000);
+			Global::client.connect(Global::server, 80);
+		}
 	}
 
 
@@ -108,18 +97,24 @@ namespace Transmissions
 
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
+	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
 	void post_data(char data[])
 	{
 		ensure_connection();
 
-		CLIENT.println("POST " PAGE " HTTP/1.1");
-		CLIENT.println("Host: " MASTER_HOST_STR);
-		CLIENT.println("Content-Type: application/x-www-form-urlencoded");
-		CLIENT.print("Content-Length: ");
-		CLIENT.println(string_length(data));
-		CLIENT.println();
-		CLIENT.print(data);
-		CLIENT.println();
+		Global::client.print("POST ");
+		Global::client.print(User::page);
+		Global::client.println(" HTTP/1.1");
+
+		Global::client.print("Host: ");
+		Global::client.println(User::master_host_cstr);
+
+		Global::client.println("Content-Type: application/x-www-form-urlencoded");
+		Global::client.print("Content-Length: ");
+		Global::client.println(string_length(data));
+		Global::client.println();
+		Global::client.print(data);
+		Global::client.println();
 	}
 
 
@@ -127,9 +122,9 @@ namespace Transmissions
 	// Takes pointer to the buffer where the scraped data will be stored.
 	// Checks that the data transmission is of the correct format.
 	// Returns true if valid. 
-	bool read_state_response_successfully_into_buffer()
+	bool read_state_response_successfully_into_buffer(byte packet_buffer[])
 	{
-		while(!CLIENT.available());  // wait for reponse
+		while(!Global::client.available());  // wait for reponse
 		if(first_line_is_invalid()) return clear_buffer_and_return_false();
 		// ignore header info and get content length
 		if(message_length() != PACKET_LENGTH) return clear_buffer_and_return_false();
@@ -140,14 +135,13 @@ namespace Transmissions
 		//  Therefore, for a valid packet, there should be 2 new lines then the message.
 
 		// while not two consecutive new-lines, ignore left-over headers if able to
-		while(CLIENT.available() >= 2 && (CLIENT.read() != '\n' || CLIENT.read() != '\n'));
-		if(CLIENT.available() != PACKET_LENGTH) return false;
+		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
+		if(Global::client.available() != PACKET_LENGTH) return false;
 
-		CLIENT.read(PACKET_BUFFER, PACKET_LENGTH);  // get packet (finally)
+		Global::client.read(packet_buffer, PACKET_LENGTH);  // get packet (finally)
 
 		return return_whether_buffer_is_empty_and_clear_it_if_not();  // should always be true, but let's be prudent :D
 	}
-
 
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
@@ -156,15 +150,12 @@ namespace Transmissions
 	// Read in buffer at current position and compare to string.
 	// Takes a C string to compare read data with, the length of said string.
 	// Iterates through C-string, checking that each byte matches.
-	// Returns true string matches buffer, false otherwise.
-	bool buffer_matches_string(byte compare_string[], uint8_t string_length)
+	// Returns true if string matches buffer, false otherwise.
+	bool buffer_matches_string(const char compare_string[], uint8_t length)
 	{
-		if(CLIENT.available() < string_length) return false;  // not != b/c might want to pull more data after match
-		for(uint8_t x = 0; x < string_length; x++)
-		{
-			previous = CLIENT.read();
-			if(compare_string[x] != previous) return false;
-		}
+		if(Global::client.available() < length) return false;  // not != b/c might want to pull more after match
+		for(uint8_t x = 0; x < length; x++) if(compare_string[x] != Global::client.read()) return false;
+
 		return true;
 	}
 
@@ -173,8 +164,8 @@ namespace Transmissions
 	// Read in buffer at current position and compare to string.
 	// Takes a C string to compare read data with.
 	// Determines the length of the string. Iterates through C-string, checking that each byte matches.
-	// Returns true string matches buffer, false otherwise.
-	bool buffer_matches_string(byte compare_string[])
+	// Returns true if string matches buffer, false otherwise.
+	bool buffer_matches_string(const char compare_string[])
 	{
 		return buffer_matches_string(compare_string, string_length(compare_string));
 	}
@@ -186,15 +177,16 @@ namespace Transmissions
 	// Iterates through C-string, checking that each byte matches.
 	// Returns NULL (no mismatch) if the string matches the buffer, ELSE the last seen character, if mismatch or 1 if 
 	// read is unavailable.
-	byte buffer_mismatches_string(byte compare_string[], uint8_t string_length)
+	byte buffer_mismatches_string(const char compare_string[], uint8_t length)
 	{
 		uint8_t x;
-		for(x = 0; CLIENT.available() && x < string_length; x++)
+		byte previous;
+		for(x = 0; Global::client.available() && x < length; x++)
 		{
-			previous = CLIENT.read();
+			previous = Global::client.read();
 			if(compare_string[x] != previous) return previous;
 		}
-		return x != string_length;  // return NULL if x is the length of string, 1 if x is not length of string
+		return x != length;  // return NULL if x is the length of string, 1 if x is not length of string
 	}
 
 
@@ -204,7 +196,7 @@ namespace Transmissions
 	// Determines the length of the string. Iterates through C-string, checking that each byte matches.
 	// Returns NULL (no mismatch) if the string matches the buffer, ELSE the last seen character, if mismatch or 1 if
 	// read is unavailable.
-	byte buffer_mismatches_string(byte compare_string[])
+	byte buffer_mismatches_string(const char compare_string[])
 	{
 		return buffer_mismatches_string(compare_string, string_length(compare_string));
 	}
@@ -214,11 +206,11 @@ namespace Transmissions
 	// Takes the location of the packet_array.
 	// Iterates string (except the last one), X-ORing each byte with the previous ones.
 	// Returns whether calculated and sent checksums match.
-	bool checksum_packet()
+	bool checksum_packet(byte packet_buffer[])
 	{
 		byte checksum = 0;
-		for(uint8_t x = 0; x < PACKET_LENGTH-1; x++) checksum ^= PACKET_BUFFER[x];
-		return checksum == PACKET_BUFFER[CHECKSUM];
+		for(uint8_t x = 0; x < PACKET_LENGTH-1; x++) checksum ^= packet_buffer[x];
+		return checksum == packet_buffer[CHECKSUM];
 	}
 
 
@@ -227,7 +219,7 @@ namespace Transmissions
 	// Returns false (so that calling function can return it (and false)).
 	bool clear_buffer_and_return_false()
 	{
-		while(CLIENT.available()) CLIENT.read();
+		while(Global::client.available()) Global::client.read();
 		return false;
 	}
 
@@ -237,7 +229,7 @@ namespace Transmissions
 	// Returns true (so that calling function can return it (and true)).
 	bool clear_buffer_and_return_true()
 	{
-		while(CLIENT.available()) CLIENT.read();
+		while(Global::client.available()) Global::client.read();
 		return true;
 	}
 
@@ -249,13 +241,14 @@ namespace Transmissions
 	// Returns length of the message if parsed properly, otherwise 0.
 	uint8_t message_length()
 	{
-		while(CLIENT.available() && buffer_mismatches_string("Content-Length: "));  // skip while not at right part
+		// skip while at wrong part
+		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
-		byte number_buffer[3] = {0, 0, 0};  // zero out for arbitrary number between [0, 99]
+		char number_buffer[3] = {0, 0, 0};  // zero out for arbitrary number between [0, 99]
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
-		for(uint8_t x = 0; x < 2 && (x == 0 || number_buffer[x-1] != '\n') && CLIENT.available(); x++)
+		for(uint8_t x = 0; x < 2 && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
 		{
-			number_buffer[x] = CLIENT.read();
+			number_buffer[x] = Global::client.read();
 		}
 		return atoi(number_buffer);
 	}
@@ -269,31 +262,17 @@ namespace Transmissions
 	uint64_t message_length(uint8_t max_digits)
 	{
 		assert(max_digits <= 20);  // number of base-10 digits for a uint64_t
-		while(CLIENT.available() && buffer_mismatches_string("Content-Length: "));  // skip while not at right part
+		// skip while at wrong part
+		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
 		// zero out for arbitrary number between [0, 10^max_digits]
-		byte* number_buffer = calloc(max_digits+1, sizeof(byte));
+		char* number_buffer = (char*)calloc(max_digits+1, sizeof(char));
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
-		for(uint8_t x = 0; x < max_digits && (x == 0 || number_buffer[x-1] != '\n') && CLIENT.available(); x++)
+		for(uint8_t x = 0; x < max_digits && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
 		{
-			number_buffer[x] = CLIENT.read();
+			number_buffer[x] = Global::client.read();
 		}
 		return atoi(number_buffer);
-	}
-
-
-	// Checks whether server is connected.
-	// If not, continually tries to connect to server.
-	void ensure_connection()
-	{
-		while(!CLIENT.connected()) 
-		{
-			#ifdef _TESTING_
-				Serial.println(DEF(__LINE__) "No connection");
-			#endif
-			delay(1000);
-			CLIENT.connect(SERVER, 80);
-		}
 	}
 
 
@@ -302,7 +281,7 @@ namespace Transmissions
 	// Returns if they do not match.
 	bool first_line_is_invalid()
 	{
-		return buffer_matches_string(VALID_RESPONSE_STR, sizeof(VALID_RESPONSE_STR)-1);
+		return buffer_matches_string(VALID_RESPONSE_STR, string_length(VALID_RESPONSE_STR));
 	}
 
 
@@ -310,7 +289,7 @@ namespace Transmissions
 	// Returns true if buffer is empty, else false if not empty.
 	bool return_whether_buffer_is_empty_and_clear_it_if_not()
 	{
-		if(!CLIENT.available()) return true;
+		if(!Global::client.available()) return true;
 		return clear_buffer_and_return_false();
 	}
 
@@ -320,7 +299,7 @@ namespace Transmissions
 	// Takes a byte array (that is hopefully Null Terminated).
 	// Iterates array until Null terminator is found or max length is reached.
 	// Return length of string (or max uint8_t).
-	uint8_t string_length(byte string)
+	uint8_t string_length(const char string[])
 	{
 		uint8_t length = 255;
 		while(length && string[255-length]) length--;

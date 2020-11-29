@@ -14,56 +14,82 @@
 #ifndef _GLOBAL_
 #define _GLOBAL_
 
-// ———————————————————————————————————————————————————————— USER ————————————————————————————————————————————————————————
+#include "User.h"
 
-#define CURTAIN_NUMBER 1  //EDIT
-#define MASTER_HOST_ARRAY 10,0,0,11
-#define MASTER_HOST_STR "10.0.0.11"
-#define PAGE /test.php
+// —————————————————————————————————————————————————————— CURTAIN ——————————————————————————————————————————————————————
 
-#define CURTAIN_MAC {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31}  // {'Z', 'C', 'R', 'T', 'N', '1'}
+namespace Curtain  // also exists in Curtain.h
+{
+	// ———————————————————————————————————————————————— CURTAIN: TYPES ————————————————————————————————————————————————
 
-// ————————————————————————————————————————————————————— ENVIROMENT —————————————————————————————————————————————————————
+	typedef enum
+	{
+		CLOSED = -1,
+		MIDDLE,
+		OPEN
+	} CurtainState;
 
-// ———— WAIT ————
-#define LOOP_WAIT 1024
+
+	// here declare for GPIO.h functions, since GPIO.h is called in Curtain.h (and thus exists before it)
+	class Curtain
+	{
+		private:
+			// if the curtain has opportunity to move full span, count steps & return value
+			// if position is unexpected, go to expected position
+			// XOR for direction (to switch which way is open)
+			byte _options;  // see above
+			uint32_t _current_position;  // the current length according to the RPi
+			uint32_t _desired_position;  // desired position according to the curtain
+			uint32_t _length;  // overall length of the curtain [steps]
+
+		public:
+			Curtain(byte[]);
+			void encode(byte[]);
+
+			// —————————————— GETTERS: ATTRIBUTES ——————————————
+			bool calibrate();
+			bool correct();
+			bool direction();
+
+			uint32_t current_position();
+			uint32_t desired_position();
+			uint32_t length();
+
+			// —————————————— GETTERS: DATA ——————————————
+			bool event_moves_to_an_end();
+			bool moves_full_span();
+			bool should_calibrate_across();
+			CurtainState state_of_current_position();
+			CurtainState state_of_desired_position();
+
+			// —————————————— SETTERS: ATTRIBUTES ——————————————
+			void current_position(uint32_t);
+			void desired_position(uint32_t);
+			void length(uint32_t);
+
+			// —————————————— SETTERS: DATA ——————————————
+			void set_current_position_if_does_not_match_sensors();
+			void set_location();
+	};
+}
+
+
+// —————————————————————————————————————————————————————— GLOBAL ——————————————————————————————————————————————————————
 
 namespace Global
 {
-// ———— OTHER ————
-	const uint32_t IGNORE_MOVEMENT_SIMILARITY 10  // max step difference to ignore event
-	const uint32_t WIGGLE_ROOM 5  // steps within ends to consider "end zones"
-	const uint32_t STEPS_FOR_CALIBRATION 5  // how picky the program should be movement
+	const uint32_t ignore_movement_similarity = 10;  // max step difference to ignore event
+	const uint32_t wiggle_room = 5;  // steps within ends to consider "end zones"
+	const uint32_t steps_for_calibration = 5;  // how picky the program should be movement
 
 
-};
-
-
-// ———————————————————————————————————————————————————— CURTAIN INFO ————————————————————————————————————————————————————
-
-typedef enum
-{
-	CLOSED = -1,
-	MIDDLE,
-	OPEN
-} CurtainState;
-
-
-// holds current information about curtain
-typedef struct
-{
-	uint8_t calibrate;  // if the curtain has opportunity to move full span, count steps & return value
-	uint8_t correct;  // if position is unexpected, go to expected position
-	uint8_t direction;  // XOR for direction (to switch which way is open)
-	uint32_t current_position;  // the current length according to the RPi
-	uint32_t desired_position;  // desired position according to the curtain
-	uint32_t length;  // overall length of the curtain [steps]
-} Curtain;
+	IPAddress server(User::master_host[0], User::master_host[1], User::master_host[2], User::master_host[3]);
+	EthernetClient client;  // the magician
+}
 
 
 // —————————————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————————————
 
-// ———— CONCAT STRING TO CURTAIN_NUMBER ———— 
-#define DEF(x) #x
+#define DEF(x) #x  // convert a define into a string
 
 #endif
