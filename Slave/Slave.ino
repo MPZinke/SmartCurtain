@@ -50,29 +50,24 @@ void loop()
 	GPIO::disable_motor();  // don't burn up the motor
 
 	byte packet_buffer[Transmission::PACKET_LENGTH];
+	//TODO: un-hardcode "curtain=" & post current pins
 	Transmission::post_data(String("curtain=") + User::curtain_number);
 	if(Transmission::read_state_response_successfully_into_buffer(packet_buffer))
 	{
 		Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
 
+		if(!curtain.event_moves_to_an_end()) GPIO::move(curtain);
 		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
 		// ing or closing curtain.
-		// Also does not take into account if current == current.  It can be 'move 0' or ignored by Master.
-		if(curtain.event_moves_to_an_end())
+		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+		else
 		{
 			if(curtain.should_calibrate_across()) curtain.length(GPIO::calibrate_to_opposite(curtain.direction()));
 			else if(curtain.state_of_desired_position() == Curtain::OPEN) GPIO::move_until_open(curtain.direction());
 			else GPIO::move_until_closed(curtain.direction());
 		}
-		else if(!GPIO::move(curtain, true))
-		{
-			// failed to move correctly: set location to GPIO::state()
-		}
 		curtain.set_location();
 	}
-	else
-	{
 
-	}
 	Global::client.stop();
 }
