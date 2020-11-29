@@ -20,6 +20,10 @@
 
 namespace Curtain
 {
+	bool is_approximate_position(uint32_t, uint32_t);
+	bool is_approximate_position(uint32_t, uint32_t, uint32_t);
+	CurtainState approximate_state_of(uint32_t, uint32_t);
+	CurtainState state_of(uint32_t, uint32_t);
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
 
@@ -63,50 +67,6 @@ namespace Curtain
 	}
 
 
-	// ————————————————————————————————————————————————————— CLASS —————————————————————————————————————————————————————
-	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-	class Curtain
-	{
-		private:
-			// if the curtain has opportunity to move full span, count steps & return value
-			// if position is unexpected, go to expected position
-			// XOR for direction (to switch which way is open)
-			byte _options;  // see above
-			uint32_t _current_position;  // the current length according to the RPi
-			uint32_t _desired_position;  // desired position according to the curtain
-			uint32_t _length;  // overall length of the curtain [steps]
-
-		public:
-			Curtain(byte[]);
-
-
-			// —————————————— GETTERS: ATTRIBUTES ——————————————
-			bool calibrate();
-			bool correct();
-			bool direction();
-
-			uint32_t current_position();
-			uint32_t desired_position();
-			uint32_t length();
-
-			// —————————————— GETTERS: DATA ——————————————
-			bool event_moves_to_end();
-			bool moves_full_span();
-			CurtainState state_of_current_position();
-			CurtainState state_of_desired_position();
-
-			// —————————————— SETTERS: ATTRIBUTES ——————————————
-			void current_position(uint32_t);
-			void desired_position(uint32_t);
-			void length(uint32_t);
-
-			// —————————————— SETTERS: DATA ——————————————
-			void set_current_position_if_does_not_match_sensors();
-			void set_location();
-	};
-
-
 	// Reads base128 data points from packet byte array.
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
@@ -114,17 +74,18 @@ namespace Curtain
 	Curtain::Curtain(byte packet_buffer[])
 	{
 		_options = packet_buffer[Transmission::OPTIONS];
-		_current_position = packet_buffer[Transmission::CURRENT_UP] - 1 << 14
-							  | packet_buffer[Transmission::CURRENT_MID] - 1 << 7
-							  | packet_buffer[Transmission::CURRENT_LOW] - 1;
+		// parens not needed (precedence) but used to remove warnings
+		_current_position = ((packet_buffer[Transmission::CURRENT_UP] - 1) << 14)
+							  | ((packet_buffer[Transmission::CURRENT_MID] - 1) << 7)
+							  | ((packet_buffer[Transmission::CURRENT_LOW] - 1));
 
-		_desired_position =	(packet_buffer[Transmission::DESIRED_UP] - 1 << 14)
-							  | (packet_buffer[Transmission::DESIRED_MID] - 1 << 7)
-							  | packet_buffer[Transmission::DESIRED_LOW] - 1;
+		_desired_position =	((packet_buffer[Transmission::DESIRED_UP] - 1) << 14)
+							  | ((packet_buffer[Transmission::DESIRED_MID] - 1) << 7)
+							  | (packet_buffer[Transmission::DESIRED_LOW] - 1);
 
-		_length =	(packet_buffer[Transmission::LENGTH_UP] - 1 << 14)
-					  | (packet_buffer[Transmission::LENGTH_MID] - 1 << 7)
-					  | packet_buffer[Transmission::LENGTH_LOW] - 1;
+		_length =	((packet_buffer[Transmission::LENGTH_UP] - 1) << 14)
+					  | ((packet_buffer[Transmission::LENGTH_MID] - 1) << 7)
+					  | (packet_buffer[Transmission::LENGTH_LOW] - 1);
 	}
 
 
@@ -135,13 +96,13 @@ namespace Curtain
 	{
 		for(int x = 0; x < Transmission::PACKET_LENGTH; x++) packet_buffer[x] = 1;  // reset packet_buffer
 
-		packet_buffer[Transmission::CURRENT_LOW] = (curtain.current_position & 0x7F) + 1;
-		packet_buffer[Transmission::CURRENT_MID] = (curtain.current_position >> 7 & 0x7F) + 1;
-		packet_buffer[Transmission::CURRENT_UP] = (curtain.current_position >> 14 & 0x7F) + 1;
+		packet_buffer[Transmission::CURRENT_LOW] = (_current_position & 0x7F) + 1;
+		packet_buffer[Transmission::CURRENT_MID] = (_current_position >> 7 & 0x7F) + 1;
+		packet_buffer[Transmission::CURRENT_UP] = (_current_position >> 14 & 0x7F) + 1;
 
-		packet_buffer[Transmission::LENGTH_LOW] = (curtain.length & 0x7F) + 1;
-		packet_buffer[Transmission::LENGTH_MID] = (curtain.length >> 7 & 0x7F) + 1;
-		packet_buffer[Transmission::LENGTH_UP] = (curtain.length >> 14 & 0x7F) + 1;
+		packet_buffer[Transmission::LENGTH_LOW] = (_length & 0x7F) + 1;
+		packet_buffer[Transmission::LENGTH_MID] = (_length >> 7 & 0x7F) + 1;
+		packet_buffer[Transmission::LENGTH_UP] = (_length >> 14 & 0x7F) + 1;
 	}
 
 
@@ -149,19 +110,19 @@ namespace Curtain
 
 	bool Curtain::calibrate()
 	{
-		return _options & Transmission::calibrate;
+		return (_options & Transmission::CALIBRATE) > 0;  // parens not needed (precedence) but used to remove warnings
 	}
 
 
 	bool Curtain::correct()
 	{
-		return _options & Transmission::correct;
+		return (_options & Transmission::CORRECT) > 0;  // parens not needed (precedence) but used to remove warnings
 	}
 
 
 	bool Curtain::direction()
 	{
-		return _options & Transmission::direction;
+		return (_options & Transmission::DIRECTION) > 0;  // parens not needed (precedence) but used to remove warnings
 	}
 
 
@@ -185,7 +146,7 @@ namespace Curtain
 
 	// ————————————————————————————————————————————— CLASS::GETTERS: DATA —————————————————————————————————————————————
 
-	bool Curtain::event_moves_to_end()
+	bool Curtain::event_moves_to_an_end()
 	{
 		return _desired_position == 0 || _desired_position == _length;
 	}
@@ -198,7 +159,8 @@ namespace Curtain
 	{
 		CurtainState curtian_state = GPIO::state();
 		CurtainState desired_state = state_of(_desired_position, _length);
-		return curtian_state == CLOSED && desired_state == OPEN || curtian_state == OPEN && desired_state == CLOSED;
+		// parens not needed (precedence) but used to remove warnings
+		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
 	}
 
 
@@ -225,9 +187,24 @@ namespace Curtain
 
 	// —————————————————————————————————————————— CLASS::SETTERS: ATTRIBUTES ——————————————————————————————————————————
 
-	void current_position(uint32_t);
-	void desired_position(uint32_t);
-	void length(uint32_t);
+	void Curtain::current_position(uint32_t current_position)
+	{
+		_current_position = current_position;	
+	}
+
+
+	void Curtain::desired_position(uint32_t desired_position)
+	{
+		_desired_position = desired_position;	
+	}
+
+
+	void Curtain::length(uint32_t length)
+	{
+		_length = length;	
+	}
+
+
 
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
 

@@ -17,6 +17,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+#include "Curtain.h"
 #include "Global.h"
 #include "GPIO.h"
 #include "Transmission.h"
@@ -26,29 +27,30 @@
 void setup()
 {
 	// ———— GPIO SETUP ————
-	pinMode(CLOSE_PIN, INPUT);
-	pinMode(OPEN_PIN, INPUT);
-	pinMode(DIRECTION_PIN, OUTPUT);
-	pinMode(ENABLE_PIN, OUTPUT);
-	pinMode(PULSE_PIN, OUTPUT);
+	pinMode(GPIO::CLOSE_PIN, INPUT);  // now analog, technically do not need
+	pinMode(GPIO::OPEN_PIN, INPUT);  // now analog, technically do not need
+	pinMode(GPIO::DIRECTION_PIN, OUTPUT);
+	pinMode(GPIO::ENABLE_PIN, OUTPUT);
+	pinMode(GPIO::PULSE_PIN, OUTPUT);
 
-	disable_motor();  // don't burn up the motor
+	GPIO::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
 	// ethernet setup
 	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
-	while(!Ethernet.begin(User::curtain_mac)) delay(1000);  // wait while not connected to LAN
+	while(!Ethernet.begin((uint8_t*)User::curtain_mac)) delay(1000);  // wait while not connected to LAN
 	while(!Global::client.connect(Global::server, 80)) delay(1000);  // wait while not connected to device
 
-	delay(LOOP_WAIT);
+	delay(User::loop_wait);
 }
 
 
 void loop()
 {
-	btye packet_buffer[Transmission::PACKET_LENGTH];
+	GPIO::disable_motor();  // don't burn up the motor
 
-	Transmission::post_data("curtain=" User::curtain_number);
+	byte packet_buffer[Transmission::PACKET_LENGTH];
+	Transmission::post_data(String("curtain=") + User::curtain_number);
 	if(Transmission::read_state_response_successfully_into_buffer(packet_buffer))
 	{
 		Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
@@ -56,19 +58,15 @@ void loop()
 		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
 		// ing or closing curtain.
 		// Also does not take into account if current == current.  It can be 'move 0' or ignored by Master.
-		if(event_moves_to_an_end(curtain))
+		if(curtain.event_moves_to_an_end())
 		{
 			if(curtain.should_calibrate_across()) curtain.length(GPIO::calibrate_to_opposite(curtain.direction()));
-			else if(curtain.state_of_desired_position() == OPEN) GPIO::move_until_open(curtain.direction);
-			else GPIO::move_until_closed(curtain.direction);
+			else if(curtain.state_of_desired_position() == Curtain::OPEN) GPIO::move_until_open(curtain.direction());
+			else GPIO::move_until_closed(curtain.direction());
 		}
-		else if(curtain.correct && !GPIO::move(curtain))
+		else if(!GPIO::move(curtain, true))
 		{
-
-		}
-		else
-		{
-
+			// failed to move correctly: set location to GPIO::state()
 		}
 		curtain.set_location();
 	}

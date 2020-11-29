@@ -17,6 +17,7 @@
 #ifndef _Transmission_
 #define _Transmission_
 
+#include "assert.h"
 #include "Global.h"
 
 namespace Transmission
@@ -25,10 +26,10 @@ namespace Transmission
 	void post_data(String);
 	void post_data(char[]);
 	bool read_state_response_successfully_into_buffer(byte[]);
-	bool buffer_matches_string(byte[], uint8_t);
-	bool buffer_matches_string(byte[]);
-	byte buffer_mismatches_string(byte[], uint8_t);
-	byte buffer_mismatches_string(byte[]);
+	bool buffer_matches_string(const char[], uint8_t);
+	bool buffer_matches_string(const char[]);
+	byte buffer_mismatches_string(const char[], uint8_t);
+	byte buffer_mismatches_string(const char[]);
 	bool checksum_packet(byte[]);
 	bool clear_buffer_and_return_false();
 	bool clear_buffer_and_return_true();
@@ -36,14 +37,18 @@ namespace Transmission
 	uint64_t message_length(uint8_t);
 	bool first_line_is_invalid();
 	bool return_whether_buffer_is_empty_and_clear_it_if_not();
-	uint8_t string_length(byte[]);
+	uint8_t string_length(const char[]);
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
 
 	// if PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
 	const uint8_t PACKET_LENGTH = 11;
+
+	// ———— STRING LITERALS ————
+	const char CONTENT_LENGTH_CONST_CSTR[] = "Content-Length: ";
 	const char VALID_RESPONSE_STR[] = "HTTP/1.1 200 OK";  // initial string for valid response from device
 
+	// ———— ENCODING ————
 	const uint8_t OPTIONS = 0;  // location in transmission of options bits
 	const uint8_t CURRENT_LOW = 1;  // location in transmission of lower 7 bits of current known curtain position
 	const uint8_t CURRENT_MID = 2;  // location in transmission of middle 7 bits of current known curtain position
@@ -92,12 +97,18 @@ namespace Transmission
 
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
+	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
 	void post_data(char data[])
 	{
 		ensure_connection();
 
-		Global::client.println("POST " User::page " HTTP/1.1");
-		Global::client.println("Host: " User::master_host_str);
+		Global::client.print("POST ");
+		Global::client.print(User::page);
+		Global::client.println(" HTTP/1.1");
+
+		Global::client.print("Host: ");
+		Global::client.println(User::master_host_cstr);
+
 		Global::client.println("Content-Type: application/x-www-form-urlencoded");
 		Global::client.print("Content-Length: ");
 		Global::client.println(string_length(data));
@@ -139,15 +150,12 @@ namespace Transmission
 	// Read in buffer at current position and compare to string.
 	// Takes a C string to compare read data with, the length of said string.
 	// Iterates through C-string, checking that each byte matches.
-	// Returns true string matches buffer, false otherwise.
-	bool buffer_matches_string(byte compare_string[], uint8_t string_length)
+	// Returns true if string matches buffer, false otherwise.
+	bool buffer_matches_string(const char compare_string[], uint8_t length)
 	{
-		if(Global::client.available() < string_length) return false;  // not != b/c might want to pull more data after match
-		for(uint8_t x = 0; x < string_length; x++)
-		{
-			previous = Global::client.read();
-			if(compare_string[x] != previous) return false;
-		}
+		if(Global::client.available() < length) return false;  // not != b/c might want to pull more after match
+		for(uint8_t x = 0; x < length; x++) if(compare_string[x] != Global::client.read()) return false;
+
 		return true;
 	}
 
@@ -156,8 +164,8 @@ namespace Transmission
 	// Read in buffer at current position and compare to string.
 	// Takes a C string to compare read data with.
 	// Determines the length of the string. Iterates through C-string, checking that each byte matches.
-	// Returns true string matches buffer, false otherwise.
-	bool buffer_matches_string(byte compare_string[])
+	// Returns true if string matches buffer, false otherwise.
+	bool buffer_matches_string(const char compare_string[])
 	{
 		return buffer_matches_string(compare_string, string_length(compare_string));
 	}
@@ -169,15 +177,16 @@ namespace Transmission
 	// Iterates through C-string, checking that each byte matches.
 	// Returns NULL (no mismatch) if the string matches the buffer, ELSE the last seen character, if mismatch or 1 if 
 	// read is unavailable.
-	byte buffer_mismatches_string(byte compare_string[], uint8_t string_length)
+	byte buffer_mismatches_string(const char compare_string[], uint8_t length)
 	{
 		uint8_t x;
-		for(x = 0; Global::client.available() && x < string_length; x++)
+		byte previous;
+		for(x = 0; Global::client.available() && x < length; x++)
 		{
 			previous = Global::client.read();
 			if(compare_string[x] != previous) return previous;
 		}
-		return x != string_length;  // return NULL if x is the length of string, 1 if x is not length of string
+		return x != length;  // return NULL if x is the length of string, 1 if x is not length of string
 	}
 
 
@@ -187,7 +196,7 @@ namespace Transmission
 	// Determines the length of the string. Iterates through C-string, checking that each byte matches.
 	// Returns NULL (no mismatch) if the string matches the buffer, ELSE the last seen character, if mismatch or 1 if
 	// read is unavailable.
-	byte buffer_mismatches_string(byte compare_string[])
+	byte buffer_mismatches_string(const char compare_string[])
 	{
 		return buffer_mismatches_string(compare_string, string_length(compare_string));
 	}
@@ -232,9 +241,10 @@ namespace Transmission
 	// Returns length of the message if parsed properly, otherwise 0.
 	uint8_t message_length()
 	{
-		while(Global::client.available() && buffer_mismatches_string("Content-Length: "));  // skip while at wrong part
+		// skip while at wrong part
+		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
-		byte number_buffer[3] = {0, 0, 0};  // zero out for arbitrary number between [0, 99]
+		char number_buffer[3] = {0, 0, 0};  // zero out for arbitrary number between [0, 99]
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
 		for(uint8_t x = 0; x < 2 && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
 		{
@@ -252,10 +262,11 @@ namespace Transmission
 	uint64_t message_length(uint8_t max_digits)
 	{
 		assert(max_digits <= 20);  // number of base-10 digits for a uint64_t
-		while(Global::client.available() && buffer_mismatches_string("Content-Length: "));  // skip while at wrong part
+		// skip while at wrong part
+		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
 		// zero out for arbitrary number between [0, 10^max_digits]
-		byte* number_buffer = calloc(max_digits+1, sizeof(byte));
+		char* number_buffer = (char*)calloc(max_digits+1, sizeof(char));
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
 		for(uint8_t x = 0; x < max_digits && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
 		{
@@ -270,7 +281,7 @@ namespace Transmission
 	// Returns if they do not match.
 	bool first_line_is_invalid()
 	{
-		return buffer_matches_string(VALID_RESPONSE_STR, sizeof(VALID_RESPONSE_STR)-1);
+		return buffer_matches_string(VALID_RESPONSE_STR, string_length(VALID_RESPONSE_STR));
 	}
 
 
@@ -288,7 +299,7 @@ namespace Transmission
 	// Takes a byte array (that is hopefully Null Terminated).
 	// Iterates array until Null terminator is found or max length is reached.
 	// Return length of string (or max uint8_t).
-	uint8_t string_length(byte string[])
+	uint8_t string_length(const char string[])
 	{
 		uint8_t length = 255;
 		while(length && string[255-length]) length--;
