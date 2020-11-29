@@ -1,32 +1,17 @@
 
-/***********************************************************************************************************
-*
-*	created by: MPZinke
-*	on ..
-*
-*	DESCRIPTION: As par https://techtutorialsx.com/2017/05/20/esp32-http-post-requests/
-*	BUGS:
-*	FUTURE:
-*
-***********************************************************************************************************/
 
+#ifndef _GPIO_
+#define _GPIO_
 
-#ifndef GPIO_H
-#define GPIO_H
+#include "Global.h"
 
-	#include"Definitions.h"
+namespace GPIO
+{
 
-	bool direction(long, long, bool);
-	void disable_motor();
-	void enable_motor();
-	long needed_steps(long, long);
-	long count_number_of_steps();
-	char current_activated_pin();
-	bool motor_is_engages();
-	void move_until_close(bool);
-	void move_direction_until_end_reached(bool);
-	void move_until_open(bool);
-	int step_motor_to_location_or_end(bool, register long, register char);
+	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
+
+	const uint16_t PULSE_WAIT = 16;
+
 
 	// —————————————————— SUGAR —————————————————
 
@@ -42,11 +27,47 @@
 	}
 
 
-	// ————————————————— HARDWARE ————————————————
-
-	long count_number_of_steps_to_pin(char opposing_stop_pin)
+	void move_until_closed(bool curtain_direction)
 	{
-		register long step_count = 0;
+		digitalWrite(DIRECTION_PIN, move_direction);
+		while(digitalRead(CLOSE_PIN))
+		{
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+		}
+	}
+
+
+	CurtainState state()
+	{
+		if(is_open()) return OPEN;
+		if(is_closed()) return CLOSED;
+	}
+
+	// —————————————————— TRACKING ————————————————
+
+	void calibrate_to_opposite(bool direction)
+	{
+		uint8_t opposing_stop_pin = !digitalRead(CLOSE_PIN) ? OPEN_PIN : CLOSE_PIN;
+
+		digitalWrite(DIRECTION_PIN, (opposing_stop_pin == OPEN_PIN) ^ raw_direction_bool);
+		return count_number_of_steps_to_pin(opposing_stop_pin);
+	}
+
+
+	uint32_t count_number_of_steps_to_pin(uint8_t opposing_stop_pin)
+	{
+		register uint32_t step_count = 0;
 		while(digitalRead(opposing_stop_pin))
 		{
 			digitalWrite(PULSE_PIN, HIGH);
@@ -63,60 +84,16 @@
 	}
 
 
-	char current_activated_pin()
+	bool move(Curtain::Curtain& curtain)
 	{
-		if(!digitalRead(CLOSE_PIN)) return CLOSE_PIN;
-		if(!digitalRead(OPEN_PIN)) return OPEN_PIN;
-		return 0;
+
 	}
 
 
-	bool motor_is_engages()
-	{
-		return digitalRead(ENABLE_PIN);
-	}
+	// ————————————————— HARDWARE ————————————————
 
 
-	void move_direction_until_end_reached(bool move_direction)
-	{
-		digitalWrite(DIRECTION_PIN, move_direction);
-		while(!digitalRead(CLOSE_PIN) && !digitalRead(OPEN_PIN))
-		{
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-		}
-	}
-
-
-	long move_to_opposite_and_calibrate_curtain(bool raw_direction_bool)
-	{
-		char opposing_pin;
-
-		if(!digitalRead(CLOSE_PIN))
-		{
-			digitalWrite(DIRECTION_PIN, true ^ raw_direction_bool);
-			opposing_pin = OPEN_PIN;
-		}
-		else
-		{
-			digitalWrite(DIRECTION_PIN, false ^ raw_direction_bool);
-			opposing_pin = CLOSE_PIN;
-		}
-		return count_number_of_steps_to_pin(opposing_pin);
-	}
-
-
-	void move_until_close(bool move_direction)
+	void move_until_closed(bool move_direction)
 	{
 		digitalWrite(DIRECTION_PIN, move_direction);
 		while(digitalRead(CLOSE_PIN))
@@ -157,32 +134,6 @@
 		}
 	}
 
-
-	// int step_motor_to_location_or_end(const int const int move_steps, const int opposing_stop_pin)
-	int step_motor_to_location_or_end(bool move_direction, register long move_steps, register char opposing_stop_pin)
-	{
-		Serial.write("step_motor_to_location_or_end\n");
-		digitalWrite(DIRECTION_PIN, move_direction);
-		while(0 < move_steps)
-		{
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, HIGH);
-			delayMicroseconds(PULSE_WAIT);
-			digitalWrite(PULSE_PIN, LOW);
-			delayMicroseconds(PULSE_WAIT);
-			move_steps -= 3;
-			if(!digitalRead(opposing_stop_pin)) 
-				return move_steps > STEPS_FOR_CALIBRATION ? move_steps : 0;
-		}
-
-		return 0;
-	}
+}  // end namespace GPIO
 
 #endif
