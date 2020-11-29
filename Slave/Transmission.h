@@ -17,12 +17,26 @@
 #ifndef _Transmission_
 #define _Transmission_
 
-
 #include "Global.h"
-
 
 namespace Transmission
 {
+	void ensure_connection();
+	void post_data(String);
+	void post_data(char[]);
+	bool read_state_response_successfully_into_buffer(byte[]);
+	bool buffer_matches_string(byte[], uint8_t);
+	bool buffer_matches_string(byte[]);
+	byte buffer_mismatches_string(byte[], uint8_t);
+	byte buffer_mismatches_string(byte[]);
+	bool checksum_packet(byte[]);
+	bool clear_buffer_and_return_false();
+	bool clear_buffer_and_return_true();
+	uint8_t message_length();
+	uint64_t message_length(uint8_t);
+	bool first_line_is_invalid();
+	bool return_whether_buffer_is_empty_and_clear_it_if_not();
+	uint8_t string_length(byte[]);
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
 
@@ -52,6 +66,20 @@ namespace Transmission
 	};
 
 
+	// —————————————————————————————————————————————————— CONNECTION ——————————————————————————————————————————————————
+
+	// Checks whether server is connected.
+	// If not, continually tries to connect to server.
+	void ensure_connection()
+	{
+		while(!Global::client.connected()) 
+		{
+			delay(1000);
+			Global::client.connect(Global::server, 80);
+		}
+	}
+
+
 	// ——————————————————————————————————————————————— SENDING/RECEIVING ———————————————————————————————————————————————
 
 	// Sends data using POST method to HOST.
@@ -68,8 +96,8 @@ namespace Transmission
 	{
 		ensure_connection();
 
-		Global::client.println("POST " PAGE " HTTP/1.1");
-		Global::client.println("Host: " MASTER_HOST_STR);
+		Global::client.println("POST " User::page " HTTP/1.1");
+		Global::client.println("Host: " User::master_host_str);
 		Global::client.println("Content-Type: application/x-www-form-urlencoded");
 		Global::client.print("Content-Length: ");
 		Global::client.println(string_length(data));
@@ -103,7 +131,6 @@ namespace Transmission
 
 		return return_whether_buffer_is_empty_and_clear_it_if_not();  // should always be true, but let's be prudent :D
 	}
-
 
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
@@ -238,21 +265,6 @@ namespace Transmission
 	}
 
 
-	// Checks whether server is connected.
-	// If not, continually tries to connect to server.
-	void ensure_connection()
-	{
-		while(!Global::client.connected()) 
-		{
-			#ifdef _TESTING_
-				Serial.println(DEF(__LINE__) "No connection");
-			#endif
-			delay(1000);
-			Global::client.connect(SERVER, 80);
-		}
-	}
-
-
 	// Compare first line of response with known response to see if successful.
 	// Uses defined string to compare each character of response for accuracty.
 	// Returns if they do not match.
@@ -276,7 +288,7 @@ namespace Transmission
 	// Takes a byte array (that is hopefully Null Terminated).
 	// Iterates array until Null terminator is found or max length is reached.
 	// Return length of string (or max uint8_t).
-	uint8_t string_length(byte string)
+	uint8_t string_length(byte string[])
 	{
 		uint8_t length = 255;
 		while(length && string[255-length]) length--;

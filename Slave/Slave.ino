@@ -18,7 +18,8 @@
 #include <Ethernet.h>
 
 #include "Global.h"
-#include "Transmissions.h"
+#include "GPIO.h"
+#include "Transmission.h"
 #include "User.h"
 
 
@@ -71,5 +72,9 @@ void loop()
 		}
 		curtain.set_location();
 	}
+	else
+	{
 
+	}
+	Global::client.stop();
 }

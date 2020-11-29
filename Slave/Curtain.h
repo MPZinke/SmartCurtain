@@ -14,11 +14,9 @@
 #ifndef _Curtain_
 #define _Curtain_
 
-
 #include "Global.h"
 #include "GPIO.h"
 #include "Transmission.h"
-
 
 namespace Curtain
 {

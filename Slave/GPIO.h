@@ -11,6 +11,11 @@ namespace GPIO
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
 
 	const uint16_t PULSE_WAIT = 16;
+	const uint8_t ENABLE_PIN = 0;
+	const uint8_t DIRECTION_PIN = 0;
+	const uint8_t PULSE_PIN = 0;
+	const uint8_t CLOSE_PIN = 0;
+	const uint8_t OPEN_PIN = 0;
 
 
 	// —————————————————— SUGAR —————————————————
