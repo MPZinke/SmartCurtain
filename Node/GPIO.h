@@ -18,6 +18,22 @@
 
 namespace GPIO
 {
+	void disable_motor();
+	void enable_motor();
+	void set_direction(bool, bool);
+	bool is_closed();
+	bool is_open();
+	Curtain::CurtainState state();
+	uint32_t steps_for_direction(bool, uint32_t, uint32_t);
+	bool move(Curtain::Curtain&);
+	void move_until_state_reached(bool(*)());
+	uint32_t move_and_count_until_state_reached(bool(*)());
+	bool sensor_triggered_moving_steps(register uint32_t, bool(*)());
+	void move_until_closed(bool);
+	void move_until_open(bool);
+	uint32_t calibrate_to_opposite(bool);
+
+
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
 
 	// ———— HARDWARE ————
@@ -82,20 +98,33 @@ namespace GPIO
 	}
 
 
+	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position)
+	{
+		if(direction == CLOSE) return current_position - desired_position;
+		return desired_position - current_position;
+	}
+
+
 	// ——————————————————————————————————————————————————— MOVEMENT ———————————————————————————————————————————————————
 
-	bool move(Curtain::Curtain& curtain, bool count_steps=false)
+	bool move(Curtain::Curtain& curtain)
 	{
-		set_direction(curtain.desired_position() < curtain.current_position() ? CLOSE : OPEN, curtain.direction());
+		// direction
+		bool direction = curtain.desired_position() < curtain.current_position() ? CLOSE : OPEN;
+		set_direction(direction, curtain.direction());
 
-		if(curtain.correct())
+		uint32_t steps = steps_for_direction(direction, curtain.current_position(), curtain. desired_position());
+		if(sensor_triggered_moving_steps(steps, direction == CLOSE ? is_closed : is_open))
 		{
-			return false;  //TODO
+			if(!curtain.correct()) return false;  // curtain ended up in a bad place and was not allowed to correct
+
+			// try again
+			curtain.current_position(is_open() * curtain.length());
+			direction = !direction;  // previous direction triggered went too far; go other direction
+			steps = steps_for_direction(direction, curtain.current_position(), curtain. desired_position());
+			return !sensor_triggered_moving_steps(steps, direction == CLOSE ? is_closed : is_open);
 		}
-		else
-		{
-			return true;
-		}
+		return true;
 	}
 
 
@@ -137,6 +166,25 @@ namespace GPIO
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
 			steps += 2;
+		}
+		return steps;
+	}
+
+
+	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)())
+	{
+		steps = steps & 0xFFFFFFFE;  // make number of steps an even amount to match movement loop (prevent overflow)
+		while(steps && !state_function())
+		{
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+			steps -= 2;
 		}
 		return steps;
 	}

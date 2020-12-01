@@ -95,6 +95,7 @@ namespace Curtain
 	void Curtain::encode(byte packet_buffer[])
 	{
 		for(int x = 0; x < Transmission::PACKET_LENGTH; x++) packet_buffer[x] = 1;  // reset packet_buffer
+		packet_buffer[Transmission::PACKET_LENGTH] = 0;
 
 		packet_buffer[Transmission::CURRENT_LOW] = (_current_position & 0x7F) + 1;
 		packet_buffer[Transmission::CURRENT_MID] = (_current_position >> 7 & 0x7F) + 1;
