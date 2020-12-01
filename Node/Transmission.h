@@ -48,6 +48,7 @@ namespace Transmission
 	// ———— ENCODING ————
 	// if PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
 	const uint8_t PACKET_LENGTH = 11;
+	const uint8_t BUFFER_LENGTH = PACKET_LENGTH + 1;  // room for null terminator :)
 
 	const uint8_t OPTIONS = 0;  // location in transmission of options bits
 	const uint8_t CURRENT_LOW = 1;  // location in transmission of lower 7 bits of current known curtain position
@@ -272,7 +273,11 @@ namespace Transmission
 		{
 			number_buffer[x] = Global::client.read();
 		}
-		return atoi(number_buffer);
+
+		uint64_t length = atoi(number_buffer);
+		free(number_buffer);  // almost forgot to do this
+
+		return length;
 	}
 
 
