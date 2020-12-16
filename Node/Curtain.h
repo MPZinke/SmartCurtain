@@ -67,25 +67,19 @@ namespace Curtain
 	}
 
 
+	// ————————————————————————————————————————————————————— CLASS —————————————————————————————————————————————————————
+
 	// Reads base128 data points from packet byte array.
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(byte packet_buffer[])
 	{
-		_options = packet_buffer[Transmission::OPTIONS];
-		// parens not needed (precedence) but used to remove warnings
-		_current_position = ((packet_buffer[Transmission::CURRENT_UP] - 1) << 14)
-							  | ((packet_buffer[Transmission::CURRENT_MID] - 1) << 7)
-							  | ((packet_buffer[Transmission::CURRENT_LOW] - 1));
+		uint8_t curr_pos_position = Global::string_position((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
+		uint8_t des_pos_position = Global::string_position((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
+		uint8_t direction_position = Global::string_position((const char*)packet_buffer, Transmission::DIRECTION_KEY);
 
-		_desired_position =	((packet_buffer[Transmission::DESIRED_UP] - 1) << 14)
-							  | ((packet_buffer[Transmission::DESIRED_MID] - 1) << 7)
-							  | (packet_buffer[Transmission::DESIRED_LOW] - 1);
-
-		_length =	((packet_buffer[Transmission::LENGTH_UP] - 1) << 14)
-					  | ((packet_buffer[Transmission::LENGTH_MID] - 1) << 7)
-					  | (packet_buffer[Transmission::LENGTH_LOW] - 1);
+		
 	}
 
 

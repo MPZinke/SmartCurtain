@@ -37,7 +37,6 @@ namespace Transmission
 	uint64_t message_length(uint8_t);
 	bool first_line_is_invalid();
 	bool return_whether_buffer_is_empty_and_clear_it_if_not();
-	uint8_t string_length(const char[]);
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
 
@@ -46,21 +45,17 @@ namespace Transmission
 	const char VALID_RESPONSE_STR[] = "HTTP/1.1 200 OK";  // initial string for valid response from device
 
 	// ———— ENCODING ————
-	// if PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
-	const uint8_t PACKET_LENGTH = 11;
-	const uint8_t BUFFER_LENGTH = PACKET_LENGTH + 1;  // room for null terminator :)
+	// Designed for:
+	// {"curtain" : 99, "len" : 4294967295, "curr pos" : 4294967295, "des pos" : 4294967295, "dir" : 1}
+	// {"curtain" : 1, "len" : 0, "curr pos" : 0, "des pos" : 0, "dir" : 1}
 
-	const uint8_t OPTIONS = 0;  // location in transmission of options bits
-	const uint8_t CURRENT_LOW = 1;  // location in transmission of lower 7 bits of current known curtain position
-	const uint8_t CURRENT_MID = 2;  // location in transmission of middle 7 bits of current known curtain position
-	const uint8_t CURRENT_UP = 3;  // location in transmission of upper 7 bits of current known curtain position
-	const uint8_t LENGTH_LOW = 4;  // location in transmission of lower 7 bits of curtain length
-	const uint8_t LENGTH_MID = 5;  // location in transmission of middle 7 bits of curtain length
-	const uint8_t LENGTH_UP = 6;  // location in transmission of upper 7 bits of curtain length
-	const uint8_t DESIRED_LOW = 7;  // location in transmission of lower 7 bits of desired curtain position
-	const uint8_t DESIRED_MID = 8;  // location in transmission of middle 7 bits of desired curtain position
-	const uint8_t DESIRED_UP = 9;  // location in transmission of upper 7 bits of desired curtain position
-	const uint8_t CHECKSUM = 10;  // always has to be a the end (see checksum_packet())
+	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
+	const uint8_t MIN_PACKET_LENGTH = 68;  // every valid packet received will have at least this amount of chars
+	const uint8_t BUFFER_LENGTH = 100;  // should be a max of 96(97) chars
+
+	const char CURRENT_POS_KEY[] = "\"curr pos\"";
+	const char DESIRED_POS_KEY[] = "\"des pos\"";
+	const char DIRECTION_KEY[] = "\"dir\"";
 
 
 	enum Options
@@ -112,7 +107,7 @@ namespace Transmission
 
 		Global::client.println("Content-Type: application/x-www-form-urlencoded");
 		Global::client.print("Content-Length: ");
-		Global::client.println(string_length(data));
+		Global::client.println(Global::string_length(data));
 		Global::client.println();
 		Global::client.print(data);
 		Global::client.println();
@@ -128,7 +123,7 @@ namespace Transmission
 		while(!Global::client.available());  // wait for reponse
 		if(first_line_is_invalid()) return clear_buffer_and_return_false();
 		// ignore header info and get content length
-		if(message_length() != PACKET_LENGTH) return clear_buffer_and_return_false();
+		if(message_length() < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();
 
 		// FROM: https://en.wikipedia.org/wiki/HTTP_message_body
 		//  The content length's last char & message body's first char will have 2 new lines between them.
@@ -136,11 +131,11 @@ namespace Transmission
 		//  Therefore, for a valid packet, there should be 2 new lines then the message.
 
 		// while not two consecutive new-lines, ignore left-over headers if able to
+		// message_length() should end before eats up \n. If it doesn't, something is wrong & 
 		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		if(Global::client.available() != PACKET_LENGTH) return false;
+		if(Global::client.available() <= 2) return false;  // program read until the end (not supposed to happen)
 
-		Global::client.read(packet_buffer, PACKET_LENGTH);  // get packet (finally)
-
+		for(int x = 0; Global::client.available() x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
 		return return_whether_buffer_is_empty_and_clear_it_if_not();  // should always be true, but let's be prudent :D
 	}
 
@@ -168,7 +163,7 @@ namespace Transmission
 	// Returns true if string matches buffer, false otherwise.
 	bool buffer_matches_string(const char compare_string[])
 	{
-		return buffer_matches_string(compare_string, string_length(compare_string));
+		return buffer_matches_string(compare_string, Global::string_length(compare_string));
 	}
 
 
@@ -199,7 +194,7 @@ namespace Transmission
 	// read is unavailable.
 	byte buffer_mismatches_string(const char compare_string[])
 	{
-		return buffer_mismatches_string(compare_string, string_length(compare_string));
+		return buffer_mismatches_string(compare_string, Global::string_length(compare_string));
 	}
 
 
@@ -286,7 +281,7 @@ namespace Transmission
 	// Returns if they do not match.
 	bool first_line_is_invalid()
 	{
-		return buffer_matches_string(VALID_RESPONSE_STR, string_length(VALID_RESPONSE_STR));
+		return buffer_matches_string(VALID_RESPONSE_STR, Global::string_length(VALID_RESPONSE_STR));
 	}
 
 
@@ -296,19 +291,6 @@ namespace Transmission
 	{
 		if(!Global::client.available()) return true;
 		return clear_buffer_and_return_false();
-	}
-
-
-	// LENGTH DOES NOT INCLUDE Null terminator.
-	// The old tried and test string with the new twist of a better name. ;)
-	// Takes a byte array (that is hopefully Null Terminated).
-	// Iterates array until Null terminator is found or max length is reached.
-	// Return length of string (or max uint8_t).
-	uint8_t string_length(const char string[])
-	{
-		uint8_t length = 255;
-		while(length && string[255-length]) length--;
-		return 255-length;
 	}
 
 }  // end namespace Transmission

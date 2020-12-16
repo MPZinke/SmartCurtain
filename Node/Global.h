@@ -16,6 +16,72 @@
 
 #include "User.h"
 
+
+// ————————————————————————————————————————————————————— C-STRING —————————————————————————————————————————————————————
+
+namespace C_String
+{
+	// 
+	void copy_n(char from[], char to[], uint8_t length)
+	{
+		for(uint8_t x = 0; x < length; x++) to[x] = from[x];
+		to[length] = 0;
+	}
+
+
+	// LENGTH DOES NOT INCLUDE Null terminator.
+	// The old tried and test string with the new twist of a better name. ;)
+	// Takes a byte array (that is hopefully Null Terminated).
+	// Iterates array until Null terminator is found or max length is reached.
+	// Return length of string (or max uint8_t).
+	uint8_t length(const char string[])
+	{
+		uint8_t length = 255;
+		while(length && string[255-length]) length--;
+		return 255-length;
+	}
+
+
+	// Finds the next occurance of a whitespace character.
+	// Takes string pointer.
+	// Iterates through string until whitespace found.
+	// Returns position of whitespace char if found, else -1.
+	int16_t next_white_space(char string[])
+	{
+		for(uint8_t x = 0; x <= 255; x++) if(string[x] == 32 || (9 < string[x] && string[x] <= 13)) return x;
+		return -1;
+	}
+
+
+	// Get the first start position of a given string.
+	// Takes a string to search, string to search for, lengths for setting for-loops.
+	// Iterates through big string, matching characters until match found.
+	// Returns position if found, otherwise -1 if match not found.
+	int16_t position(const char haystack[], const char needle[], uint8_t haystack_length, uint8_t needle_length)
+	{
+		// search while haystack has enough length to fit
+		for(uint8_t x = 0, y; x < haystack_length - needle_length; x++)
+		{
+			for(y = 0; y < needle_length; y++) if(haystack[x+y] != needle[y]) break;
+			if(y == needle_length) return x;
+		}
+		return -1;  // you done goofed
+	}
+
+
+	// Get the first start position of a given string.
+	// Takes a string to search, string to search for.
+	// Determines length of passed strings. Iterates through big string, matching characters until match found.
+	// Returns position if found, otherwise -1 if match not found.
+	int16_t position(const char haystack[], const char needle[])
+	{
+		uint8_t haystack_length = C_String::length(string);  // use C_String::length for for_loop to prevent runaway
+		uint8_t needle_length = C_String::length(needle_length);  // use C_String::length for for_loop to prevent runaway
+		string_position(haystack, needle, haystack_length, needle_length);
+	}
+}
+
+
 // —————————————————————————————————————————————————————— CURTAIN ——————————————————————————————————————————————————————
 
 namespace Curtain  // also exists in Curtain.h
@@ -85,6 +151,85 @@ namespace Global
 
 	IPAddress server(User::master_host[0], User::master_host[1], User::master_host[2], User::master_host[3]);
 	EthernetClient client;  // the magician
+}
+
+// ——————————————————————————————————————————————————————— JSON ———————————————————————————————————————————————————————
+
+namespace Json
+{
+	bool is_json(char string[], uint8_t length)
+	{
+		if(string[0] != '{' || string[length-1] != '}') return false;
+		//TODO: finish function
+	}
+
+
+	bool is_json(char string[])
+	{
+		return is_json(string, C_String::length(string));
+	}
+
+
+	// Finds the end of a string literal.
+	int16_t literal_end(char string[])
+	{
+		bool escape = false;
+		for(uint8_t x = 1; x < 255; x++)
+		{
+			if(string[x] == '\\') escape = !escape;
+			else if(string[x] == '"' && !escape) return x+1;
+		}
+		return -1;
+	}
+
+
+	// Get the position of the value in a JSON.
+	// Takes the json string to search in, the key string to search for.
+	// Iterate c-string until position of key found.  Skip of key, [whitespace], colon, [whitespace].
+	// Returns int16_t for -1 if key not found, otherwise index of value.
+	int16_t position_of_value_for_key(char json[], const char key[])
+	{
+		int16_t key_position = C_String::position(json, key);
+		if(key_position < 0) return -1;
+
+		// skip to value position
+		uint8_t index = key_position + C_String::length(key);
+		while(index < 255 && json[index] == ' ') index++;  // skip possible whitespace
+		if(json[index++] != ':') return -1;  // check that actual JSON && increment index
+		while(index < 255 && json[index] == ' ') index++;
+
+		return (index < 255) * index + (index == 255) * -1;  // return index if in of bounds, else -1 :)
+	}
+
+
+	// Get the value for a key in a json string.
+	// Takes the json string to search, they key string to find.
+	// 
+	String value_for_key(char json[], const char key[])
+	{
+		// get & check start and end of string literal
+		int16_t value_start = position_of_value_for_key(json, key);
+		if(json[value_start] != '"') return String();  // ensure correct start
+		int16_t value_end = literal_end(json+value_start);
+		if(value_end < 0 || value_start == value_end) return String();
+
+		char buffer[256];
+		C_String::copy_n(json+value_start, buffer, value_end - value_start - 1);
+		return String(buffer);
+	}
+
+
+	uint32_t value_for_key(char json[], const char key[])
+	{
+		int16_t value_start = position_of_value_for_key(json, key);
+		if(value_start < 0) return 0;
+		int16_t value_end = C_String::next_white_space(json+value_start);
+		if(value_end < 0 || value_start == value_end) return 0;
+
+		char buffer[256];
+		C_String::copy_n(json+value_start, buffer, value_end - value_start);
+		return atoi(buffer);
+	}
 }
 
 
