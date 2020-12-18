@@ -133,7 +133,8 @@ namespace Transmission
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & 
 		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		if(Global::client.available() <= 2) return false;  // program read until the end (not supposed to happen)
+		// program read until the end (not supposed to happen)
+		if(Global::client.available() <= 2) return clear_buffer_and_return_false();
 
 		for(int x = 0; Global::client.available() x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
 		return return_whether_buffer_is_empty_and_clear_it_if_not();  // should always be true, but let's be prudent :D
