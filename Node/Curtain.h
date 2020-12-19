@@ -78,8 +78,6 @@ namespace Curtain
 		uint8_t curr_pos_position = Global::string_position((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
 		uint8_t des_pos_position = Global::string_position((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
 		uint8_t direction_position = Global::string_position((const char*)packet_buffer, Transmission::DIRECTION_KEY);
-
-		
 	}
 
 
