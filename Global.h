@@ -34,6 +34,29 @@ namespace C_String
 	}
 
 
+	// Converts an int to a c-string.
+	// Takes the integer to be converted, the address of the location to convert it to.
+	// Converts from least signicicant bit first, then reverses chars.
+	void itoa(uint32_t integer, char to[])
+	{
+		uint8_t x;
+		for(x = 0; x < 255 && integer; x++)
+		{
+			to[x] = (integer % 10) + 48;  // add character
+			integer /= 10;
+		}
+		to[x--] = 0;  // null terminate and back step
+
+		// the old switch-a-roo
+		for(uint8_t y = 0; y < x; y++)
+		{
+			char left = to[y];
+			to[y] = to[x-y];
+			to[x-y] = left;
+		}
+	}
+
+
 	// LENGTH DOES NOT INCLUDE Null terminator.
 	// The old tried and test string with the new twist of a better name. ;)
 	// Takes a byte array (that is hopefully Null Terminated).
