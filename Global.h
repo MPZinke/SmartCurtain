@@ -24,6 +24,17 @@
 
 namespace C_String
 {
+	// Copies one c string to another & null terminates.
+	// Takes address of place to read from, address of place to write to.
+	// Iterates over number of character reading then writing.  Null terminates "to" after 254 or Null found.
+	void copy(char from[], char to[])
+	{
+		uint8_t x;
+		for(x = 0; x < 255 && from[x]; x++) to[x] = from[x];
+		to[x] = 0;
+	}
+
+
 	// Copies n number of character & null terminates.
 	// Takes address of place to read from, address of place to write to, number of character to write.
 	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
@@ -209,6 +220,26 @@ namespace Json
 
 	// ————————————————————————————————————————————————— JSON: GETTERS —————————————————————————————————————————————————
 
+	// Get the position of the value in a JSON.
+	// Takes the json string to search in, the key string to search for.
+	// Iterate c-string until position of key found.  Skip of key, [whitespace], colon, [whitespace].
+	// Returns uint8_t for -1 if key not found, otherwise index of value.
+	uint8_t position_of_value_for_key(char json[], const char key[])
+	{
+		uint8_t key_position = C_String::position(json, key);
+		if(key_position < 0) return -1;
+
+		// skip to value position
+		uint8_t length = C_String::length(key);
+		uint8_t index = key_position + length;
+		skip_white_space(json, length, index);
+		if(json[index++] != ':') return -1;  // check that actual JSON && increment index
+		skip_white_space(json, length, index);
+
+		return (index < 255) * index + (index == 255) * -1;  // return index if in of bounds, else -1 :)
+	}
+
+
 	// Gets that value for a given key in the JSON.
 	// Takes address of JSON string, address of key string.
 	// Gets the positions of the value, given the key. Copies the characters in the value token.
@@ -282,28 +313,6 @@ namespace Json
 	void skip_white_space(char string[], uint8_t length, uint8_t& index)
 	{
 		for(uint8_t x = index; x < length && (string[x] == 32 || (9 <= string[x] && string[x] <= 13)); x++) index = x+1;
-	}
-
-
-	// ————————————————————————————————————————————————— JSON: UTILITY —————————————————————————————————————————————————
-
-	// Get the position of the value in a JSON.
-	// Takes the json string to search in, the key string to search for.
-	// Iterate c-string until position of key found.  Skip of key, [whitespace], colon, [whitespace].
-	// Returns uint8_t for -1 if key not found, otherwise index of value.
-	uint8_t position_of_value_for_key(char json[], const char key[])
-	{
-		uint8_t key_position = C_String::position(json, key);
-		if(key_position < 0) return -1;
-
-		// skip to value position
-		uint8_t length = C_String::length(key);
-		uint8_t index = key_position + length;
-		skip_white_space(json, length, index);
-		if(json[index++] != ':') return -1;  // check that actual JSON && increment index
-		skip_white_space(json, length, index);
-
-		return (index < 255) * index + (index == 255) * -1;  // return index if in of bounds, else -1 :)
 	}
 
 

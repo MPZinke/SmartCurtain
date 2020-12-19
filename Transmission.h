@@ -46,16 +46,20 @@ namespace Transmission
 
 	// ———— ENCODING ————
 	// Designed for:
-	// {"curtain" : 99, "len" : 4294967295, "curr pos" : 4294967295, "des pos" : 4294967295, "dir" : 1}
-	// {"curtain" : 1, "len" : 0, "curr pos" : 0, "des pos" : 0, "dir" : 1}
+	//	{"curtain" : 99, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
+	//	{"curtain":1,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,"auto correct":1}
 
 	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
-	const uint8_t MIN_PACKET_LENGTH = 68;  // every valid packet received will have at least this amount of chars
-	const uint8_t BUFFER_LENGTH = 100;  // should be a max of 96(97) chars
+	const uint8_t MIN_PACKET_LENGTH = 116;  // every valid packet received will have at least this amount of chars
+	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 96(97) chars
 
-	const char CURRENT_POS_KEY[] = "\"curr pos\"";
-	const char DESIRED_POS_KEY[] = "\"des pos\"";
-	const char DIRECTION_KEY[] = "\"dir\"";
+	const char CURRENT_POS_KEY[] = "\"current position\"";
+	const char DESIRED_POS_KEY[] = "\"desired position\"";
+	const char LENGTH_KEY[] = "\"length\"";
+
+	const char CALIBRATE_KEY[] = "\"auto calibrate\"";
+	const char CORRECT_KEY[] = "\"auto correct\"";
+	const char DIRECTION_KEY[] = "\"direction\"";
 
 
 	enum Options
@@ -232,7 +236,7 @@ namespace Transmission
 	}
 
 
-	// THIS DOES NOT SAVE THE READ DATA & COULD CONSUME AN EXTRA NEWLINE IF CONTENT LENGTH < 10
+	// THIS DOES NOT SAVE THE READ DATA & COULD CONSUME AN EXTRA NEWLINE IF CONTENT LENGTH < 100
 	// Gets the content length of the message.
 	// Reads header (or all) in until Content-Lenght string is found.  Then gets the next three bytes/numbers unless a 
 	// new-line is encountered.  Then converts the read in bytes to a uint8_t.
@@ -242,9 +246,9 @@ namespace Transmission
 		// skip while at wrong part
 		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
-		char number_buffer[3] = {0, 0, 0};  // zero out for arbitrary number between [0, 99]
+		char number_buffer[4] = {0, 0, 0, 0};  // zero out for arbitrary number between [0, 999]
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
-		for(uint8_t x = 0; x < 2 && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
+		for(uint8_t x = 0; x < 3 && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
 		{
 			number_buffer[x] = Global::client.read();
 		}
