@@ -16,6 +16,8 @@
 
 #include "Global.h"
 #include "GPIO.h"
+#include "Transmission.h"
+#include "User.h"
 
 
 namespace Curtain
@@ -75,22 +77,36 @@ namespace Curtain
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(byte packet_buffer[])
 	{
-		_current_position = Json::value_for_key((const char*)packet_buffer, "current position");
-		_desired_position = Json::value_for_key((const char*)packet_buffer, "desired position");
-		_length = Json::value_for_key((const char*)packet_buffer, "length");
+		_current_position = Json::value_for_key((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
+		_desired_position = Json::value_for_key((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
+		_length = Json::value_for_key((const char*)packet_buffer, Transmission::LENGTH_KEY);
 
-		_direction = Json::value_for_key((const char*)packet_buffer, "direction");
-		_auto_calibrate = Json::value_for_key((const char*)packet_buffer, "auto calibrate");
-		_auto_correct = Json::value_for_key((const char*)packet_buffer, "auto correct");
+		_direction = Json::value_for_key((const char*)packet_buffer, Transmission::DIRECTION_KEY);
+		_auto_calibrate = Json::value_for_key((const char*)packet_buffer, Transmission::CALIBRATE_KEY);
+		_auto_correct = Json::value_for_key((const char*)packet_buffer, Transmission::CORRECT_KEY);
 	}
 
 
-	// Writes relevent datat to packet array.
+	// Writes relevent data to packet array.
 	// Takes location of packet array, the location of curtain (to prevent needing to copy).
 	// Sets current position and length in base 128 + 1 equivalent values.
 	void Curtain::encode(byte packet_buffer[])
 	{
 		packet_buffer[0] = '{';
+		C_String::copy_n("\"curtain\" : ", packet_buffer+1, 12);
+		packet_buffer += 13;
+		C_String::copy(User::curtain_number, packet_buffer);
+		packet_buffer += sizeof(User::curtain_number)-1;
+		C_String::copy(", " Transmission::CURRENT_POS_KEY " : ", packet_buffer);
+		packet_buffer += 2 + sizeof(Transmission::CURRENT_POS_KEY) - 1 + 3;
+		C_String::itoa(_desired_position, packet_buffer);
+		packet_buffer += C_String::length(packet_buffer);
+		C_String::copy(", " Transmission::LENGTH_KEY " : ", packet_buffer);
+		packet_buffer += 2 + sizeof(Transmission::LENGTH_KEY) - 1 + 3;
+		C_String::itoa(_length, packet_buffer);
+		packet_buffer += C_String::length(packet_buffer);
+		*packet_buffer = '}';
+		packet_buffer[1] = 0;
 	}
 
 
