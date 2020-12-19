@@ -16,7 +16,7 @@
 
 #include "Global.h"
 #include "GPIO.h"
-#include "Transmission.h"
+
 
 namespace Curtain
 {
@@ -75,9 +75,13 @@ namespace Curtain
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(byte packet_buffer[])
 	{
-		uint8_t curr_pos_position = Global::string_position((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
-		uint8_t des_pos_position = Global::string_position((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
-		uint8_t direction_position = Global::string_position((const char*)packet_buffer, Transmission::DIRECTION_KEY);
+		_current_position = Json::value_for_key((const char*)packet_buffer, "current position");
+		_desired_position = Json::value_for_key((const char*)packet_buffer, "desired position");
+		_length = Json::value_for_key((const char*)packet_buffer, "length");
+
+		_direction = Json::value_for_key((const char*)packet_buffer, "direction");
+		_auto_calibrate = Json::value_for_key((const char*)packet_buffer, "auto calibrate");
+		_auto_correct = Json::value_for_key((const char*)packet_buffer, "auto correct");
 	}
 
 
@@ -86,16 +90,7 @@ namespace Curtain
 	// Sets current position and length in base 128 + 1 equivalent values.
 	void Curtain::encode(byte packet_buffer[])
 	{
-		for(int x = 0; x < Transmission::PACKET_LENGTH; x++) packet_buffer[x] = 1;  // reset packet_buffer
-		packet_buffer[Transmission::PACKET_LENGTH] = 0;
-
-		packet_buffer[Transmission::CURRENT_LOW] = (_current_position & 0x7F) + 1;
-		packet_buffer[Transmission::CURRENT_MID] = (_current_position >> 7 & 0x7F) + 1;
-		packet_buffer[Transmission::CURRENT_UP] = (_current_position >> 14 & 0x7F) + 1;
-
-		packet_buffer[Transmission::LENGTH_LOW] = (_length & 0x7F) + 1;
-		packet_buffer[Transmission::LENGTH_MID] = (_length >> 7 & 0x7F) + 1;
-		packet_buffer[Transmission::LENGTH_UP] = (_length >> 14 & 0x7F) + 1;
+		packet_buffer[0] = '{';
 	}
 
 
@@ -103,19 +98,19 @@ namespace Curtain
 
 	bool Curtain::calibrate()
 	{
-		return (_options & Transmission::CALIBRATE) > 0;  // parens not needed (precedence) but used to remove warnings
+		return _auto_calibrate;
 	}
 
 
 	bool Curtain::correct()
 	{
-		return (_options & Transmission::CORRECT) > 0;  // parens not needed (precedence) but used to remove warnings
+		return _auto_correct;
 	}
 
 
 	bool Curtain::direction()
 	{
-		return (_options & Transmission::DIRECTION) > 0;  // parens not needed (precedence) but used to remove warnings
+		return _direction;
 	}
 
 
