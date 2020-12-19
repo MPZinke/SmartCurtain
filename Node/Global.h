@@ -17,6 +17,7 @@
 #ifndef _GLOBAL_
 #define _GLOBAL_
 
+
 #include "User.h"
 
 
@@ -73,7 +74,7 @@ namespace C_String
 	// Takes a byte array (that is hopefully Null Terminated).
 	// Iterates array until Null terminator is found or max length is reached.
 	// Return length of string (or max uint8_t).
-	uint8_t length(const char string[])
+	uint8_t length(char string[])
 	{
 		uint8_t length = 255;
 		while(length && string[255-length]) length--;
@@ -96,7 +97,7 @@ namespace C_String
 	// Takes a string to search, string to search for, lengths for setting for-loops.
 	// Iterates through big string, matching characters until match found.
 	// Returns position if found, otherwise -1 if match not found.
-	uint8_t position(const char haystack[], const char needle[], uint8_t haystack_length, uint8_t needle_length)
+	uint8_t position(char haystack[], const char needle[], uint8_t haystack_length, uint8_t needle_length)
 	{
 		assert(haystack_length < 255 && needle_length < 255);  // allow for '-1' to be returnable
 		// search while haystack has enough length to fit
@@ -113,7 +114,7 @@ namespace C_String
 	// Takes a string to search, string to search for.
 	// Determines length of passed strings. Iterates through big string, matching characters until match found.
 	// Returns position if found, otherwise -1 if match not found.
-	uint8_t position(const char haystack[], const char needle[])
+	uint8_t position(char haystack[], const char needle[])
 	{
 		uint8_t haystack_length = C_String::length(haystack);  // use C_String::length for for_loop to prevent runaway
 		uint8_t needle_length = C_String::length(needle);  // use C_String::length for for_loop to prevent runaway
@@ -140,10 +141,10 @@ namespace Curtain  // also exists in Curtain.h
 	class Curtain
 	{
 		private:
-			// if the curtain has opportunity to move full span, count steps & return value
-			// if position is unexpected, go to expected position
-			// XOR for direction (to switch which way is open)
-			byte _options;  // see above
+			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
+			bool _auto_correct;  // if position is unexpected, go to expected position
+			bool _direction;  // XOR for direction (to switch which way is open)
+
 			uint32_t _current_position;  // the current length according to the RPi
 			uint32_t _desired_position;  // desired position according to the curtain
 			uint32_t _length;  // overall length of the curtain [steps]
