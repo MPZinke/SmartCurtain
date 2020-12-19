@@ -14,8 +14,9 @@
 ***********************************************************************************************************************/
 
 
-#include <SPI.h>
+#include <assert.h>
 #include <Ethernet.h>
+#include <SPI.h>
 
 #include "Curtain.h"
 #include "Global.h"

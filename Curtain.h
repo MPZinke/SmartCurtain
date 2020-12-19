@@ -97,14 +97,18 @@ namespace Curtain
 		packet_buffer += 13;
 		C_String::copy(User::curtain_number, packet_buffer);
 		packet_buffer += sizeof(User::curtain_number)-1;
-		C_String::copy(", " Transmission::CURRENT_POS_KEY " : ", packet_buffer);
-		packet_buffer += 2 + sizeof(Transmission::CURRENT_POS_KEY) - 1 + 3;
-		C_String::itoa(_desired_position, packet_buffer);
-		packet_buffer += C_String::length(packet_buffer);
-		C_String::copy(", " Transmission::LENGTH_KEY " : ", packet_buffer);
-		packet_buffer += 2 + sizeof(Transmission::LENGTH_KEY) - 1 + 3;
-		C_String::itoa(_length, packet_buffer);
-		packet_buffer += C_String::length(packet_buffer);
+		C_String::copy(", ", packet_buffer);
+		C_String::copy(Transmission::CURRENT_POS_KEY, packet_buffer+2);
+		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY) + 1;  // -1 + 2 (for ignore NULL Term & add ", ")
+		C_String::copy(" : ", packet_buffer);
+		C_String::itoa(_desired_position, packet_buffer+3);
+		packet_buffer += C_String::length(packet_buffer) + 3;  // +3 for " : "
+		C_String::copy(", ", packet_buffer);
+		C_String::copy(Transmission::LENGTH_KEY, packet_buffer+2);
+		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Term & add ", ")
+		C_String::copy(" : ", packet_buffer);
+		C_String::itoa(_length, packet_buffer+3);
+		packet_buffer += C_String::length(packet_buffer) + 3;  // +3 for " : "
 		*packet_buffer = '}';
 		packet_buffer[1] = 0;
 	}

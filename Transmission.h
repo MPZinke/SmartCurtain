@@ -111,7 +111,7 @@ namespace Transmission
 
 		Global::client.println("Content-Type: application/x-www-form-urlencoded");
 		Global::client.print("Content-Length: ");
-		Global::client.println(Global::string_length(data));
+		Global::client.println(C_String::length(data));
 		Global::client.println();
 		Global::client.print(data);
 		Global::client.println();
@@ -169,7 +169,7 @@ namespace Transmission
 	// Returns true if string matches buffer, false otherwise.
 	bool buffer_matches_string(const char compare_string[])
 	{
-		return buffer_matches_string(compare_string, Global::string_length(compare_string));
+		return buffer_matches_string(compare_string, C_String::length(compare_string));
 	}
 
 
@@ -200,19 +200,7 @@ namespace Transmission
 	// read is unavailable.
 	byte buffer_mismatches_string(const char compare_string[])
 	{
-		return buffer_mismatches_string(compare_string, Global::string_length(compare_string));
-	}
-
-
-	// Determine whether data sent is valid by performing a checksum on all bytes except last one (checksum byte).
-	// Takes the location of the packet_array.
-	// Iterates string (except the last one), X-ORing each byte with the previous ones.
-	// Returns whether calculated and sent checksums match.
-	bool checksum_packet(byte packet_buffer[])
-	{
-		byte checksum = 0;
-		for(uint8_t x = 0; x < PACKET_LENGTH-1; x++) checksum ^= packet_buffer[x];
-		return checksum == packet_buffer[CHECKSUM];
+		return buffer_mismatches_string(compare_string, C_String::length(compare_string));
 	}
 
 
@@ -287,7 +275,7 @@ namespace Transmission
 	// Returns if they do not match.
 	bool first_line_is_invalid()
 	{
-		return buffer_matches_string(VALID_RESPONSE_STR, Global::string_length(VALID_RESPONSE_STR));
+		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length(VALID_RESPONSE_STR));
 	}
 
 
