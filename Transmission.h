@@ -31,7 +31,7 @@ namespace Transmission
 	byte buffer_mismatches_string(const char[], uint8_t);
 	byte buffer_mismatches_string(const char[]);
 	bool checksum_packet(byte[]);
-	bool clear_buffer_and_return_false();
+	bool clear_and_return_false();
 	bool clear_buffer_and_return_true();
 	uint8_t message_length();
 	uint64_t message_length(uint8_t);
@@ -121,9 +121,9 @@ namespace Transmission
 	bool read_state_response_successfully_into_buffer(byte packet_buffer[])
 	{
 		while(!Global::client.available());  // wait for reponse
-		if(first_line_is_invalid()) return clear_buffer_and_return_false();
-		// ignore header info and get content length
-		if(message_length() < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();
+		if(first_line_is_invalid()) return clear_and_return_false();
+		uint8_t length = message_length();
+		if(length < MIN_PACKET_LENGTH) return clear_and_return_false();  // ignore header & get content length
 
 		// FROM: https://en.wikipedia.org/wiki/HTTP_message_body
 		//  The content length's last char & message body's first char will have 2 new lines between them.
@@ -131,13 +131,14 @@ namespace Transmission
 		//  Therefore, for a valid packet, there should be 2 new lines then the message.
 
 		// while not two consecutive new-lines, ignore left-over headers if able to
-		// message_length() should end before eats up \n. If it doesn't, something is wrong & 
+		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
 		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		// program read until the end (not supposed to happen)
-		if(Global::client.available() <= 2) return clear_buffer_and_return_false();
+		if(Global::client.available() <= 2) return clear_and_return_false();  // read until the end (shouldn't happen)
 
-		for(int x = 0; Global::client.available() x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
-		return return_whether_buffer_is_empty_and_clear_it_if_not();  // should always be true, but let's be prudent :D
+		for(int x = 0; Global::client.available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
+
+		if(Global::client.available()) return false;  // should always be empty, but let's be prudent :D
+		return Json::is_object_json((const char*) packet_buffer, length);
 	}
 
 
@@ -214,7 +215,7 @@ namespace Transmission
 	// SUGAR: Clears the buffer of remaining character & returns false.
 	// Iterates through buffer until empty.
 	// Returns false (so that calling function can return it (and false)).
-	bool clear_buffer_and_return_false()
+	bool clear_and_return_false()
 	{
 		while(Global::client.available()) Global::client.read();
 		return false;
@@ -291,7 +292,7 @@ namespace Transmission
 	bool return_whether_buffer_is_empty_and_clear_it_if_not()
 	{
 		if(!Global::client.available()) return true;
-		return clear_buffer_and_return_false();
+		return clear_and_return_false();
 	}
 
 }  // end namespace Transmission

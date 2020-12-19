@@ -2,11 +2,14 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on ..                                                                                                              *
+*   on 2020.11.26                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: TEMPLATE                                                                                              *
+*   DESCRIPTION: Stores info that is included on other dependencies of the Node.ino file.  Breaks values into differnt *
+*    namespaces to sepparate functionalities. Holds C-String custom functions (similar to classic C-String functions), *
+*    Curtain class declaration & other global stuff, Json functions for received message interpretation. JSON          *
+*    functions are limited to JSON formats received for this project.                                                  *
 *   BUGS:                                                                                                              *
-*   FUTURE:                                                                                                            *
+*   FUTURE:  - Consider expanding JSON functions to be less exclusive                                                  *
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
@@ -21,7 +24,9 @@
 
 namespace C_String
 {
-	// 
+	// Copies n number of character & null terminates.
+	// Takes address of place to read from, address of place to write to, number of character to write.
+	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
 	void copy_n(char from[], char to[], uint8_t length)
 	{
 		for(uint8_t x = 0; x < length; x++) to[x] = from[x];
@@ -76,9 +81,9 @@ namespace C_String
 	// Returns position if found, otherwise -1 if match not found.
 	uint8_t position(const char haystack[], const char needle[])
 	{
-		uint8_t haystack_length = C_String::length(string);  // use C_String::length for for_loop to prevent runaway
-		uint8_t needle_length = C_String::length(needle_length);  // use C_String::length for for_loop to prevent runaway
-		string_position(haystack, needle, haystack_length, needle_length);
+		uint8_t haystack_length = C_String::length(haystack);  // use C_String::length for for_loop to prevent runaway
+		uint8_t needle_length = C_String::length(needle);  // use C_String::length for for_loop to prevent runaway
+		return position(haystack, needle, haystack_length, needle_length);
 	}
 }
 
@@ -97,7 +102,7 @@ namespace Curtain  // also exists in Curtain.h
 	} CurtainState;
 
 
-	// here declare for GPIO.h functions, since GPIO.h is called in Curtain.h (and thus exists before it)
+	// declared here for GPIO.h functions, since GPIO.h is called in Curtain.h (and thus exists before it)
 	class Curtain
 	{
 		private:
@@ -158,70 +163,36 @@ namespace Global
 
 namespace Json
 {
+
+	// ————————————————————————————————————————————————— JSON: GLOBAL —————————————————————————————————————————————————
+
 	typedef enum
 	{
 		KEY,
-		VALUE
-	} key_value_pair;
+		VALUE,
+		COLON,
+		COMMA
+	} token_type;
 
 
-	// ——————————————————————————————————————————————— JSON: TOKENIZING ———————————————————————————————————————————————
-
-	bool next_token_is_str_lit(char string[], uint8_t length, uint8_t& index)
-	{
-		if(string[index] != '"') return false;
-		bool escape = false;
-		for(uint8_t y = index; y < length; y++)
-		{
-			if(string[y] == '\\') escape = !escape;
-			else if(!escape && string[y] == '"')
-			{
-				index = y;
-				return true;
-			}
-		}
-		return false;
-	}
-
-
-	bool next_token_is_int_lit(char string[], uint8_t length, uint8_t& index)
-	{
-		for(uint8_t y = index; y < length; y++)
-		{
-			if(string[y] == 32 || (9 <= string[y] && string[y] <= 13)) break;
-			else if(string[y] < 48 || 57 < string[y]) return false;
-		}
-		index = y;
-		return true;
-	}
-
-
-	void skip_white_space(char string[], uint8_t length, uint8_t& index)
-	{
-		for(uint8_t y = index; y < length && (string[y] != 32 || (9 <= string[y] && string[y] <= 13)); y++);
-	}
+	bool next_token_is_str_lit(char[], uint8_t, uint8_t&);
+	bool next_token_is_int_lit(char[], uint8_t, uint8_t&);
+	void skip_white_space(char[], uint8_t, uint8_t&);
+	uint32_t value_for_key(char[], const char[]);
+	uint8_t position_of_value_for_key(char[], const char[]);
+	bool is_object_json(char[], uint8_t);
+	bool is_object_json(char[]);
 
 
 	// ————————————————————————————————————————————————— JSON: GETTERS —————————————————————————————————————————————————
 
-	// Get the value for a key in a json string.
-	// Takes the json string to search, they key string to find.
-	// 
-	String value_for_key(char json[], const char key[])
-	{
-		// get & check start and end of string literal
-		uint8_t value_start = position_of_value_for_key(json, key);
-		uint8_t value_end = value_start;  // to be overridden in next_token_is_str_lit
-		if(!next_token_is_str_lit(json, 254, value_end)) return String();  // reuse traversing function to check
-
-		char buffer[256];
-		C_String::copy_n(json+value_start, buffer, value_end - value_start - 1);
-		return String(buffer);
-	}
-
-
+	// Gets that value for a given key in the JSON.
+	// Takes address of JSON string, address of key string.
+	// Gets the positions of the value, given the key. Copies the characters in the value token.
+	// Converts copied characters to uint32_t.
 	uint32_t value_for_key(char json[], const char key[])
 	{
+		// determine value 
 		uint8_t value_start = position_of_value_for_key(json, key);
 		if(value_start < 0) return 0;
 		uint8_t value_end = C_String::next_white_space(json+value_start);
@@ -230,6 +201,64 @@ namespace Json
 		char buffer[256];
 		C_String::copy_n(json+value_start, buffer, value_end - value_start);
 		return atoi(buffer);
+	}
+
+
+	// ——————————————————————————————————————————————— JSON: TOKENIZING ———————————————————————————————————————————————
+
+	// Determines whether next token is a string literal RegEx: "[^"\n]*".
+	// Takes address of JSON string, length of JSON string, pointer to the index of the JSON string.
+	// Determines whether the current token is a string literal.
+	// Returns true if value is string literal & sets index, false otherwise.
+	bool next_token_is_str_lit(char string[], uint8_t length, uint8_t& index)
+	{
+		if(string[index] != '"') return false;
+
+		bool escape = false;
+		for(uint8_t x = index+1; x < length; x++)
+		{
+			if(string[x] == '\n') return false;
+			else if(string[x] == '\\') escape = !escape;
+			else if(!escape && string[x] == '"')  // ending "
+			{
+				index = x+1;
+				return true;
+			}
+			else if(escape) escape = false;  // escape applies to something other than a '\' and '"'
+		}
+		return false;
+	}
+
+
+	// Determines whether next token is an unsigned int literal RegEx: [0-9]*.
+	// Takes address of JSON string, length of JSON string, pointer to the index of the JSON string.
+	// Determines whether the current token is an unsigned int literal.
+	// Returns true if value is an unsigned int literal & sets index, false otherwise.
+	bool next_token_is_int_lit(char string[], uint8_t length, uint8_t& index)
+	{
+		if(string[index] < 48 || 57 < string[index]) return false;  // check that it is start of INT_LIT
+
+		for(uint8_t x = index+1; x < length; x++)
+		{
+			// is white space or comma
+			if(string[x] == ','|| string[x] == '}'  || string[x] == ' ' || (9 <= string[x] && string[x] <= 13))
+			{
+				index = x;
+				return true;
+			}
+			else if(string[x] < 48 || 57 < string[x]) return false;  // non-int lit character
+		}
+		return false;
+	}
+
+
+	// Ignore white space at current index.
+	// Takes address of JSON string, length of JSON string, pointer to the index of the JSON string.
+	// Iterates until end of string or no more whitespace found.
+	// Sets index.
+	void skip_white_space(char string[], uint8_t length, uint8_t& index)
+	{
+		for(uint8_t x = index; x < length && (string[x] == 32 || (9 <= string[x] && string[x] <= 13)); x++) index = x+1;
 	}
 
 
@@ -245,10 +274,11 @@ namespace Json
 		if(key_position < 0) return -1;
 
 		// skip to value position
-		uint8_t index = key_position + C_String::length(key);
-		while(index < 255 && json[index] == ' ') index++;  // skip possible whitespace
+		uint8_t length = C_String::length(key);
+		uint8_t index = key_position + length;
+		skip_white_space(json, length, index);
 		if(json[index++] != ':') return -1;  // check that actual JSON && increment index
-		while(index < 255 && json[index] == ' ') index++;
+		skip_white_space(json, length, index);
 
 		return (index < 255) * index + (index == 255) * -1;  // return index if in of bounds, else -1 :)
 	}
@@ -256,37 +286,64 @@ namespace Json
 
 	// ——————————————————————————————————————————————— JSON: VALIDATION ———————————————————————————————————————————————
 
-	// This can be done with the following RegEx, but is more efficient not to:
-	//   {(STR_LIT : INT_LIT (, STR_LIT : INT_LIT))?}
+	// NOTE: It's more efficient not to, but this can be done with RegEx: {(STR_LIT : INT_LIT (, STR_LIT : INT_LIT)*)?}
+	// Determines whether string is a correctly formatted object JSON.
+	// Takes address of string, length of string.
+	// Iterates over string, creating tokens & checking format using next expected token.  
+	// Returns true if string is correctly formatted to, false otherwise.
 	bool is_object_json(char string[], uint8_t length)
 	{
 		uint8_t len_minus_1 = length - 1;
-		if(string[0] != '{' || string[len_minus_1] != '}') return false;
-		// go over string, parsing tokens into member (str_lit|int_lit), colon, comma
-		bool sought_token_type = KEY;
-		uint8_t index = 1;
-		for(uint8_t x = 0; x < ; x++)
-		{
-			skip_white_space(string, len_minus_1, x);
-			if(string[x] == ':')
-			{
-				if(sought_token_type == VALUE) return false;
-				sought_token_type = VALUE;
-			}
-			else if(string[x] == ',')
-			{
-				if(sought_token_type == KEY) return false;
-				sought_token_type = KEY;
-			}
-			else if(sought_token_type == VALUE && !next_token_is_int_lit(string, len_minus_1, index)) return false;
-			else if(sought_token_type == KEY && !next_token_is_str_lit(string, len_minus_1, index)) return false;
+		if(string[0] != '{') return false;
 
-			if(len_minus_1 <= index) return false;
+		// Go over string, parsing tokens into member (str_lit|int_lit), colon, comma.
+		// Store index in string in 'index' variable & the next expected token with the sought_token_type variable.
+		// x is used to limit max interations while not incrementing index each loop (so functions can set index past
+		// end of tokens without any crazy decrementing before loop increment).
+		for(uint8_t x = 0, index = 1, sought_token_type = KEY; x < 255; x++)  // only allow 255 iterations ()
+		{
+			skip_white_space(string, length, index);
+			// check for proper ending of JSON Object  REGEX: \}[ \t\n\r\f]*
+			if(string[index] == '}')
+			{
+				skip_white_space(string, length, ++index);  // skip rest of whitespace
+				return sought_token_type == COMMA && index == length;  // end of JSON, whitespace ignored, should be at the end
+			}
+			else if(string[index] == ':')
+			{
+				if(sought_token_type != COLON) return false;
+				sought_token_type = VALUE;
+				index++;
+			}
+			else if(string[index] == ',')
+			{
+				if(sought_token_type != COMMA) return false;
+				sought_token_type = KEY;
+				index++;
+			}
+			else if(next_token_is_int_lit(string, length, index))
+			{
+				if(sought_token_type != VALUE) return false;
+				sought_token_type = COMMA;
+			}
+			else if(next_token_is_str_lit(string, length, index))
+			{
+				if(sought_token_type != KEY) return false;
+				sought_token_type = COLON;
+			}
+			else return false;
+
+			if(length <= index) return length == index;  // end of string: return whether correct length read.
 		}
-		return true;
+		return false;
 	}
 
 
+	// NOTE: It's more efficient not to, but this can be done with RegEx: {(STR_LIT : INT_LIT (, STR_LIT : INT_LIT)*)?}
+	// Determines whether string is a correctly formatted object JSON.
+	// Takes address of string.
+	// Determines length of string. Iterates over string, creating tokens & checking format using next expected token.  
+	// Returns true if string is correctly formatted to, false otherwise.
 	bool is_object_json(char string[])
 	{
 		return is_object_json(string, C_String::length(string));
