@@ -4,8 +4,9 @@
 *   created by: MPZinke                                                                                                *
 *   on ..                                                                                                              *
 *                                                                                                                      *
-*   DESCRIPTION:                                                                                                       *
-*     CONVENTION:                                                                                                      *
+*   DESCRIPTION: Handware control part of the code. The trickiest part of this page is the XOR—direction and ON/OFF    *
+*       are depenent on physical setup of the motor, and the High/Low of the stepper driver.                           *
+*   CONVENTION: - OPEN = ON, CLOSE = OFF                                                                              *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
@@ -35,6 +36,8 @@ namespace GPIO
 
 
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
+	// ———— CONFIGURE ————
+	const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 
 	// ———— HARDWARE ————
 	const uint8_t CLOSE_PIN = 0;
@@ -46,7 +49,6 @@ namespace GPIO
 	const uint8_t HALL_EFFECT_IGNORED_PRECISION = 4;
 	const uint8_t MIN_HALL_EFFECT_TRUE_VALUE = 255 >> HALL_EFFECT_IGNORED_PRECISION;  // min needed to be "ON"
 	const uint16_t PULSE_WAIT = 16;
-	const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 
 	// ———— SUGAR ————
 	const bool ON = HIGH ^ SWITCH;  // the "ON"/"ACTIVATE" state for the device
@@ -69,6 +71,8 @@ namespace GPIO
 	}
 
 
+	// Sets the direction pin of the motor for the stepper driver.
+	// Take the ON/OFF dirction current, the curtain's direction option. 
 	void set_direction(bool direction_current, bool curtain_direction)
 	{
 		// "AND YOU GET AN XOR, AND YOU AN XOR, EVERYONE GETS XORS"
@@ -90,6 +94,7 @@ namespace GPIO
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
 
+	// Gets the state (in form CurtainState) of the curtain based on hardware.
 	Curtain::CurtainState state()
 	{
 		if(is_open()) return Curtain::OPEN;
@@ -107,6 +112,13 @@ namespace GPIO
 
 	// ——————————————————————————————————————————————————— MOVEMENT ———————————————————————————————————————————————————
 
+	// Moves the curtain to is desired position based on curtain object data (with auto correct). The function is used
+	// for when the curtain is not moving to an end location.
+	// Takes a reference to a curtain Object.
+	// Determines direction to move & sets it. Determines steps to move. If end state reached & auto correct option is 
+	// triggered, curtain moves to its alleged desire state (but does not auto correct from there).
+	// Return whether desired position was reached without touching end (again, not supposed to touch end state, which
+	// is what auto correct is for).
 	bool move(Curtain::Curtain& curtain)
 	{
 		// direction
@@ -128,7 +140,7 @@ namespace GPIO
 	}
 
 
-	// DESTRUCTIVE IF USED INCORRECTLY.
+	// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
 	// Moves to an end until sensor is tripped.
 	// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until sensor is tripped.
@@ -148,10 +160,11 @@ namespace GPIO
 	}
 
 
-	// DESTRUCTIVE IF USED INCORRECTLY.
+	// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
 	// Moves to an end until sensor is tripped, counting steps along the way.
 	// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
+	// Returns number of steps taken to reach point.
 	uint32_t move_and_count_until_state_reached(bool(*state_function)())
 	{
 		register uint32_t steps = 0;
@@ -171,6 +184,11 @@ namespace GPIO
 	}
 
 
+	// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
+	// Checks whether an endstop has been reached after taking each step.
+	// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
+	// Does two pulses every iteration until all steps take or sensor is tripped.
+	// Returns remaining steps.
 	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)())
 	{
 		steps = steps & 0xFFFFFFFE;  // make number of steps an even amount to match movement loop (prevent overflow)
@@ -192,6 +210,8 @@ namespace GPIO
 
 	// ————————————————————————————————————————————————————— SUGAR —————————————————————————————————————————————————————
 
+	// For functionality, see: move_until_state_reached(.).
+	// Takes movement direction flag option (that is then XOR-ed).
 	void move_until_closed(bool curtain_direction)
 	{
 		set_direction(CLOSE, curtain_direction);
@@ -199,6 +219,8 @@ namespace GPIO
 	}
 
 
+	// For functionality, see: move_until_state_reached(.).
+	// Takes movement direction flag option (that is then XOR-ed).
 	void move_until_open(bool curtain_direction)
 	{
 		set_direction(OPEN, curtain_direction);
@@ -208,6 +230,11 @@ namespace GPIO
 
 	// ——————————————————————————————————————————————————— TRACKING ———————————————————————————————————————————————————
 
+	// Move across curtain, counting steps as it goes.
+	// Takes movement direction flag option (that is then XOR-ed).
+	// Determines the curtain state for setting direction & end stop check function.
+	// Sets direction, then call movement until state reached.
+	// Returns number of steps taken. 
 	uint32_t calibrate_to_opposite(bool curtain_direction)
 	{
 		Curtain::CurtainState current_state = state();

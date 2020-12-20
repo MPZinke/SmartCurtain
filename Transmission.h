@@ -5,10 +5,9 @@
 *   on 2020.11.25                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: Read and write functions for communication between Raspberry Pi and Arduino. Second iteration for     *
-*    comms functions for current curtain version.  Transmissions are sent adding 1 to each number to prevent a null    *
-*    terminator from being sent—I've had problems with this in the past.                                               *
-*    This is used for responses in the form of base128 numbers sent as chars which are then parsed.                    *
-*    Current revisions uses format <options: 1> <Current Position: 3> <Length: 3> <Desired Position: 3> <Checksum: 1>. *
+*    comms functions for current curtain version.                                                                      *
+*    This is used for responses in the form of a JSON object returned from a POST request which are then parsed.       *
+*    Current revisions uses format is JSON Object (yes I know that's redundant, but that's what its called).           *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
@@ -17,15 +16,18 @@
 #ifndef _Transmission_
 #define _Transmission_
 
-#include "assert.h"
 #include "Global.h"
+
 
 namespace Transmission
 {
+	// ———— CONNECTION ————
 	void ensure_connection();
-	void post_data(String);
+	// ———— SENDING/RECEIVING ————
 	void post_data(char[]);
+	void post_data(String);
 	bool read_state_response_successfully_into_buffer(byte[]);
+	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
 	bool buffer_matches_string(const char[]);
 	byte buffer_mismatches_string(const char[], uint8_t);
@@ -46,8 +48,11 @@ namespace Transmission
 
 	// ———— ENCODING ————
 	// Designed for:
-	//	{"curtain" : 99, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
-	//	{"curtain":1,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,"auto correct":1}
+	//	{"curtain" : 99, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, 
+	//   "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
+	// — OR —
+	//	{"curtain":1,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
+	//   "auto correct":1}
 
 	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
 	const uint8_t MIN_PACKET_LENGTH = 116;  // every valid packet received will have at least this amount of chars
@@ -89,14 +94,6 @@ namespace Transmission
 
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
-	void post_data(String data)
-	{
-		post_data(data.c_str());
-	}
-
-
-	// Sends data using POST method to HOST.
-	// Takes char array of data to post.  Prints data to client.
 	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
 	void post_data(char data[])
 	{
@@ -115,6 +112,14 @@ namespace Transmission
 		Global::client.println();
 		Global::client.print(data);
 		Global::client.println();
+	}
+
+
+	// Sends data using POST method to HOST.
+	// Takes char array of data to post.  Prints data to client.
+	void post_data(String data)
+	{
+		post_data(data.c_str());
 	}
 
 

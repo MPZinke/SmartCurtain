@@ -8,6 +8,9 @@
 *    namespaces to sepparate functionalities. Holds C-String custom functions (similar to classic C-String functions), *
 *    Curtain class declaration & other global stuff, Json functions for received message interpretation. JSON          *
 *    functions are limited to JSON formats received for this project.                                                  *
+*   NOTES:   - With uint8_t return values, 255 (-1) is often used as a "bad value". Therefore, iterations must stop at *
+*              less than 255.  Otherwise, the 255th value and -1 will be ambiguous or the final x++ will overflow the  *
+*              returned number or a bad number is returned.                                                            *
 *   BUGS:                                                                                                              *
 *   FUTURE:  - Consider expanding JSON functions to be less exclusive                                                  *
 *                                                                                                                      *
@@ -17,7 +20,6 @@
 #ifndef _GLOBAL_
 #define _GLOBAL_
 
-
 #include "User.h"
 
 
@@ -25,6 +27,19 @@
 
 namespace C_String
 {
+	// ————————————————————————————————————————————————— JSON: GLOBAL —————————————————————————————————————————————————
+
+	void copy(char[], char[]);
+	void copy_n(char[], char[], uint8_t);
+	void itoa(uint32_t, char[]);
+	uint8_t length(char[]);
+	uint8_t next_white_space(char[]);
+	uint8_t position(char[], const char[], uint8_t, uint8_t);
+	uint8_t position(char[], const char[]);
+
+
+	// ———————————————————————————————————————————————— JSON: FUNCTIONS ————————————————————————————————————————————————
+
 	// Copies one c string to another & null terminates.
 	// Takes address of place to read from, address of place to write to.
 	// Iterates over number of character reading then writing.  Null terminates "to" after 254 or Null found.
@@ -88,7 +103,7 @@ namespace C_String
 	// Returns position of whitespace char if found, else -1.
 	uint8_t next_white_space(char string[])
 	{
-		for(uint8_t x = 0; x <= 255; x++) if(string[x] == 32 || (9 < string[x] && string[x] <= 13)) return x;
+		for(uint8_t x = 0; x < 255; x++) if(string[x] == 32 || (9 <= string[x] && string[x] <= 13)) return x;
 		return -1;
 	}
 
@@ -116,11 +131,11 @@ namespace C_String
 	// Returns position if found, otherwise -1 if match not found.
 	uint8_t position(char haystack[], const char needle[])
 	{
-		uint8_t haystack_length = C_String::length(haystack);  // use C_String::length for for_loop to prevent runaway
-		uint8_t needle_length = C_String::length(needle);  // use C_String::length for for_loop to prevent runaway
-		return position(haystack, needle, haystack_length, needle_length);
+		// use C_String::length for for_loop to prevent runaway
+		return position(haystack, needle, C_String::length(haystack), C_String::length(needle));
 	}
-}
+
+} // end namespace C_String
 
 
 // —————————————————————————————————————————————————————— CURTAIN ——————————————————————————————————————————————————————
@@ -178,7 +193,8 @@ namespace Curtain  // also exists in Curtain.h
 			void set_current_position_if_does_not_match_sensors();
 			void set_location();
 	};
-}
+
+} // end namespace Curtain
 
 
 // —————————————————————————————————————————————————————— GLOBAL ——————————————————————————————————————————————————————
@@ -192,15 +208,17 @@ namespace Global
 
 	IPAddress server(User::master_host[0], User::master_host[1], User::master_host[2], User::master_host[3]);
 	EthernetClient client;  // the magician
-}
+
+} // end namespace Global
+
 
 // ——————————————————————————————————————————————————————— JSON ———————————————————————————————————————————————————————
 
 namespace Json
 {
-
 	// ————————————————————————————————————————————————— JSON: GLOBAL —————————————————————————————————————————————————
 
+	// represents the type of the current and expected upcoming token in JSON format
 	typedef enum
 	{
 		KEY,
@@ -210,11 +228,16 @@ namespace Json
 	} token_type;
 
 
+
+
+	// ———— JSON: GETTERS ————
+	uint8_t position_of_value_for_key(char[], const char[]);
+	uint32_t value_for_key(char[], const char[]);
+	// ———— JSON: TOKENIZING ————
 	bool next_token_is_str_lit(char[], uint8_t, uint8_t&);
 	bool next_token_is_int_lit(char[], uint8_t, uint8_t&);
 	void skip_white_space(char[], uint8_t, uint8_t&);
-	uint32_t value_for_key(char[], const char[]);
-	uint8_t position_of_value_for_key(char[], const char[]);
+	// ———— JSON: VALIDATION ————
 	bool is_object_json(char[], uint8_t);
 	bool is_object_json(char[]);
 
@@ -333,14 +356,14 @@ namespace Json
 		// Store index in string in 'index' variable & the next expected token with the sought_token_type variable.
 		// x is used to limit max interations while not incrementing index each loop (so functions can set index past
 		// end of tokens without any crazy decrementing before loop increment).
-		for(uint8_t x = 0, index = 1, sought_token_type = KEY; x < 255; x++)  // only allow 255 iterations ()
+		for(uint8_t x = 0, index = 1, sought_token_type = KEY; x < 255 && length < index; x++)  // allow max 255 iters
 		{
 			skip_white_space(string, length, index);
 			// check for proper ending of JSON Object  REGEX: \}[ \t\n\r\f]*
 			if(string[index] == '}')
 			{
 				skip_white_space(string, length, ++index);  // skip rest of whitespace
-				return sought_token_type == COMMA && index == length;  // end of JSON, whitespace ignored, should be at the end
+				return sought_token_type == COMMA && index == length;  // end of JSON, whitespace ignored, should be end
 			}
 			else if(string[index] == ':')
 			{
@@ -364,9 +387,7 @@ namespace Json
 				if(sought_token_type != KEY) return false;
 				sought_token_type = COLON;
 			}
-			else return false;
-
-			if(length <= index) return length == index;  // end of string: return whether correct length read.
+			else return false;  // no acceptable state found: reject state
 		}
 		return false;
 	}
@@ -381,7 +402,8 @@ namespace Json
 	{
 		return is_object_json(string, C_String::length(string));
 	}
-}
+
+} // end namespace Json
 
 
 // —————————————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————————————
