@@ -2,8 +2,8 @@
 # Smart Curtain
 This project is not yet complete.
 
-## About
-### Features
+## ABOUT
+### FEATURES
 - Immediate movement to a specified position
 - Move to a position at a specified time
 - Event predition
@@ -11,11 +11,11 @@ This project is not yet complete.
 - Google Assistant integration
 - Device knows if it has been manually opened
 
-### Improvements
+### IMPROVEMENTS
 - End stop sensing to prevent curtain from going out of travel length
 - Position specific commands—device has knowledge of length of curtain and current position
 
-### Hardware
+### HARDWARE
 - Raspberry Pi with W/LAN capabilities  (Raspberry Pi 3B+)
 - ESP-32 Arduino Dev Board
 - Stepper Motor and Controller  (Nema 17 & TB 6600)
@@ -30,7 +30,8 @@ It a master-slave system.  The master runs using a PHP server for local network 
 
 Complete .stl files can be found at https://www.thingiverse.com/thing:3361474
 
-–––––––––––––––About–––––––––––––
+
+<!-- –––––––––––––––About–––––––––––––
 This is a design for an automated curtain that can link in to Google Assistant.  I have implemented
 the design and it works as I have done it.Feel free to change what ever you want about it and give 
 me constructive feedback.Currently, there are software designs, a lite version and a more capable
@@ -39,33 +40,23 @@ which connects with IFTTT to Google Assistant.  The other version runs a databas
 to a PHP localhost portal through which you can see the state, schedule events, and view/delete set
 events. For the more capable portal version, I would suggest a Rasbperry Pi A+.
 TL;DR Lite version you tell Google to open/close your curtains.  Portal version you can do what the
-lite version does and set times to open/close. 
+lite version does and set times to open/close.  -->
 
+## INSTALLATION
 
+---
 
-–––––––––––––PI Setup––––––––––––
-• Install Raspbian by flashing it to a MicroSD card
-	 I chose Raspbian Stretch Lite because it's less resource intensive but it can be harder to know what you're doing
-• Go to raspi-config
-	>> sudo raspi-config
-	 change the keyboard to your country under Localization
-	 Connect to wifi
-	 Allow for SSH under Interfacing
-• Copy files to flashdrive and mount it by
-	>> mkdir /home/pi/tmp
-	>> sudo mount /dev/sda1 /home/pi/tmp
+### ARDUINO
 
+- Open `~/Node/Node.ino` into Arduino IDE (or equivalent).
+- Edit `User.h` to match data to Hub IP address & curtain ID.
+- Compile & Bootload program to Arduino.
 
-–––––––––––Installation––––––––––
-• Start installation script after entering the mounted folder with
-	>> cd /home/pi/tmp
-	>> bash execute
-• Installation will take upwards of an hour because there are a lot of dependencies that need to be installed.  It starts with
-	the general Rasbian update/upgrade. See the full list below:
-• During this process most of it is automatic, but at the beginning you will be prompted for the password you use when logging
-	in.  This is necessary and used to access the database once it is created.
-• Then you can optionally enter a static IP address for the Pi to stay on.  This will be useful for when accessing the web-
-	portal.
+### RASPBERRY PI
+
+- Clone repository to Raspberry Pi.
+- `cd` into `~/SmartCurtain/Hub/`
+- Run `make` command.
 
 
 
@@ -153,7 +144,7 @@ INCLUDED SCRIPTS ARE:
 • Change Direction The Motor Spins 
 	 used to change the direction the motor turns for each command (eg "Google open the curtain" and they close)
 	 once inside ~/SmartCurtain/ activate with
-	>> bash ChangeDirection
+    - `bash ChangeDirection`
 • Change Distance The Curtain Opens
 • Configure Static IP Address
 • Turn On/Off Future Event Prediction
