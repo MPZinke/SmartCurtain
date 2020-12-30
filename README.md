@@ -53,7 +53,7 @@ Legacy .stl files for a 3D model can be found on [Thingiverse](https://www.thing
 - Run `make` command.
 
 ### HARDWARE SETUP
-**Changed; do not trust instructions**
+**Changed: do not trust instructions**
 
 - Make sure hardware works individually (See diagrams below for specifics).
 - Connect all devices to network and assemble curtain.
