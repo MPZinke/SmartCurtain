@@ -34,9 +34,6 @@
 
 
 #define CURTAIN_VAR "curtain="
-#define TYPE_VAR_EVENT "&type=event"
-#define TYPE_VAR_DONE "&type=done"
-#define STATE_VAR "&state="
 
 
 void setup()
@@ -65,11 +62,12 @@ void loop()
 	GPIO::disable_motor();  // don't burn up the motor
 
 	byte packet_buffer[Transmission::BUFFER_LENGTH];
-	Transmission::post_data(String(CURTAIN_VAR)+User::curtain_number+TYPE_VAR_EVENT+STATE_VAR+GPIO::state());
-	if(Transmission::read_state_response_successfully_into_buffer(packet_buffer))
-	{
-		Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
+	Transmission::post_data(String(CURTAIN_VAR)+User::curtain_number);
+	if(!Transmission::response_successfully_read_into_(packet_buffer)) return delay(700);  // bad message: retry later
 
+	Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
+	if(curtain.event())
+	{
 		if(!curtain.event_moves_to_an_end()) GPIO::move(curtain);
 		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
 		// ing or closing curtain.
@@ -80,12 +78,13 @@ void loop()
 			else if(curtain.state_of_desired_position() == Curtain::OPEN) GPIO::move_until_open(curtain.direction());
 			else GPIO::move_until_closed(curtain.direction());
 		}
-
-		// clean up and update curtain
-		curtain.set_location();
-		curtain.encode(packet_buffer);
-		Transmission::post_data(String(CURTAIN_VAR)+User::curtain_number+TYPE_VAR_DONE+STATE_VAR+(char*)packet_buffer);
 	}
 
-	Global::client.stop();
+	// clean up and update curtain
+	curtain.set_location();
+	curtain.encode(packet_buffer);
+	Transmission::update_hub();
+	// Global::client.stop();
+
+	delay(700);
 }

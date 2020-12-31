@@ -78,8 +78,10 @@ namespace Curtain
 	Curtain::Curtain(byte packet_buffer[])
 	{
 		_current_position = Json::value_for_key((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
-		_desired_position = Json::value_for_key((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
 		_length = Json::value_for_key((const char*)packet_buffer, Transmission::LENGTH_KEY);
+
+		_event_position = Json::value_for_key((const char*)packet_buffer, Transmission::EVENT_KEY);
+		_desired_position = Json::value_for_key((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
 
 		_direction = Json::value_for_key((const char*)packet_buffer, Transmission::DIRECTION_KEY);
 		_auto_calibrate = Json::value_for_key((const char*)packet_buffer, Transmission::CALIBRATE_KEY);
@@ -90,25 +92,34 @@ namespace Curtain
 	// Writes relevent data to packet array.
 	// Takes location of packet array, the location of curtain (to prevent needing to copy).
 	// Sets current position and length in base 128 + 1 equivalent values.
+	// NOTES: when C_String::length is used, the previous skipped value is added to the buffer pointer so that it does
+	//   not need to retraverse recount the precalculated string literal changes.
 	void Curtain::encode(byte packet_buffer[])
 	{
 		packet_buffer[0] = '{';
-		C_String::copy_n("\"curtain\" : ", packet_buffer+1, 12);
-		packet_buffer += 13;
-		C_String::copy(User::curtain_number, packet_buffer);
-		packet_buffer += sizeof(User::curtain_number)-1;
-		C_String::copy(", ", packet_buffer);
-		C_String::copy(Transmission::CURRENT_POS_KEY, packet_buffer+2);
-		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY) + 1;  // -1 + 2 (for ignore NULL Term & add ", ")
-		C_String::copy(" : ", packet_buffer);
-		C_String::itoa(_desired_position, packet_buffer+3);
-		packet_buffer += C_String::length(packet_buffer) + 3;  // +3 for " : "
-		C_String::copy(", ", packet_buffer);
-		C_String::copy(Transmission::LENGTH_KEY, packet_buffer+2);
-		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Term & add ", ")
-		C_String::copy(" : ", packet_buffer);
-		C_String::itoa(_length, packet_buffer+3);
-		packet_buffer += C_String::length(packet_buffer) + 3;  // +3 for " : "
+		C_String::copy(Transmission::CURTAIN_KEY, packet_buffer+1);
+		packet_buffer += sizeof(Transmission::CURTAIN_KEY)  // -1 + 1 (ignore NULL Terminator)
+		C_String::copy_n(" : ", packet_buffer, 3);
+		C_String::copy(User::curtain_number, packet_buffer+3)  // +3 from previous " : "
+		packet_buffer += sizeof(User::curtain_number) + 2;  // -1 + 3 (for ignore NULL Terminator & add " : ")
+		C_String::copy_n(", ", packet_buffer, 2);
+		C_String::copy(Transmission::EVENT_KEY, packet_buffer+2);
+		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", packet_buffer, 3);
+		C_String::itoa(_event, packet_buffer+3);
+		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", packet_buffer, 2);
+		C_String::copy(Transmission::CURRENT_POS_KEY, packet_buffer+2);  // +2 from previous ", "
+		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", packet_buffer, 3);
+		C_String::itoa(_desired_position, packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", packet_buffer, 2);
+		C_String::copy(Transmission::LENGTH_KEY, packet_buffer+2);  // +2 from previous ", "
+		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", packet_buffer, 3);
+		C_String::itoa(_length, packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
 		*packet_buffer = '}';
 		packet_buffer[1] = 0;
 	}
@@ -140,15 +151,21 @@ namespace Curtain
 	}
 
 
+	uint32_t Curtain::length()
+	{
+		return _length;
+	}
+
+
 	uint32_t Curtain::desired_position()
 	{
 		return _desired_position;
 	}
 
 
-	uint32_t Curtain::length()
+	uint32_t Curtain::event()
 	{
-		return _length;
+		return _event;
 	}
 
 
