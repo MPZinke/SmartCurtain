@@ -156,13 +156,16 @@ namespace Curtain  // also exists in Curtain.h
 	class Curtain
 	{
 		private:
+			// ———— OPTIONS ————
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
 			bool _direction;  // XOR for direction (to switch which way is open)
-
+			// ———— CURRENT DATA ON CURTAIN ————
 			uint32_t _current_position;  // the current length according to the RPi
-			uint32_t _desired_position;  // desired position according to the curtain
 			uint32_t _length;  // overall length of the curtain [steps]
+			// ———— EVENT INFO ————
+			uint32_t _desired_position;  // desired position according to the curtain
+			uint32_t _event;  // CurtainsEvents.id (0 if no event)
 
 		public:
 			Curtain(byte[]);
@@ -174,8 +177,10 @@ namespace Curtain  // also exists in Curtain.h
 			bool direction();
 
 			uint32_t current_position();
-			uint32_t desired_position();
 			uint32_t length();
+
+			uint32_t desired_position();
+			uint32_t event();
 
 			// —————————————— GETTERS: DATA ——————————————
 			bool event_moves_to_an_end();

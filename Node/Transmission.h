@@ -26,19 +26,22 @@ namespace Transmission
 	// ———— SENDING/RECEIVING ————
 	void post_data(char[]);
 	void post_data(String);
-	bool read_state_response_successfully_into_buffer(byte[]);
+	bool response_successfully_read_into_(byte[]);
 	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
 	bool buffer_matches_string(const char[]);
 	byte buffer_mismatches_string(const char[], uint8_t);
 	byte buffer_mismatches_string(const char[]);
 	bool checksum_packet(byte[]);
-	bool clear_and_return_false();
+	void clear_buffer();
+	bool clear_buffer_and_return_false();
 	bool clear_buffer_and_return_true();
+	bool first_line_is_invalid();
 	uint8_t message_length();
 	uint64_t message_length(uint8_t);
-	bool first_line_is_invalid();
 	bool return_whether_buffer_is_empty_and_clear_it_if_not();
+	void update_hub(byte[]);
+
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
 
@@ -48,19 +51,22 @@ namespace Transmission
 
 	// ———— ENCODING ————
 	// Designed for:
-	//	{"curtain" : 99, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, 
-	//   "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
+	//	{"curtain" : 99, "event" : 4294967295, "length" : 4294967295, "current position" : 4294967295,
+	//    "desired position" : 4294967295, "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
 	// — OR —
-	//	{"curtain":1,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
+	//	{"curtain":1,"event":0,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
 	//   "auto correct":1}
 
 	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
 	const uint8_t MIN_PACKET_LENGTH = 116;  // every valid packet received will have at least this amount of chars
-	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 96(97) chars
+	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 188(189) chars
 
+	const char CURTAIN_KEY[] = "\"curtain\"";
 	const char CURRENT_POS_KEY[] = "\"current position\"";
-	const char DESIRED_POS_KEY[] = "\"desired position\"";
 	const char LENGTH_KEY[] = "\"length\"";
+
+	const char EVENT_KEY[] = "\"event\"";
+	const char DESIRED_POS_KEY[] = "\"desired position\"";
 
 	const char CALIBRATE_KEY[] = "\"auto calibrate\"";
 	const char CORRECT_KEY[] = "\"auto correct\"";
@@ -95,12 +101,12 @@ namespace Transmission
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
 	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
-	void post_data(char data[])
+	void post_data(char data[], char page[]=User::current_page)
 	{
 		ensure_connection();
 
 		Global::client.print("POST ");
-		Global::client.print(User::page);
+		Global::client.print(page);
 		Global::client.println(" HTTP/1.1");
 
 		Global::client.print("Host: ");
@@ -127,12 +133,12 @@ namespace Transmission
 	// Takes pointer to the buffer where the scraped data will be stored.
 	// Checks that the data transmission is of the correct format.
 	// Returns true if valid. 
-	bool read_state_response_successfully_into_buffer(byte packet_buffer[])
+	bool response_successfully_read_into_(byte packet_buffer[])
 	{
 		while(!Global::client.available());  // wait for reponse
-		if(first_line_is_invalid()) return clear_and_return_false();
+		if(first_line_is_invalid()) return clear_buffer_and_return_false();
 		uint8_t length = message_length();
-		if(length < MIN_PACKET_LENGTH) return clear_and_return_false();  // ignore header & get content length
+		if(length < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();  // ignore header & get content length
 
 		// FROM: https://en.wikipedia.org/wiki/HTTP_message_body
 		//  The content length's last char & message body's first char will have 2 new lines between them.
@@ -142,7 +148,7 @@ namespace Transmission
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
 		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		if(Global::client.available() <= 2) return clear_and_return_false();  // read until the end (shouldn't happen)
+		if(Global::client.available() <= 2) return clear_buffer_and_return_false();  // read until the end (shouldn't happen)
 
 		for(int x = 0; Global::client.available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
 
@@ -209,12 +215,19 @@ namespace Transmission
 	}
 
 
+	// Discards infor from client while it is available.
+	void clear_buffer()
+	{
+		while(Global::client.available()) Global::client.read();
+	}
+
+
 	// SUGAR: Clears the buffer of remaining character & returns false.
 	// Iterates through buffer until empty.
 	// Returns false (so that calling function can return it (and false)).
-	bool clear_and_return_false()
+	bool clear_buffer_and_return_false()
 	{
-		while(Global::client.available()) Global::client.read();
+		clear_buffer();
 		return false;
 	}
 
@@ -289,7 +302,14 @@ namespace Transmission
 	bool return_whether_buffer_is_empty_and_clear_it_if_not()
 	{
 		if(!Global::client.available()) return true;
-		return clear_and_return_false();
+		return clear_buffer_and_return_false();
+	}
+
+
+	void update_hub(byte packet_buffer[])
+	{
+		post_data(String("data=")+(char*)packet_buffer, User::complete_page);
+		clear_buffer();
 	}
 
 }  // end namespace Transmission
