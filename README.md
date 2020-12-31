@@ -24,10 +24,10 @@ Legacy .stl files for a 3D model can be found on [Thingiverse](https://www.thing
 - Position specific commands—device has knowledge of length of curtain and current position
 
 ### CONTENTS
-- `~/Hub` The scripts for the Raspberry Pi/Hub system to server requests from user & nodes
-- `~/Node` The arduino program to query the Hub for action information.
+- `~/Hub/` The scripts for the Raspberry Pi/Hub system to server requests from user & nodes
+- `~/Node/` The arduino program to query the Hub for action information.
 - `.gitignore` SELF EXPLANATORY
-- `.README.md` SELF EXPLANATORY
+- `README.md` SELF EXPLANATORY
 
 ### HARDWARE
 - Raspberry Pi with W/LAN capabilities
@@ -113,6 +113,7 @@ V+    °|–– +
 
 ## CONSIDERED FUTURE PACKAGES
 - [ ] Google Calendar Event Setter
+- [ ] Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
 - [ ] Who Is Home (ping Android phones to see if person is on local network) closing/opening
 
 ---
