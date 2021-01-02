@@ -29,8 +29,8 @@ namespace C_String
 {
 	// ————————————————————————————————————————————————— JSON: GLOBAL —————————————————————————————————————————————————
 
-	void copy(char[], char[]);
-	void copy_n(char[], char[], uint8_t);
+	void copy(const char[], char[]);
+	void copy_n(const char[], char[], uint8_t);
 	void itoa(uint32_t, char[]);
 	uint8_t length(char[]);
 	uint8_t next_white_space(char[]);
@@ -43,7 +43,7 @@ namespace C_String
 	// Copies one c string to another & null terminates.
 	// Takes address of place to read from, address of place to write to.
 	// Iterates over number of character reading then writing.  Null terminates "to" after 254 or Null found.
-	void copy(char from[], char to[])
+	void copy(const char from[], char to[])
 	{
 		uint8_t x;
 		for(x = 0; x < 255 && from[x]; x++) to[x] = from[x];
@@ -54,7 +54,7 @@ namespace C_String
 	// Copies n number of character & null terminates.
 	// Takes address of place to read from, address of place to write to, number of character to write.
 	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
-	void copy_n(char from[], char to[], uint8_t length)
+	void copy_n(const char from[], char to[], uint8_t length)
 	{
 		for(uint8_t x = 0; x < length; x++) to[x] = from[x];
 		to[length] = 0;
@@ -132,7 +132,7 @@ namespace C_String
 	uint8_t position(char haystack[], const char needle[])
 	{
 		// use C_String::length for for_loop to prevent runaway
-		return position(haystack, needle, C_String::length(haystack), C_String::length(needle));
+		return position(haystack, needle, C_String::length(haystack), C_String::length((char*)needle));
 	}
 
 } // end namespace C_String
@@ -259,7 +259,7 @@ namespace Json
 		if(key_position < 0) return -1;
 
 		// skip to value position
-		uint8_t length = C_String::length(key);
+		uint8_t length = C_String::length((char*)key);
 		uint8_t index = key_position + length;
 		skip_white_space(json, length, index);
 		if(json[index++] != ':') return -1;  // check that actual JSON && increment index
@@ -354,8 +354,7 @@ namespace Json
 	// Returns true if string is correctly formatted to, false otherwise.
 	bool is_object_json(char string[], uint8_t length)
 	{
-		uint8_t len_minus_1 = length - 1;
-		if(string[0] != '{') return false;
+		if(string[0] != '{') return false;  // easiest check of all
 
 		// Go over string, parsing tokens into member (str_lit|int_lit), colon, comma.
 		// Store index in string in 'index' variable & the next expected token with the sought_token_type variable.
