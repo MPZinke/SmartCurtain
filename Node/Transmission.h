@@ -24,8 +24,8 @@ namespace Transmission
 	// ———— CONNECTION ————
 	void ensure_connection();
 	// ———— SENDING/RECEIVING ————
-	void post_data(char[]);
-	void post_data(String);
+	void post_data(char[], const char[]);
+	void post_data(String, const char[]);
 	bool response_successfully_read_into_(byte[]);
 	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
@@ -101,7 +101,7 @@ namespace Transmission
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
 	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
-	void post_data(char data[], char page[]=User::current_page)
+	void post_data(char data[], const char page[]=User::current_page)
 	{
 		ensure_connection();
 
@@ -123,9 +123,9 @@ namespace Transmission
 
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
-	void post_data(String data)
+	void post_data(String data, const char page[]=User::current_page)
 	{
-		post_data(data.c_str());
+		post_data(data.c_str(), page);
 	}
 
 
@@ -153,7 +153,7 @@ namespace Transmission
 		for(int x = 0; Global::client.available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
 
 		if(Global::client.available()) return false;  // should always be empty, but let's be prudent :D
-		return Json::is_object_json((const char*) packet_buffer, length);
+		return Json::is_object_json((char*)packet_buffer, length);
 	}
 
 
@@ -180,7 +180,7 @@ namespace Transmission
 	// Returns true if string matches buffer, false otherwise.
 	bool buffer_matches_string(const char compare_string[])
 	{
-		return buffer_matches_string(compare_string, C_String::length(compare_string));
+		return buffer_matches_string(compare_string, C_String::length((char*)compare_string));
 	}
 
 
@@ -211,7 +211,7 @@ namespace Transmission
 	// read is unavailable.
 	byte buffer_mismatches_string(const char compare_string[])
 	{
-		return buffer_mismatches_string(compare_string, C_String::length(compare_string));
+		return buffer_mismatches_string(compare_string, C_String::length((char*)compare_string));
 	}
 
 
@@ -293,7 +293,7 @@ namespace Transmission
 	// Returns if they do not match.
 	bool first_line_is_invalid()
 	{
-		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length(VALID_RESPONSE_STR));
+		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length((char*)VALID_RESPONSE_STR));
 	}
 
 
