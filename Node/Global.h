@@ -27,7 +27,7 @@
 
 namespace C_String
 {
-	// ————————————————————————————————————————————————— JSON: GLOBAL —————————————————————————————————————————————————
+	// ——————————————————————————————————————————————— C-STRING: GLOBAL ———————————————————————————————————————————————
 
 	void copy(const char[], char[]);
 	void copy_n(const char[], char[], uint8_t);
@@ -38,7 +38,7 @@ namespace C_String
 	uint8_t position(char[], const char[]);
 
 
-	// ———————————————————————————————————————————————— JSON: FUNCTIONS ————————————————————————————————————————————————
+	// —————————————————————————————————————————————— C-STRING: FUNCTIONS ——————————————————————————————————————————————
 
 	// Copies one c string to another & null terminates.
 	// Takes address of place to read from, address of place to write to.
