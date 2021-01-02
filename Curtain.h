@@ -77,15 +77,15 @@ namespace Curtain
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(byte packet_buffer[])
 	{
-		_current_position = Json::value_for_key((const char*)packet_buffer, Transmission::CURRENT_POS_KEY);
-		_length = Json::value_for_key((const char*)packet_buffer, Transmission::LENGTH_KEY);
+		_current_position = Json::value_for_key((char*)packet_buffer, Transmission::CURRENT_POS_KEY);
+		_length = Json::value_for_key((char*)packet_buffer, Transmission::LENGTH_KEY);
 
-		_event_position = Json::value_for_key((const char*)packet_buffer, Transmission::EVENT_KEY);
-		_desired_position = Json::value_for_key((const char*)packet_buffer, Transmission::DESIRED_POS_KEY);
+		_event = Json::value_for_key((char*)packet_buffer, Transmission::EVENT_KEY);
+		_desired_position = Json::value_for_key((char*)packet_buffer, Transmission::DESIRED_POS_KEY);
 
-		_direction = Json::value_for_key((const char*)packet_buffer, Transmission::DIRECTION_KEY);
-		_auto_calibrate = Json::value_for_key((const char*)packet_buffer, Transmission::CALIBRATE_KEY);
-		_auto_correct = Json::value_for_key((const char*)packet_buffer, Transmission::CORRECT_KEY);
+		_direction = Json::value_for_key((char*)packet_buffer, Transmission::DIRECTION_KEY);
+		_auto_calibrate = Json::value_for_key((char*)packet_buffer, Transmission::CALIBRATE_KEY);
+		_auto_correct = Json::value_for_key((char*)packet_buffer, Transmission::CORRECT_KEY);
 	}
 
 
@@ -97,29 +97,29 @@ namespace Curtain
 	void Curtain::encode(byte packet_buffer[])
 	{
 		packet_buffer[0] = '{';
-		C_String::copy(Transmission::CURTAIN_KEY, packet_buffer+1);
-		packet_buffer += sizeof(Transmission::CURTAIN_KEY)  // -1 + 1 (ignore NULL Terminator)
-		C_String::copy_n(" : ", packet_buffer, 3);
-		C_String::copy(User::curtain_number, packet_buffer+3)  // +3 from previous " : "
+		C_String::copy(Transmission::CURTAIN_KEY, (char*)packet_buffer+1);
+		packet_buffer += sizeof(Transmission::CURTAIN_KEY);  // -1 + 1 (ignore NULL Terminator)
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::copy(User::curtain_number, (char*)packet_buffer+3);  // +3 from previous " : "
 		packet_buffer += sizeof(User::curtain_number) + 2;  // -1 + 3 (for ignore NULL Terminator & add " : ")
-		C_String::copy_n(", ", packet_buffer, 2);
-		C_String::copy(Transmission::EVENT_KEY, packet_buffer+2);
-		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", packet_buffer, 3);
-		C_String::itoa(_event, packet_buffer+3);
-		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
-		C_String::copy_n(", ", packet_buffer, 2);
-		C_String::copy(Transmission::CURRENT_POS_KEY, packet_buffer+2);  // +2 from previous ", "
+		C_String::copy_n(", ", (char*)packet_buffer, 2);
+		C_String::copy(Transmission::EVENT_KEY, (char*)packet_buffer+2);
+		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::itoa(_event, (char*)packet_buffer+3);
+		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)packet_buffer, 2);
+		C_String::copy(Transmission::CURRENT_POS_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
 		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", packet_buffer, 3);
-		C_String::itoa(_desired_position, packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
-		C_String::copy_n(", ", packet_buffer, 2);
-		C_String::copy(Transmission::LENGTH_KEY, packet_buffer+2);  // +2 from previous ", "
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::itoa(_desired_position, (char*)packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)packet_buffer, 2);
+		C_String::copy(Transmission::LENGTH_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
 		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", packet_buffer, 3);
-		C_String::itoa(_length, packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length(packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::itoa(_length, (char*)packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
 		*packet_buffer = '}';
 		packet_buffer[1] = 0;
 	}

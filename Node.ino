@@ -83,7 +83,7 @@ void loop()
 	// clean up and update curtain
 	curtain.set_location();
 	curtain.encode(packet_buffer);
-	Transmission::update_hub();
+	Transmission::update_hub(packet_buffer);
 	// Global::client.stop();
 
 	delay(700);
