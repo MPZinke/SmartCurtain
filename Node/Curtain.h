@@ -4,7 +4,8 @@
 *   created by: MPZinke                                                                                                *
 *   on 2020.11.28                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: Ethernet connection version of smart curtain.  Queries server and waits                               *
+*   DESCRIPTION: Main Curtain class for organizing received data into an object. Also contains abstracted curtain      *
+*    related functions such as what state a position would be.                                                         *
 *   BUGS:                                                                                                              *
 *   FUTURE: - Add cool temperature, light, & thermostat data.                                                          *
 *                                                                                                                      *

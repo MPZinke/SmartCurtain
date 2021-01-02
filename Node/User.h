@@ -2,9 +2,10 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on ..                                                                                                              *
+*   on 2020.11.27                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: TEMPLATE                                                                                              *
+*   DESCRIPTION: Page to store and edit user specific data. Moved here from Global to better indicate what the user    *
+*    needs to change.                                                                                                  *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
