@@ -13,8 +13,7 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef _Transmission_
-#define _Transmission_
+#pragma once
 
 #include "Global.h"
 
@@ -71,15 +70,6 @@ namespace Transmission
 	const char CALIBRATE_KEY[] = "\"auto calibrate\"";
 	const char CORRECT_KEY[] = "\"auto correct\"";
 	const char DIRECTION_KEY[] = "\"direction\"";
-
-
-	enum Options
-	{
-		NO_TOUCHING = 1,  // place holder as to not send null terminator (see description above)
-		CALIBRATE = 2,  // bit of bool values for options in transmission. bit-and-ed with options char
-		CORRECT = 4,  // bit of bool values for options in transmission. bit-and-ed with options char
-		DIRECTION = 8  // bit of bool values for options in transmission. bit-and-ed with options char
-	};
 
 
 	// —————————————————————————————————————————————————— CONNECTION ——————————————————————————————————————————————————
@@ -148,7 +138,7 @@ namespace Transmission
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
 		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		if(Global::client.available() <= 2) return clear_buffer_and_return_false();  // read until the end (shouldn't happen)
+		if(Global::client.available() <= 2) return clear_buffer_and_return_false();  // read until end(shouldn't happen)
 
 		for(int x = 0; Global::client.available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
 
@@ -313,5 +303,3 @@ namespace Transmission
 	}
 
 }  // end namespace Transmission
-
-#endif
