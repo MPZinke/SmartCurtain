@@ -5,7 +5,7 @@
 *   on 2020.11.26                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: Ethernet connection version of smart curtain. This is primarily desired for a Hub-Node model, where   *
-*       The hub schedules events, and the node (this code) queries and activates those events. On event, curtain is    *
+*       The Hub schedules events, and the node (this code) queries and activates those events. On event, curtain is    *
 *       driven to location, where it updates the Hub. The primary communication is JSON through HTTP POST requests. If *
 *       auto_correct option is set, the Hub will attempt to correct the curtain's location, assuming length,           *
 *       direction, etc are correct. If the auto_calibrate flag is set and the curtain movement spans the entire rod,   *
@@ -14,7 +14,7 @@
 *       **Main arduino file**                                                                                          *
 *      CONVENTION: Position 0 is CLOSED                                                                                *
 *   BUGS:   - If direction option is wrong, gears will be ground :)                                                    *
-*           - If the curtain's length is > (4294967295 - allowable_difference), curtain may assume                     *
+*           - If the curtain's (driver) step length is > (4294967295 - allowable_difference), curtain may assume       *
 *             open position = close position.                                                                          *
 *   FUTURE: - Add cool temperature, light, & thermostat data.                                                          *
 *           - Figure out a solution for needing Hub to specify length of curtain.                                      *
