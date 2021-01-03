@@ -2,11 +2,11 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on ..                                                                                                              *
+*   on 2020.11.28                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: Handware control part of the code. The trickiest part of this page is the XOR—direction and ON/OFF    *
 *       are depenent on physical setup of the motor, and the High/Low of the stepper driver.                           *
-*   CONVENTION: - OPEN = ON, CLOSE = OFF                                                                              *
+*   CONVENTION: - OPEN = ON, CLOSE = OFF                                                                               *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
@@ -112,8 +112,8 @@ namespace GPIO
 
 	// ——————————————————————————————————————————————————— MOVEMENT ———————————————————————————————————————————————————
 
-	// Moves the curtain to is desired position based on curtain object data (with auto correct). The function is used
-	// for when the curtain is not moving to an end location.
+	// Moves the curtain to its desired position based on curtain object data (with auto correct). The function is used
+	//  for when the curtain is not moving to an end location.
 	// Takes a reference to a curtain Object.
 	// Determines direction to move & sets it. Determines steps to move. If end state reached & auto correct option is 
 	// triggered, curtain moves to its alleged desire state (but does not auto correct from there).
@@ -210,7 +210,7 @@ namespace GPIO
 
 	// ————————————————————————————————————————————————————— SUGAR —————————————————————————————————————————————————————
 
-	// For functionality, see: move_until_state_reached(.).
+	// For functionality, see: GPIO::move_until_state_reached(.).
 	// Takes movement direction flag option (that is then XOR-ed).
 	void move_until_closed(bool curtain_direction)
 	{

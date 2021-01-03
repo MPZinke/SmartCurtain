@@ -44,7 +44,7 @@ namespace Curtain
 	// Returns whether they are within a certain amount of eachother.
 	bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference)
 	{
-		return position1 - allowable_difference <= position2 && position2 <= position1 + allowable_difference; 
+		return (position1 - allowable_difference <= position2) && (position2 <= position1 + allowable_difference);
 	}
 
 

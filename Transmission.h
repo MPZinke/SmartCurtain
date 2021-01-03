@@ -215,7 +215,7 @@ namespace Transmission
 	}
 
 
-	// Discards infor from client while it is available.
+	// Discards info from client while it is available.
 	void clear_buffer()
 	{
 		while(Global::client.available()) Global::client.read();
@@ -282,7 +282,7 @@ namespace Transmission
 		}
 
 		uint64_t length = atoi(number_buffer);
-		free(number_buffer);  // almost forgot to do this
+		free(number_buffer);  // didn't forget to do this ;)
 
 		return length;
 	}

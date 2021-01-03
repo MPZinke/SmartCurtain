@@ -5,7 +5,7 @@
 *   on 2020.11.26                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: Stores info that is included on other dependencies of the Node.ino file.  Breaks values into differnt *
-*    namespaces to sepparate functionalities. Holds C-String custom functions (similar to classic C-String functions), *
+*    namespaces to separate functionalities. Holds C-String custom functions (similar to classic C-String functions),  *
 *    Curtain class declaration & other global stuff, Json functions for received message interpretation. JSON          *
 *    functions are limited to JSON formats received for this project.                                                  *
 *   NOTES:   - With uint8_t return values, 255 (-1) is often used as a "bad value". Therefore, iterations must stop at *
@@ -304,7 +304,7 @@ namespace Json
 			else if(string[x] == '\\') escape = !escape;
 			else if(!escape && string[x] == '"')  // ending "
 			{
-				index = x+1;
+				index = x + 1;
 				return true;
 			}
 			else if(escape) escape = false;  // escape applies to something other than a '\' and '"'
@@ -321,7 +321,7 @@ namespace Json
 	{
 		if(string[index] < 48 || 57 < string[index]) return false;  // check that it is start of INT_LIT
 
-		for(uint8_t x = index+1; x < length; x++)
+		for(uint8_t x = index + 1; x < length; x++)
 		{
 			// is white space or comma
 			if(string[x] == ','|| string[x] == '}'  || string[x] == ' ' || (9 <= string[x] && string[x] <= 13))
