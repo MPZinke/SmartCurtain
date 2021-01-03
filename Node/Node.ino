@@ -62,8 +62,13 @@ void loop()
 	GPIO::disable_motor();  // don't burn up the motor
 
 	byte packet_buffer[Transmission::BUFFER_LENGTH];
-	Transmission::post_data(String(CURTAIN_VAR)+User::curtain_number);
-	if(!Transmission::response_successfully_read_into_(packet_buffer)) return delay(700);  // bad message: retry later
+	Transmission::wait_for_request();
+	// bad message: retry later
+	if(!Transmission::request_successfully_read_into_(packet_buffer))
+	{
+		Transmission::write_invalid_json_response_to_(packet_buffer);
+		return Transmission::clear_buffer(); 
+	}
 
 	Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
 	if(curtain.event())

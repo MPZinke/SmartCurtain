@@ -105,7 +105,6 @@ V+    °|–– +
     - astral
     - mysql-connector
     - numpy
-    - RPi.GPIO
     - setuptool
     - sklearn
 

@@ -25,7 +25,7 @@ namespace Transmission
 	// ———— SENDING/RECEIVING ————
 	void post_data(char[], const char[]);
 	void post_data(String, const char[]);
-	bool response_successfully_read_into_(byte[]);
+	bool request_successfully_read_into_(byte[]);
 	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
 	bool buffer_matches_string(const char[]);
@@ -40,6 +40,7 @@ namespace Transmission
 	uint64_t message_length(uint8_t);
 	bool return_whether_buffer_is_empty_and_clear_it_if_not();
 	void update_hub(byte[]);
+	void wait_for_request();
 
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
@@ -123,7 +124,7 @@ namespace Transmission
 	// Takes pointer to the buffer where the scraped data will be stored.
 	// Checks that the data transmission is of the correct format.
 	// Returns true if valid. 
-	bool response_successfully_read_into_(byte packet_buffer[])
+	bool request_successfully_read_into_(byte packet_buffer[])
 	{
 		while(!Global::client.available());  // wait for reponse
 		if(first_line_is_invalid()) return clear_buffer_and_return_false();
@@ -232,6 +233,15 @@ namespace Transmission
 	}
 
 
+	// Compare first line of response with known response to see if successful.
+	// Uses defined string to compare each character of response for accuracty.
+	// Returns if they do not match.
+	bool first_line_is_invalid()
+	{
+		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length((char*)VALID_RESPONSE_STR));
+	}
+
+
 	// THIS DOES NOT SAVE THE READ DATA & COULD CONSUME AN EXTRA NEWLINE IF CONTENT LENGTH < 100
 	// Gets the content length of the message.
 	// Reads header (or all) in until Content-Lenght string is found.  Then gets the next three bytes/numbers unless a 
@@ -278,15 +288,6 @@ namespace Transmission
 	}
 
 
-	// Compare first line of response with known response to see if successful.
-	// Uses defined string to compare each character of response for accuracty.
-	// Returns if they do not match.
-	bool first_line_is_invalid()
-	{
-		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length((char*)VALID_RESPONSE_STR));
-	}
-
-
 	// SUGAR: Name should explain what it does.
 	// Returns true if buffer is empty, else false if not empty.
 	bool return_whether_buffer_is_empty_and_clear_it_if_not()
@@ -300,6 +301,12 @@ namespace Transmission
 	{
 		post_data(String("data=")+(char*)packet_buffer, User::complete_page);
 		clear_buffer();
+	}
+
+
+	void wait_for_request()
+	{
+		while(!Global::client.available()) delayMicroseconds(10);
 	}
 
 }  // end namespace Transmission

@@ -146,6 +146,8 @@ namespace GPIO
 	// Does two pulses every iteration until sensor is tripped.
 	void move_until_state_reached(bool(*state_function)())
 	{
+		enable_motor();
+
 		while(!state_function())
 		{
 			digitalWrite(PULSE_PIN, HIGH);
@@ -157,6 +159,8 @@ namespace GPIO
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
 		}
+
+		disable_motor();
 	}
 
 
@@ -167,6 +171,8 @@ namespace GPIO
 	// Returns number of steps taken to reach point.
 	uint32_t move_and_count_until_state_reached(bool(*state_function)())
 	{
+		enable_motor();
+
 		register uint32_t steps = 0;
 		while(!state_function())
 		{
@@ -180,6 +186,8 @@ namespace GPIO
 			delayMicroseconds(PULSE_WAIT);
 			steps += 2;
 		}
+
+		disable_motor();
 		return steps;
 	}
 
@@ -191,6 +199,8 @@ namespace GPIO
 	// Returns remaining steps.
 	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)())
 	{
+		enable_motor();
+
 		steps = steps & 0xFFFFFFFE;  // make number of steps an even amount to match movement loop (prevent overflow)
 		while(steps && !state_function())
 		{
@@ -204,6 +214,8 @@ namespace GPIO
 			delayMicroseconds(PULSE_WAIT);
 			steps -= 2;
 		}
+
+		disable_motor();
 		return steps;
 	}
 
