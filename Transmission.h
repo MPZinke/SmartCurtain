@@ -23,13 +23,12 @@
 
 namespace Transmission
 {
-	// ———— CONNECTION ————
-	void ensure_connection();
 	// ———— SENDING/RECEIVING ————
 	void post_data(char[], const char[]);
 	void post_data(String, const char[]);
 	bool request_successfully_read_into_(byte[]);
-	void write_invalid_json_response_to_(byte[]);
+	void clear_client_and_send_invalid_json_response();
+	void send_valid_json_response_and_stop_client();
 	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
 	bool buffer_matches_string(const char[]);
@@ -39,6 +38,7 @@ namespace Transmission
 	void clear_buffer();
 	bool clear_buffer_and_return_false();
 	bool clear_buffer_and_return_true();
+	bool client_read_double_carriage_return_new_line();
 	bool first_line_is_invalid();
 	uint8_t message_length();
 	uint64_t message_length(uint8_t);
@@ -51,18 +51,18 @@ namespace Transmission
 
 	// ———— STRING LITERALS ————
 	const char CONTENT_LENGTH_CONST_CSTR[] = "Content-Length: ";
+	const char COMPLETE_PAGE_HEADER[] = "POST " USER_COMPLETE_PAGE " HTTP/1.1";
 	const char VALID_RESPONSE_STR[] = "HTTP/1.1 200 OK";  // initial string for valid response from device
 
 	// ———— ENCODING ————
 	// Designed for:
-	//	{"curtain" : 99, "event" : 4294967295, "length" : 4294967295, "current position" : 4294967295,
-	//    "desired position" : 4294967295, "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
+	//	{"length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, "direction" : 1,
+	//	  "auto calibrate" : 1, "auto correct" : 1}
 	// — OR —
-	//	{"curtain":1,"event":0,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
-	//   "auto correct":1}
+	//	{"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,"auto correct":1}
 
 	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
-	const uint8_t MIN_PACKET_LENGTH = 116;  // every valid packet received will have at least this amount of chars
+	const uint8_t MIN_PACKET_LENGTH = 104;  // every valid packet received will have at least this amount of chars
 	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 188(189) chars
 
 	const char CURTAIN_KEY[] = "\"curtain\"";
@@ -77,6 +77,7 @@ namespace Transmission
 	const char DIRECTION_KEY[] = "\"direction\"";
 
 	const char INVALID_JSON_RESPONSE[] = "{\"error\" : \"Invalid packet received\"}";
+	const char VALID_JSON_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
 
 
 	// ——————————————————————————————————————————————— SENDING/RECEIVING ———————————————————————————————————————————————
@@ -84,18 +85,14 @@ namespace Transmission
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
 	// Prints to client as per https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
-	void post_data(char data[], const char page[]=User::current_page)
+	void post_data(char data[], const char header[]=VALID_RESPONSE_STR)
 	{
-		ensure_connection();
-
-		Global::client->print("POST ");
-		Global::client->print(page);
-		Global::client->println(" HTTP/1.1");
+		Global::client->println(header);
 
 		Global::client->print("Host: ");
 		Global::client->println(User::hub_host_cstr);
 
-		Global::client->println("Content-Type: application/x-www-form-urlencoded");
+		Global::client->println("Content-Type: application/json");
 		Global::client->print("Content-Length: ");
 		Global::client->println(C_String::length(data));
 		Global::client->println();
@@ -106,9 +103,9 @@ namespace Transmission
 
 	// Sends data using POST method to HOST.
 	// Takes char array of data to post.  Prints data to client.
-	void post_data(String data, const char page[]=User::current_page)
+	void post_data(String data, const char header[]=VALID_RESPONSE_STR)
 	{
-		post_data(data.c_str(), page);
+		post_data(data.c_str(), header);
 	}
 
 
@@ -130,8 +127,8 @@ namespace Transmission
 
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
-		while(Global::client->available() >= 2 && (Global::client->read() != '\n' || Global::client->read() != '\n'));
-		if(Global::client->available() <= 2) return clear_buffer_and_return_false();  // read to end(shouldn't happen)
+		while(Global::client->available() >= 2 && !client_read_double_carriage_return_new_line());
+		if(Global::client->available() < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();  // shouldn't happen
 
 		for(int x = 0; Global::client->available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client->read();
 
@@ -140,9 +137,17 @@ namespace Transmission
 	}
 
 
-	void write_invalid_json_response_to_(byte packet_buffer[])
+	void clear_client_and_send_invalid_json_response()
 	{
-		C_String::copy(INVALID_JSON_RESPONSE, (char*)packet_buffer);
+		clear_buffer();
+		Transmission::post_data((char*)INVALID_JSON_RESPONSE);
+	}
+
+
+	void send_valid_json_response_and_stop_client()
+	{
+		Transmission::post_data((char*)VALID_JSON_RESPONSE);
+		Global::client->stop();
 	}
 
 
@@ -231,6 +236,14 @@ namespace Transmission
 	}
 
 
+	// For those who like to smother protocols with \r
+	bool client_read_double_carriage_return_new_line()
+	{
+		EthernetClient* client = Global::client;
+		return client->read() == '\r' && client->read() == '\n' && client->read() == '\r' && client->read() == '\n';
+	}
+
+
 	// Compare first line of response with known response to see if successful.
 	// Uses defined string to compare each character of response for accuracty.
 	// Returns if they do not match.
@@ -297,8 +310,23 @@ namespace Transmission
 
 	void update_hub(byte packet_buffer[])
 	{
-		post_data(String("data=")+(char*)packet_buffer, User::complete_page);
-		clear_buffer();
+		EthernetClient client;
+		client.connect(User::hub_host, 80);  //HARDCODED: port
+
+		if(Global::client->connected()) Global::client->stop();  // make sure I wasn't incompetent :)
+		Global::client = &client;
+
+		uint8_t timeout = 255;
+		for(timeout = 255; !client.connected() && timeout; timeout--) delayMicroseconds(10);
+
+		if(timeout)
+		{
+			post_data((char*)packet_buffer, COMPLETE_PAGE_HEADER);
+			clear_buffer();
+		}
+
+		client.stop();
+		Global::client = NULL;
 	}
 
 

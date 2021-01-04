@@ -19,7 +19,6 @@ namespace User
 {
 	// ————————————————————————————————————————————————— USER: GLOBAL —————————————————————————————————————————————————
 
-	const char curtain_number[] = "1";
 	// ———— ETHERNET ————
 	// Node
 	uint8_t mac_address[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
@@ -29,8 +28,9 @@ namespace User
 	uint8_t router_gateway[] = {10,0,0,1};
 	uint8_t subnet_mask[] = {255,255,255,0};  // of the router
 
-	const char hub_host_cstr[] = "10.0.0.11";
-	const char current_page[] = "/api/current";  // page to get status of curtain from.
-	const char complete_page[] = "/api/complete";  // page to update Hub to current status
+	uint8_t hub_host[] = {10, 0, 0, 23};
+	const char hub_host_cstr[] = "10.0.0.23";
 
 } // end namespace User
+
+#define USER_COMPLETE_PAGE "/test"
