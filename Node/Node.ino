@@ -39,13 +39,13 @@
 void setup()
 {
 	// ———— GPIO SETUP ————
-	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
-	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
-	pinMode(Gpio::DIRECTION_PIN, OUTPUT);
-	pinMode(Gpio::ENABLE_PIN, OUTPUT);
-	pinMode(Gpio::PULSE_PIN, OUTPUT);
+	// pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
+	// pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
+	// pinMode(Gpio::DIRECTION_PIN, OUTPUT);
+	// pinMode(Gpio::ENABLE_PIN, OUTPUT);
+	// pinMode(Gpio::PULSE_PIN, OUTPUT);
 
-	Gpio::disable_motor();  // don't burn up the motor
+	// Gpio::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
 	// ethernet setup
@@ -57,39 +57,38 @@ void setup()
 
 void loop()
 {
-	Gpio::disable_motor();  // don't burn up the motor
+	// Gpio::disable_motor();  // don't burn up the motor
 
 	byte packet_buffer[Transmission::BUFFER_LENGTH];
 	EthernetClient client = Transmission::wait_for_request();
 	Global::client = &client;
+	// while(Global::client->available()) Serial.print((char)Global::client->read());
 
 	// bad message: retry later
 	if(!Transmission::request_successfully_read_into_(packet_buffer))
 	{
-		Transmission::write_invalid_json_response_to_(packet_buffer);
-		return Transmission::clear_buffer(); 
+		return Transmission::clear_client_and_send_invalid_json_response();
 	}
 
 	Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
-	if(curtain.event())
-	{
-		if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
-		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-		// ing or closing curtain.
-		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
-		else
-		{
-			if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
-			else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
-			else Gpio::move_until_closed(curtain.direction());
-		}
-	}
+	Transmission::send_valid_json_response_and_stop_client();
+
+	// 	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
+	// 	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
+	// 	// ing or closing curtain.
+	// 	// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+	// 	else
+	// 	{
+	// 		if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
+	// 		else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
+	// 		else Gpio::move_until_closed(curtain.direction());
+	// 	}
 
 	// clean up and update curtain
 	curtain.set_location();
 	curtain.encode(packet_buffer);
 	Transmission::update_hub(packet_buffer);
-	// Global::client->stop();
 
+	Global::client = NULL;  // make sure I haven't forgotten anything
 	delay(700);
 }

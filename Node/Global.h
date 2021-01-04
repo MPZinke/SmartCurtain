@@ -66,6 +66,13 @@ namespace C_String
 	// Converts from least signicicant bit first, then reverses chars.
 	void itoa(uint32_t integer, char to[])
 	{
+		if(!integer)
+		{
+			*to = 48;
+			to[1] = 0;
+			return;
+		}
+
 		uint8_t x;
 		for(x = 0; x < 255 && integer; x++)
 		{
@@ -75,7 +82,7 @@ namespace C_String
 		to[x--] = 0;  // null terminate and back step
 
 		// the old switch-a-roo
-		for(uint8_t y = 0; y < x; y++)
+		for(uint8_t y = 0; y < (x+1) / 2; y++)
 		{
 			char left = to[y];
 			to[y] = to[x-y];
@@ -278,9 +285,9 @@ namespace Json
 	{
 		// determine value 
 		uint8_t value_start = position_of_value_for_key(json, key);
-		if(value_start < 0) return 0;
+		if(value_start == (uint8_t)-1) return 0;
 		uint8_t value_end = C_String::next_white_space(json+value_start);
-		if(value_end < 0 || value_start == value_end) return 0;
+		if(value_end == (uint8_t)-1 || value_start == value_end) return 0;
 
 		char buffer[256];
 		C_String::copy_n(json+value_start, buffer, value_end - value_start);
@@ -361,7 +368,7 @@ namespace Json
 		// Store index in string in 'index' variable & the next expected token with the sought_token_type variable.
 		// x is used to limit max interations while not incrementing index each loop (so functions can set index past
 		// end of tokens without any crazy decrementing before loop increment).
-		for(uint8_t x = 0, index = 1, sought_token_type = KEY; x < 255 && length < index; x++)  // allow max 255 iters
+		for(uint8_t x = 0, index = 1, sought_token_type = KEY; x < 255 && index < length; x++)  // allow max 255 iters
 		{
 			skip_white_space(string, length, index);
 			// check for proper ending of JSON Object  REGEX: \}[ \t\n\r\f]*
