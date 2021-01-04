@@ -15,6 +15,9 @@
 
 #pragma once
 
+
+#include<Ethernet.h>
+
 #include "Global.h"
 
 
@@ -26,6 +29,7 @@ namespace Transmission
 	void post_data(char[], const char[]);
 	void post_data(String, const char[]);
 	bool request_successfully_read_into_(byte[]);
+	void write_invalid_json_response_to_(byte[]);
 	// ———— UTILITY ————
 	bool buffer_matches_string(const char[], uint8_t);
 	bool buffer_matches_string(const char[]);
@@ -40,7 +44,7 @@ namespace Transmission
 	uint64_t message_length(uint8_t);
 	bool return_whether_buffer_is_empty_and_clear_it_if_not();
 	void update_hub(byte[]);
-	void wait_for_request();
+	EthernetClient wait_for_request();
 
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
@@ -72,19 +76,7 @@ namespace Transmission
 	const char CORRECT_KEY[] = "\"auto correct\"";
 	const char DIRECTION_KEY[] = "\"direction\"";
 
-
-	// —————————————————————————————————————————————————— CONNECTION ——————————————————————————————————————————————————
-
-	// Checks whether server is connected.
-	// If not, continually tries to connect to server.
-	void ensure_connection()
-	{
-		while(!Global::client.connected()) 
-		{
-			delay(1000);
-			Global::client.connect(Global::server, 80);
-		}
-	}
+	const char INVALID_JSON_RESPONSE[] = "{\"error\" : \"Invalid packet received\"}";
 
 
 	// ——————————————————————————————————————————————— SENDING/RECEIVING ———————————————————————————————————————————————
@@ -96,19 +88,19 @@ namespace Transmission
 	{
 		ensure_connection();
 
-		Global::client.print("POST ");
-		Global::client.print(page);
-		Global::client.println(" HTTP/1.1");
+		Global::client->print("POST ");
+		Global::client->print(page);
+		Global::client->println(" HTTP/1.1");
 
-		Global::client.print("Host: ");
-		Global::client.println(User::master_host_cstr);
+		Global::client->print("Host: ");
+		Global::client->println(User::hub_host_cstr);
 
-		Global::client.println("Content-Type: application/x-www-form-urlencoded");
-		Global::client.print("Content-Length: ");
-		Global::client.println(C_String::length(data));
-		Global::client.println();
-		Global::client.print(data);
-		Global::client.println();
+		Global::client->println("Content-Type: application/x-www-form-urlencoded");
+		Global::client->print("Content-Length: ");
+		Global::client->println(C_String::length(data));
+		Global::client->println();
+		Global::client->print(data);
+		Global::client->println();
 	}
 
 
@@ -126,7 +118,7 @@ namespace Transmission
 	// Returns true if valid. 
 	bool request_successfully_read_into_(byte packet_buffer[])
 	{
-		while(!Global::client.available());  // wait for reponse
+		while(!Global::client->available());  // wait for reponse
 		if(first_line_is_invalid()) return clear_buffer_and_return_false();
 		uint8_t length = message_length();
 		if(length < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();  // ignore header & get content length
@@ -138,13 +130,19 @@ namespace Transmission
 
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
-		while(Global::client.available() >= 2 && (Global::client.read() != '\n' || Global::client.read() != '\n'));
-		if(Global::client.available() <= 2) return clear_buffer_and_return_false();  // read until end(shouldn't happen)
+		while(Global::client->available() >= 2 && (Global::client->read() != '\n' || Global::client->read() != '\n'));
+		if(Global::client->available() <= 2) return clear_buffer_and_return_false();  // read to end(shouldn't happen)
 
-		for(int x = 0; Global::client.available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client.read();
+		for(int x = 0; Global::client->available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client->read();
 
-		if(Global::client.available()) return false;  // should always be empty, but let's be prudent :D
+		if(Global::client->available()) return false;  // should always be empty, but let's be prudent :D
 		return Json::is_object_json((char*)packet_buffer, length);
+	}
+
+
+	void write_invalid_json_response_to_(byte packet_buffer[])
+	{
+		C_String::copy(INVALID_JSON_RESPONSE, (char*)packet_buffer);
 	}
 
 
@@ -157,8 +155,8 @@ namespace Transmission
 	// Returns true if string matches buffer, false otherwise.
 	bool buffer_matches_string(const char compare_string[], uint8_t length)
 	{
-		if(Global::client.available() < length) return false;  // not != b/c might want to pull more after match
-		for(uint8_t x = 0; x < length; x++) if(compare_string[x] != Global::client.read()) return false;
+		if(Global::client->available() < length) return false;  // not != b/c might want to pull more after match
+		for(uint8_t x = 0; x < length; x++) if(compare_string[x] != Global::client->read()) return false;
 
 		return true;
 	}
@@ -185,9 +183,9 @@ namespace Transmission
 	{
 		uint8_t x;
 		byte previous;
-		for(x = 0; Global::client.available() && x < length; x++)
+		for(x = 0; Global::client->available() && x < length; x++)
 		{
-			previous = Global::client.read();
+			previous = Global::client->read();
 			if(compare_string[x] != previous) return previous;
 		}
 		return x != length;  // return NULL if x is the length of string, 1 if x is not length of string
@@ -209,7 +207,7 @@ namespace Transmission
 	// Discards info from client while it is available.
 	void clear_buffer()
 	{
-		while(Global::client.available()) Global::client.read();
+		while(Global::client->available()) Global::client->read();
 	}
 
 
@@ -228,7 +226,7 @@ namespace Transmission
 	// Returns true (so that calling function can return it (and true)).
 	bool clear_buffer_and_return_true()
 	{
-		while(Global::client.available()) Global::client.read();
+		while(Global::client->available()) Global::client->read();
 		return true;
 	}
 
@@ -250,13 +248,13 @@ namespace Transmission
 	uint8_t message_length()
 	{
 		// skip while at wrong part
-		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
+		while(Global::client->available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
 		char number_buffer[4] = {0, 0, 0, 0};  // zero out for arbitrary number between [0, 999]
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
-		for(uint8_t x = 0; x < 3 && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
+		for(uint8_t x = 0; x < 3 && (x == 0 || number_buffer[x-1] != '\n') && Global::client->available(); x++)
 		{
-			number_buffer[x] = Global::client.read();
+			number_buffer[x] = Global::client->read();
 		}
 		return atoi(number_buffer);
 	}
@@ -271,14 +269,14 @@ namespace Transmission
 	{
 		assert(max_digits <= 20);  // number of base-10 digits for a uint64_t
 		// skip while at wrong part
-		while(Global::client.available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
+		while(Global::client->available() && buffer_mismatches_string(CONTENT_LENGTH_CONST_CSTR));
 
 		// zero out for arbitrary number between [0, 10^max_digits]
 		char* number_buffer = (char*)calloc(max_digits+1, sizeof(char));
 		// (get next three bytes OR stop at newline) if buffer available (should be, but double check :) )
-		for(uint8_t x = 0; x < max_digits && (x == 0 || number_buffer[x-1] != '\n') && Global::client.available(); x++)
+		for(uint8_t x = 0; x < max_digits && (x == 0 || number_buffer[x-1] != '\n') && Global::client->available(); x++)
 		{
-			number_buffer[x] = Global::client.read();
+			number_buffer[x] = Global::client->read();
 		}
 
 		uint64_t length = atoi(number_buffer);
@@ -292,7 +290,7 @@ namespace Transmission
 	// Returns true if buffer is empty, else false if not empty.
 	bool return_whether_buffer_is_empty_and_clear_it_if_not()
 	{
-		if(!Global::client.available()) return true;
+		if(!Global::client->available()) return true;
 		return clear_buffer_and_return_false();
 	}
 
@@ -304,9 +302,10 @@ namespace Transmission
 	}
 
 
-	void wait_for_request()
+	EthernetClient wait_for_request()
 	{
-		while(!Global::client.available()) delayMicroseconds(10);
+		while(!Global::server.available()) delayMicroseconds(10);
+		return Global::server.available();
 	}
 
 }  // end namespace Transmission

@@ -17,8 +17,8 @@
 ***********************************************************************************************************************/
 
 
-#ifndef _GLOBAL_
-#define _GLOBAL_
+#pragma once
+
 
 #include "User.h"
 
@@ -152,7 +152,7 @@ namespace Curtain  // also exists in Curtain.h
 	} CurtainState;
 
 
-	// declared here for GPIO.h functions, since GPIO.h is called in Curtain.h (and thus exists before it)
+	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
 	class Curtain
 	{
 		private:
@@ -210,9 +210,10 @@ namespace Global
 	const uint32_t wiggle_room = 5;  // steps within ends to consider "end zones"
 	const uint32_t steps_for_calibration = 5;  // how picky the program should be movement
 
+	const uint16_t loop_wait = 1024;  // a nice power of 2
 
-	IPAddress server(User::master_host[0], User::master_host[1], User::master_host[2], User::master_host[3]);
-	EthernetClient client;  // the magician
+	EthernetServer server(User::port);
+	EthernetClient* client = NULL;
 
 } // end namespace Global
 
@@ -413,5 +414,3 @@ namespace Json
 // —————————————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————————————
 
 #define DEF(x) #x  // convert a define into a string
-
-#endif

@@ -12,12 +12,13 @@
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
-#ifndef _GPIO_
-#define _GPIO_
+
+#pragma once
+
 
 #include "Global.h"
 
-namespace GPIO
+namespace Gpio
 {
 	void disable_motor();
 	void enable_motor();
@@ -222,7 +223,7 @@ namespace GPIO
 
 	// ————————————————————————————————————————————————————— SUGAR —————————————————————————————————————————————————————
 
-	// For functionality, see: GPIO::move_until_state_reached(.).
+	// For functionality, see: Gpio::move_until_state_reached(.).
 	// Takes movement direction flag option (that is then XOR-ed).
 	void move_until_closed(bool curtain_direction)
 	{
@@ -257,5 +258,3 @@ namespace GPIO
 	}
 
 }  // end namespace GPIO
-
-#endif

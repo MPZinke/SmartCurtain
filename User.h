@@ -12,22 +12,25 @@
 ***********************************************************************************************************************/
 
 
-#ifndef _USER_
-#define _USER_
+#pragma once
+
 
 namespace User
 {
 	// ————————————————————————————————————————————————— USER: GLOBAL —————————————————————————————————————————————————
 
 	const char curtain_number[] = "1";
-	const char master_host[] = {10,0,0,11};
-	const char master_host_cstr[] = "10.0.0.11";
+	// ———— ETHERNET ————
+	// Node
+	uint8_t mac_address[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
+	uint8_t node_host[] = {10,0,0,12};
+	const uint16_t port = 80;
+	// Router
+	uint8_t router_gateway[] = {10,0,0,1};
+	uint8_t subnet_mask[] = {255,255,255,0};  // of the router
+
+	const char hub_host_cstr[] = "10.0.0.11";
 	const char current_page[] = "/api/current";  // page to get status of curtain from.
 	const char complete_page[] = "/api/complete";  // page to update Hub to current status
-	const uint8_t curtain_mac[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
-
-	const uint16_t loop_wait = 1024;  // a nice power of 2
 
 } // end namespace User
-
-#endif
