@@ -12,11 +12,11 @@
 ***********************************************************************************************************************/
 
 
-#ifndef _Curtain_
-#define _Curtain_
+#pragma once
+
 
 #include "Global.h"
-#include "GPIO.h"
+#include "Gpio.h"
 #include "Transmission.h"
 #include "User.h"
 
@@ -183,7 +183,7 @@ namespace Curtain
 	// Returns true if curtain moves all the way across rod, false otherwise.
 	bool Curtain::moves_full_span()
 	{
-		CurtainState curtian_state = GPIO::state();
+		CurtainState curtian_state = Gpio::state();
 		CurtainState desired_state = state_of(_desired_position, _length);
 		// parens not needed (precedence) but used to remove warnings
 		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
@@ -238,9 +238,9 @@ namespace Curtain
 	// Sets self::_current_position to match open/closed if applicable.
 	void Curtain::set_current_position_if_does_not_match_sensors()
 	{
-		if(GPIO::is_closed() && !is_approximate_position(_current_position, 0))
+		if(Gpio::is_closed() && !is_approximate_position(_current_position, 0))
 			_current_position = 0;
-		else if(GPIO::is_open() && !is_approximate_position(_current_position, _length))
+		else if(Gpio::is_open() && !is_approximate_position(_current_position, _length))
 			_current_position = _length;
 	}
 
@@ -249,11 +249,9 @@ namespace Curtain
 	// Sets the location of the curtain based on GPIO if possible, other wise desired location.
 	void Curtain::set_location()
 	{
-		if(GPIO::is_open()) _current_position = _length;
-		else if(GPIO::is_closed()) _current_position = 0;
+		if(Gpio::is_open()) _current_position = _length;
+		else if(Gpio::is_closed()) _current_position = 0;
 		else _current_position = _desired_position;
 	}
 
 } // end namespace Curtain
-
-#endif
