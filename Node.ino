@@ -65,9 +65,10 @@ void loop()
 	// while(Global::client->available()) Serial.print((char)Global::client->read());
 
 	// bad message: retry later
-	if(!Transmission::request_successfully_read_into_(packet_buffer))
+	if(!Transmission::request_successfully_read_into_(packet_buffer)) return;
+	if(!Json::object_is_json((char*)packet_buffer))
 	{
-		return Transmission::clear_client_and_send_invalid_json_response();
+		return Transmission::clear_post_and_end_client((const char*)packet_buffer);
 	}
 
 	Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)

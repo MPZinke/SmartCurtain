@@ -251,8 +251,8 @@ namespace Json
 	bool next_token_is_int_lit(char[], uint8_t, uint8_t&);
 	void skip_white_space(char[], uint8_t, uint8_t&);
 	// ———— JSON: VALIDATION ————
-	bool is_object_json(char[], uint8_t);
-	bool is_object_json(char[]);
+	bool object_is_json(char[], uint8_t);
+	bool object_is_json(char[]);
 
 
 	// ————————————————————————————————————————————————— JSON: GETTERS —————————————————————————————————————————————————
@@ -360,7 +360,7 @@ namespace Json
 	// Takes address of string, length of string.
 	// Iterates over string, creating tokens & checking format using next expected token.  
 	// Returns true if string is correctly formatted to, false otherwise.
-	bool is_object_json(char string[], uint8_t length)
+	bool object_is_json(char string[], uint8_t length)
 	{
 		if(string[0] != '{') return false;  // easiest check of all
 
@@ -410,9 +410,9 @@ namespace Json
 	// Takes address of string.
 	// Determines length of string. Iterates over string, creating tokens & checking format using next expected token.  
 	// Returns true if string is correctly formatted to, false otherwise.
-	bool is_object_json(char string[])
+	bool object_is_json(char string[])
 	{
-		return is_object_json(string, C_String::length(string));
+		return object_is_json(string, C_String::length(string));
 	}
 
 } // end namespace Json
