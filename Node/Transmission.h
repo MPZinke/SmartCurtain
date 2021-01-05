@@ -36,13 +36,12 @@ namespace Transmission
 	byte buffer_mismatches_string(const char[]);
 	bool checksum_packet(byte[]);
 	void clear_buffer();
-	bool clear_buffer_and_return_false();
+	bool clear_buffer_send_error_and_return_false(const char[]);
 	bool clear_buffer_and_return_true();
 	bool client_read_double_carriage_return_new_line();
-	bool first_line_is_invalid();
+	bool response_type_is_invalid();
 	uint8_t message_length();
 	uint64_t message_length(uint8_t);
-	bool return_whether_buffer_is_empty_and_clear_it_if_not();
 	void update_hub(byte[]);
 	EthernetClient wait_for_request();
 
@@ -56,15 +55,17 @@ namespace Transmission
 
 	// ———— ENCODING ————
 	// Designed for:
-	//	{"length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295, "direction" : 1,
-	//	  "auto calibrate" : 1, "auto correct" : 1}
+	//	{"event" : 4294967295, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295,
+	//	  "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
 	// — OR —
-	//	{"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,"auto correct":1}
+	//	{"event" : 0, "length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
+	//	  "auto correct":1}
 
 	// if MIN_PACKET_LENGTH ever changes, change Transmissions::message_length(.) to match number of digits
 	const uint8_t MIN_PACKET_LENGTH = 104;  // every valid packet received will have at least this amount of chars
 	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 188(189) chars
 
+	// json
 	const char CURTAIN_KEY[] = "\"curtain\"";
 	const char CURRENT_POS_KEY[] = "\"current position\"";
 	const char LENGTH_KEY[] = "\"length\"";
@@ -76,8 +77,14 @@ namespace Transmission
 	const char CORRECT_KEY[] = "\"auto correct\"";
 	const char DIRECTION_KEY[] = "\"direction\"";
 
-	const char INVALID_JSON_RESPONSE[] = "{\"error\" : \"Invalid packet received\"}";
-	const char VALID_JSON_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
+	// messages
+	const char BAD_JSON[] = "{\"error\" : \"Package received does not match JSON format\"}";
+	const char BAD_RESPONSE_CODE[] = "{\"error\" : \"Invalid response code\"}";
+	const char INVALID_MAX_LENGTH[] = "{\"error\" : \"Packet length too long\"}";
+	const char INVALID_MIN_LENGTH[] = "{\"error\" : \"Packet length too short\"}";
+	const char LEFT_OVER_CHARACTERS[] = "{\"error\" : \"Not all characters were consumed from buffer\"}";
+	const char NO_DATA[] = "{\"error\" : \"Too many characters consumed searching for double newline\"}";
+	const char VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
 
 
 	// ——————————————————————————————————————————————— SENDING/RECEIVING ———————————————————————————————————————————————
@@ -109,16 +116,36 @@ namespace Transmission
 	}
 
 
+	// Clears the client buffer, post message to client, & stops client.
+	// Takes pointer to message c-string.
+	void clear_post_and_end_client(const char message[])
+	{
+		clear_buffer();
+		post_data((char*)message);
+		Global::client->stop();
+	}
+
+
+
+	bool send_message_and_end_client(const char message[])
+	{
+		clear_post_and_end_client(message);
+		return false;
+	}
+
+
 	// Reads the incoming transmission from the response.
 	// Takes pointer to the buffer where the scraped data will be stored.
-	// Checks that the data transmission is of the correct format.
-	// Returns true if valid. 
+	// Checks that the data transmission is of the correct format. Sends error response if not of correct format.
+	// Returns whether data packet of correct format.
 	bool request_successfully_read_into_(byte packet_buffer[])
 	{
 		while(!Global::client->available());  // wait for reponse
-		if(first_line_is_invalid()) return clear_buffer_and_return_false();
-		uint8_t length = message_length();
-		if(length < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();  // ignore header & get content length
+		if(response_type_is_invalid()) return send_message_and_end_client(BAD_RESPONSE_CODE);
+
+		uint8_t length = message_length();  // ignore header & get content length
+		if(length < MIN_PACKET_LENGTH) return send_message_and_end_client(INVALID_MIN_LENGTH);
+		if(BUFFER_LENGTH <= length) return send_message_and_end_client(INVALID_MAX_LENGTH);
 
 		// FROM: https://en.wikipedia.org/wiki/HTTP_message_body
 		//  The content length's last char & message body's first char will have 2 new lines between them.
@@ -128,25 +155,22 @@ namespace Transmission
 		// while not two consecutive new-lines, ignore left-over headers if able to
 		// message_length() should end before eats up \n. If it doesn't, something is wrong & rest is ignored
 		while(Global::client->available() >= 2 && !client_read_double_carriage_return_new_line());
-		if(Global::client->available() < MIN_PACKET_LENGTH) return clear_buffer_and_return_false();  // shouldn't happen
+		if(Global::client->available() < MIN_PACKET_LENGTH) return send_message_and_end_client(NO_DATA);
 
-		for(int x = 0; Global::client->available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client->read();
+		int x;
+		for(x = 0; Global::client->available() && x < BUFFER_LENGTH; x++) packet_buffer[x] = Global::client->read();
 
-		if(Global::client->available()) return false;  // should always be empty, but let's be prudent :D
-		return Json::is_object_json((char*)packet_buffer, length);
-	}
+		// should always be empty and return !false, but let's be prudent :D
+		if(Global::client->available() || x == BUFFER_LENGTH) return send_message_and_end_client(LEFT_OVER_CHARACTERS);
 
-
-	void clear_client_and_send_invalid_json_response()
-	{
-		clear_buffer();
-		Transmission::post_data((char*)INVALID_JSON_RESPONSE);
+		packet_buffer[x] = 0;
+		return true;
 	}
 
 
 	void send_valid_json_response_and_stop_client()
 	{
-		Transmission::post_data((char*)VALID_JSON_RESPONSE);
+		Transmission::post_data((char*)VALID_RESPONSE);
 		Global::client->stop();
 	}
 
@@ -219,9 +243,10 @@ namespace Transmission
 	// SUGAR: Clears the buffer of remaining character & returns false.
 	// Iterates through buffer until empty.
 	// Returns false (so that calling function can return it (and false)).
-	bool clear_buffer_and_return_false()
+	bool clear_buffer_send_error_and_return_false(const char message[])
 	{
 		clear_buffer();
+		post_data(message);
 		return false;
 	}
 
@@ -247,7 +272,7 @@ namespace Transmission
 	// Compare first line of response with known response to see if successful.
 	// Uses defined string to compare each character of response for accuracty.
 	// Returns if they do not match.
-	bool first_line_is_invalid()
+	bool response_type_is_invalid()
 	{
 		return buffer_matches_string(VALID_RESPONSE_STR, C_String::length((char*)VALID_RESPONSE_STR));
 	}
@@ -296,15 +321,6 @@ namespace Transmission
 		free(number_buffer);  // didn't forget to do this ;)
 
 		return length;
-	}
-
-
-	// SUGAR: Name should explain what it does.
-	// Returns true if buffer is empty, else false if not empty.
-	bool return_whether_buffer_is_empty_and_clear_it_if_not()
-	{
-		if(!Global::client->available()) return true;
-		return clear_buffer_and_return_false();
 	}
 
 

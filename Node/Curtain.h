@@ -98,18 +98,27 @@ namespace Curtain
 	void Curtain::encode(byte packet_buffer[])
 	{
 		packet_buffer[0] = '{';
+		// current position
 		C_String::copy(Transmission::CURRENT_POS_KEY, (char*)packet_buffer+1);  // +2 from previous ", "
 		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY);  // -1 + 1 (for ignore NULL Terminator & start '{')
 		C_String::copy_n(" : ", (char*)packet_buffer, 3);
 		C_String::itoa(_current_position, (char*)packet_buffer+3);  // +3 from previous " : "
 		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
 		C_String::copy_n(", ", (char*)packet_buffer, 2);
-
+		// event
+		C_String::copy(Transmission::EVENT_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
+		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::itoa(_event, (char*)packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)packet_buffer, 2);
+		// length
 		C_String::copy(Transmission::LENGTH_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
 		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
 		C_String::copy_n(" : ", (char*)packet_buffer, 3);
 		C_String::itoa(_length, (char*)packet_buffer+3);  // +3 from previous " : "
 		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+
 		*packet_buffer = '}';
 		packet_buffer[1] = 0;
 	}
