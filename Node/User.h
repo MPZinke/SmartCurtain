@@ -18,6 +18,8 @@
 namespace User
 {
 	// ————————————————————————————————————————————————— USER: GLOBAL —————————————————————————————————————————————————
+	const char curtain_id[] = "1";
+
 
 	// ———— ETHERNET ————
 	// Node
@@ -33,4 +35,4 @@ namespace User
 
 } // end namespace User
 
-#define USER_COMPLETE_PAGE "/test"
+#define USER_COMPLETE_PAGE "/api/update/event"

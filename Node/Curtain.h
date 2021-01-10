@@ -105,6 +105,13 @@ namespace Curtain
 		C_String::itoa(_current_position, (char*)packet_buffer+3);  // +3 from previous " : "
 		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
 		C_String::copy_n(", ", (char*)packet_buffer, 2);
+		// curtain
+		C_String::copy(Transmission::CURTAIN_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
+		packet_buffer += sizeof(Transmission::CURTAIN_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)packet_buffer, 3);
+		C_String::copy(User::curtain_id, (char*)packet_buffer+3);  // +3 from previous " : "
+		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)packet_buffer, 2);
 		// event
 		C_String::copy(Transmission::EVENT_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
 		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
