@@ -43,7 +43,7 @@ namespace Transmission
 	uint8_t message_length();
 	uint64_t message_length(uint8_t);
 	void update_hub(byte[]);
-	EthernetClient wait_for_request();
+	WiFiClient wait_for_request();
 
 
 	// ————————————————————————————————————————————— TRANSMISSION: GLOBAL —————————————————————————————————————————————
@@ -264,7 +264,7 @@ namespace Transmission
 	// For those who like to smother protocols with \r
 	bool client_read_double_carriage_return_new_line()
 	{
-		EthernetClient* client = Global::client;
+		WiFiClient* client = Global::client;
 		return client->read() == '\r' && client->read() == '\n' && client->read() == '\r' && client->read() == '\n';
 	}
 
@@ -326,7 +326,7 @@ namespace Transmission
 
 	void update_hub(byte packet_buffer[])
 	{
-		EthernetClient client;
+		WiFiClient client;
 		client.connect(User::hub_host, 80);  //HARDCODED: port
 
 		if(Global::client->connected()) Global::client->stop();  // make sure I wasn't incompetent :)
@@ -346,7 +346,7 @@ namespace Transmission
 	}
 
 
-	EthernetClient wait_for_request()
+	WiFiClient wait_for_request()
 	{
 		while(!Global::server.available()) delayMicroseconds(10);
 		return Global::server.available();

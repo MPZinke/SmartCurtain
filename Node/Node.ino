@@ -23,7 +23,7 @@
 
 
 #include <assert.h>
-#include <Ethernet.h>
+#include <WiFi.h>
 #include <SPI.h>
 
 #include "Curtain.h"
@@ -49,8 +49,8 @@ void setup()
 
 	// ———— GLOBAL VARIABLES ————
 	// ethernet setup
-	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
-	Ethernet.begin(User::mac_address, User::node_host, User::router_gateway, User::subnet_mask);  // connect to LAN
+	WiFi.begin(User::SSID, User::password);
+	while(WiFi.status() != WL_CONNECTED) delay(500);
 	Global::server.begin();
 }
 
@@ -60,7 +60,7 @@ void loop()
 	// Gpio::disable_motor();  // don't burn up the motor
 
 	byte packet_buffer[Transmission::BUFFER_LENGTH];
-	EthernetClient client = Transmission::wait_for_request();
+	WiFiClient client = Transmission::wait_for_request();
 	Global::client = &client;
 	// while(Global::client->available()) Serial.print((char)Global::client->read());
 
