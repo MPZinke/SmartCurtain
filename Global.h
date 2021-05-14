@@ -219,8 +219,8 @@ namespace Global
 
 	const uint16_t loop_wait = 1024;  // a nice power of 2
 
-	EthernetServer server(User::port);
-	EthernetClient* client = NULL;
+	WiFiServer server(User::port);
+	WiFiClient* client = NULL;
 
 } // end namespace Global
 

@@ -22,6 +22,8 @@ namespace User
 
 
 	// ———— ETHERNET ————
+	char SSID[] = "";  //POPULATE: wifi name
+	char password[] = "";  //POPULATE: wifi password
 	// Node
 	uint8_t mac_address[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
 	uint8_t node_host[] = {10,0,0,12};
