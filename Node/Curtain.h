@@ -76,17 +76,17 @@ namespace Curtain
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
 	// the uint32_t number. Places segment into uint32_t parts for object.
-	Curtain::Curtain(byte packet_buffer[])
+	Curtain::Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>& json)
 	{
-		_current_position = Json::value_for_key((char*)packet_buffer, Transmission::CURRENT_POS_KEY);
-		_length = Json::value_for_key((char*)packet_buffer, Transmission::LENGTH_KEY);
+		_current_position = json[Transmission::CURRENT_POS_KEY];
+		_length = json[Transmission::LENGTH_KEY];
 
-		_event = Json::value_for_key((char*)packet_buffer, Transmission::EVENT_KEY);
-		_desired_position = Json::value_for_key((char*)packet_buffer, Transmission::DESIRED_POS_KEY);
+		_event = json[Transmission::EVENT_KEY];
+		_desired_position = json[Transmission::DESIRED_POS_KEY];
 
-		_direction = Json::value_for_key((char*)packet_buffer, Transmission::DIRECTION_KEY);
-		_auto_calibrate = Json::value_for_key((char*)packet_buffer, Transmission::CALIBRATE_KEY);
-		_auto_correct = Json::value_for_key((char*)packet_buffer, Transmission::CORRECT_KEY);
+		_direction = json[Transmission::DIRECTION_KEY];
+		_auto_calibrate = json[Transmission::CALIBRATE_KEY];
+		_auto_correct = json[Transmission::CORRECT_KEY];
 	}
 
 
@@ -95,39 +95,41 @@ namespace Curtain
 	// Sets current position and length in base 128 + 1 equivalent values.
 	// NOTES: when C_String::length is used, the previous skipped value is added to the buffer pointer so that it does
 	//   not need to retraverse recount the precalculated string literal changes.
-	void Curtain::encode(byte packet_buffer[])
+	char* Curtain::serialize_data()
 	{
-		packet_buffer[0] = '{';
-		// current position
-		C_String::copy(Transmission::CURRENT_POS_KEY, (char*)packet_buffer+1);  // +2 from previous ", "
-		packet_buffer += sizeof(Transmission::CURRENT_POS_KEY);  // -1 + 1 (for ignore NULL Terminator & start '{')
-		C_String::copy_n(" : ", (char*)packet_buffer, 3);
-		C_String::itoa(_current_position, (char*)packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)packet_buffer, 2);
-		// curtain
-		C_String::copy(Transmission::CURTAIN_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
-		packet_buffer += sizeof(Transmission::CURTAIN_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)packet_buffer, 3);
-		C_String::copy(User::curtain_id, (char*)packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)packet_buffer, 2);
-		// event
-		C_String::copy(Transmission::EVENT_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
-		packet_buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)packet_buffer, 3);
-		C_String::itoa(_event, (char*)packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)packet_buffer, 2);
-		// length
-		C_String::copy(Transmission::LENGTH_KEY, (char*)packet_buffer+2);  // +2 from previous ", "
-		packet_buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)packet_buffer, 3);
-		C_String::itoa(_length, (char*)packet_buffer+3);  // +3 from previous " : "
-		packet_buffer += C_String::length((char*)packet_buffer+3) + 3;  // move packet_buffer to next NULL Terminator
+		char* buffer = malloc(Transmission::BUFFER_LENGTH);
 
-		*packet_buffer = '}';
-		packet_buffer[1] = 0;
+		buffer[0] = '{';
+		// current position
+		C_String::copy(Transmission::CURRENT_POS_KEY, (char*)buffer+1);  // +2 from previous ", "
+		buffer += sizeof(Transmission::CURRENT_POS_KEY);  // -1 + 1 (for ignore NULL Terminator & start '{')
+		C_String::copy_n(" : ", (char*)buffer, 3);
+		C_String::itoa(_current_position, (char*)buffer+3);  // +3 from previous " : "
+		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)buffer, 2);
+		// curtain
+		C_String::copy(Transmission::CURTAIN_KEY, (char*)buffer+2);  // +2 from previous ", "
+		buffer += sizeof(Transmission::CURTAIN_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)buffer, 3);
+		C_String::copy(User::curtain_id, (char*)buffer+3);  // +3 from previous " : "
+		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)buffer, 2);
+		// event
+		C_String::copy(Transmission::EVENT_KEY, (char*)buffer+2);  // +2 from previous ", "
+		buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)buffer, 3);
+		C_String::itoa(_event, (char*)buffer+3);  // +3 from previous " : "
+		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
+		C_String::copy_n(", ", (char*)buffer, 2);
+		// length
+		C_String::copy(Transmission::LENGTH_KEY, (char*)buffer+2);  // +2 from previous ", "
+		buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
+		C_String::copy_n(" : ", (char*)buffer, 3);
+		C_String::itoa(_length, (char*)buffer+3);  // +3 from previous " : "
+		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
+
+		*buffer = '}';
+		buffer[1] = 0;
 	}
 
 
@@ -258,5 +260,15 @@ namespace Curtain
 		else if(Gpio::is_closed()) _current_position = 0;
 		else _current_position = _desired_position;
 	}
+
+
+	// ————————————————————————————————————————————————— CLASS::WRITE —————————————————————————————————————————————————
+
+	void Curtain::send_hub_serialized_info()
+	{
+		char* serialized_data = serialize_data();
+		Transmission::post_data(serialized_data);
+	}
+
 
 } // end namespace Curtain
