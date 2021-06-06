@@ -22,6 +22,7 @@
 ***********************************************************************************************************************/
 
 
+#include <ArduinoJson.h>
 #include <assert.h>
 #include <WiFi.h>
 #include <SPI.h>
@@ -48,9 +49,17 @@ void setup()
 	// Gpio::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
+#ifdef __ETHERNET__
 	// ethernet setup
+	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
+	Ethernet.begin(User::mac_address, User::node_host, User::router_gateway, User::subnet_mask);  // connect to LAN
+
+#elif __WIFI__
+	// wifi setup
 	WiFi.begin(User::SSID, User::password);
 	while(WiFi.status() != WL_CONNECTED) delay(500);
+#endif
+
 	Global::server.begin();
 }
 
@@ -59,20 +68,20 @@ void loop()
 {
 	// Gpio::disable_motor();  // don't burn up the motor
 
-	byte packet_buffer[Transmission::BUFFER_LENGTH];
 	WiFiClient client = Transmission::wait_for_request();
-	Global::client = &client;
-	// while(Global::client->available()) Serial.print((char)Global::client->read());
+	Global::client = Transmission::wait_for_request();
+	// while(Global::client->available()) Serial.print((char)Global::client->read());  //TESTING
 
 	// bad message: retry later
-	if(!Transmission::request_successfully_read_into_(packet_buffer)) return;
-	if(!Json::object_is_json((char*)packet_buffer))
-	{
-		return Transmission::clear_post_and_end_client((const char*)packet_buffer);
-	}
+	char* json_buffer = Transmission::read_transmission_data_into_buffer();
+	if(!json_buffer) return;
 
-	Curtain::Curtain curtain(packet_buffer);  // setup data (things are getting real interesting...)
-	Transmission::send_valid_json_response_and_stop_client();
+	StaticJsonDocument<Transmission::BUFFER_LENGTH> json_document;
+	if(deserializeJson(json_document, json_buffer)) return delete json_buffer;
+	delete json_buffer;
+
+	Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
+	Transmission::send_OK_response_and_stop_client();
 
 	// 	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
 	// 	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
@@ -87,9 +96,7 @@ void loop()
 
 	// clean up and update curtain
 	curtain.set_location();
-	curtain.encode(packet_buffer);
-	Transmission::update_hub(packet_buffer);
+	curtain.send_hub_serialized_info();
 
-	Global::client = NULL;  // make sure I haven't forgotten anything
 	delay(700);
 }

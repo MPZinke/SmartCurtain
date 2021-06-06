@@ -174,9 +174,11 @@ namespace Curtain  // also exists in Curtain.h
 			uint32_t _desired_position;  // desired position according to the curtain
 			uint32_t _event;  // CurtainsEvents.id (0 if no event)
 
+			char* _packet_buffer;  // pointer to json string
+
 		public:
-			Curtain(byte[]);
-			void encode(byte[]);
+			Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>&);
+			char* serialize_data();
 
 			// —————————————— GETTERS: ATTRIBUTES ——————————————
 			bool calibrate();
@@ -204,6 +206,9 @@ namespace Curtain  // also exists in Curtain.h
 			// —————————————— SETTERS: DATA ——————————————
 			void set_current_position_if_does_not_match_sensors();
 			void set_location();
+
+			// —————————————— WRITE ——————————————
+			void send_hub_serialized_info();
 	};
 
 } // end namespace Curtain
@@ -220,7 +225,7 @@ namespace Global
 	const uint16_t loop_wait = 1024;  // a nice power of 2
 
 	WiFiServer server(User::port);
-	WiFiClient* client = NULL;
+	HttpClient client;
 
 } // end namespace Global
 

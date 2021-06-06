@@ -50,6 +50,7 @@ namespace Transmission
 
 	// ———— STRING LITERALS ————
 	const char CONTENT_LENGTH_CONST_CSTR[] = "Content-Length: ";
+	const char JSON_HEADER[] = "application/x-www-form-urlencoded";
 	const char COMPLETE_PAGE_HEADER[] = "POST " USER_COMPLETE_PAGE " HTTP/1.1";
 	const char VALID_RESPONSE_STR[] = "HTTP/1.1 200 OK";  // initial string for valid response from device
 
