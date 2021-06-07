@@ -267,7 +267,7 @@ namespace Curtain
 	void Curtain::send_hub_serialized_info()
 	{
 		char* serialized_data = serialize_data();
-		Transmission::post_data(serialized_data);
+		Transmission::post_json(serialized_data);
 	}
 
 
