@@ -34,9 +34,6 @@
 #include "User.h"
 
 
-#define CURTAIN_VAR "curtain="
-
-
 void setup()
 {
 	// ———— GPIO SETUP ————

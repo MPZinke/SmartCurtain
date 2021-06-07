@@ -174,8 +174,6 @@ namespace Curtain  // also exists in Curtain.h
 			uint32_t _desired_position;  // desired position according to the curtain
 			uint32_t _event;  // CurtainsEvents.id (0 if no event)
 
-			char* _packet_buffer;  // pointer to json string
-
 		public:
 			Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>&);
 			char* serialize_data();
@@ -225,7 +223,7 @@ namespace Global
 	const uint16_t loop_wait = 1024;  // a nice power of 2
 
 	WiFiServer server(User::port);
-	HttpClient client;
+	HttpClient* client = NULL;
 
 } // end namespace Global
 
