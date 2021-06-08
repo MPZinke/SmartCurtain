@@ -24,7 +24,11 @@
 
 #include <ArduinoJson.h>
 #include <assert.h>
+#ifdef __ETHERNET__
+#include <Ethernet.h>
+#elif __WIFI__
 #include <WiFi.h>
+#endif
 #include <SPI.h>
 
 #include "Curtain.h"
@@ -50,7 +54,6 @@ void setup()
 	// ethernet setup
 	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
 	Ethernet.begin(User::mac_address, User::node_host, User::router_gateway, User::subnet_mask);  // connect to LAN
-
 #elif __WIFI__
 	// wifi setup
 	WiFi.begin(User::SSID, User::password);

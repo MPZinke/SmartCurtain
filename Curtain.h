@@ -258,7 +258,7 @@ namespace Curtain
 	{
 		if(Gpio::is_open()) _current_position = _length;
 		else if(Gpio::is_closed()) _current_position = 0;
-		else _current_position = _desired_position;
+		else _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
 	}
 
 
@@ -268,6 +268,7 @@ namespace Curtain
 	{
 		char* serialized_data = serialize_data();
 		Transmission::post_json(serialized_data);
+		delete serialize_data;
 	}
 
 
