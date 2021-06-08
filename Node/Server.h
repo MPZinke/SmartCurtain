@@ -129,5 +129,4 @@ namespace Transmission
 
 		Global::client->stop();
 	}
-
 }
