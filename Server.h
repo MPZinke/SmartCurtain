@@ -46,6 +46,7 @@ namespace Transmission
 	const char CORRECT_KEY[] = "\"auto correct\"";
 	const char DIRECTION_KEY[] = "\"direction\"";
 	// messages
+	const char INVALID_JSON[] = "{\"error\" : \"Package received does not match JSON format\"}";
 	const char VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
 
 
@@ -62,6 +63,20 @@ namespace Transmission
 			client = Global::server.available();
 		}
 		return new HttpClient(client);
+	}
+
+
+	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
+	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
+	// DETAILS:	
+	void post_json(char json[])
+	// void post_json(char json[], const char path[])
+	{
+		// Global::client->sendHeader("Content-Type", "application/json");
+		// Global::client->sendHeader("Content-Length", C_String::length(json));
+
+		// Global::client->post(User::hub_host_cstr, path);
+		Global::client->write((const uint8_t*)json, C_String::length(json));
 	}
 
 
@@ -86,17 +101,11 @@ namespace Transmission
 	}
 
 
-	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
-	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
-	// DETAILS:	
-	void post_json(char json[])
-	// void post_json(char json[], const char path[])
+	void send_invalid_response_and_delete_(char json_buffer)
 	{
-		// Global::client->sendHeader("Content-Type", "application/json");
-		// Global::client->sendHeader("Content-Length", C_String::length(json));
-
-		// Global::client->post(User::hub_host_cstr, path);
-		Global::client->write((const uint8_t*)json, C_String::length(json));
+		Global::client->write(INVALID_JSON, C_String::length(INVALID_JSON));
+		Global::client->stop();
+		delete json_buffer;
 	}
 
 
@@ -116,7 +125,7 @@ namespace Transmission
 #endif
 		connection_client.connect(User::hub_host, 80);  //HARDCODED: port
 		if(Global::client->connected()) Global::client->stop();  // make sure I wasn't incompetent :)
-		Global::client = HttpClient(connection_client);
+		Global::client = new HttpClient(connection_client);
 
 		uint8_t timeout = 255;
 		for(timeout = 255; !client.connected() && timeout; timeout--) delayMicroseconds(10);
@@ -128,5 +137,6 @@ namespace Transmission
 		}
 
 		Global::client->stop();
+		delete Global::client;
 	}
 }
