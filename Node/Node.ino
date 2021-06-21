@@ -23,11 +23,10 @@
 
 
 #include <ArduinoJson.h>
-#include <assert.h>
 #ifdef __ETHERNET__
-#include <Ethernet.h>
+	#include <Ethernet.h>
 #elif __WIFI__
-#include <WiFi.h>
+	#include <WiFi.h>
 #endif
 #include <SPI.h>
 
@@ -40,14 +39,16 @@
 
 void setup()
 {
+#ifdef __GPIO__
 	// ———— GPIO SETUP ————
-	// pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
-	// pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
-	// pinMode(Gpio::DIRECTION_PIN, OUTPUT);
-	// pinMode(Gpio::ENABLE_PIN, OUTPUT);
-	// pinMode(Gpio::PULSE_PIN, OUTPUT);
+	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Gpio::DIRECTION_PIN, OUTPUT);
+	pinMode(Gpio::ENABLE_PIN, OUTPUT);
+	pinMode(Gpio::PULSE_PIN, OUTPUT);
 
-	// Gpio::disable_motor();  // don't burn up the motor
+	Gpio::disable_motor();  // don't burn up the motor
+#endif
 
 	// ———— GLOBAL VARIABLES ————
 #ifdef __ETHERNET__
@@ -66,33 +67,36 @@ void setup()
 
 void loop()
 {
-	// Gpio::disable_motor();  // don't burn up the motor
+#ifdef __GPIO__
+	Gpio::disable_motor();  // don't burn up the motor
+#endif
 
 	WiFiClient client = Transmission::wait_for_request();
 	Global::client = Transmission::wait_for_request();
-	// while(Global::client->available()) Serial.print((char)Global::client->read());  //TESTING
 
 	// bad message: retry later
 	char* json_buffer = Transmission::read_transmission_data_into_buffer();
 	if(!json_buffer) return;
 
 	StaticJsonDocument<Transmission::BUFFER_LENGTH> json_document;
-	if(deserializeJson(json_document, json_buffer)) return delete json_buffer;
+	if(deserializeJson(json_document, json_buffer)) return Transmission::send_invalid_response_and_delete_(json_buffer);
 	delete json_buffer;
 
 	Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
 	Transmission::send_OK_response_and_stop_client();
 
-	// 	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
-	// 	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-	// 	// ing or closing curtain.
-	// 	// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
-	// 	else
-	// 	{
-	// 		if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
-	// 		else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
-	// 		else Gpio::move_until_closed(curtain.direction());
-	// 	}
+#ifdef __GPIO__
+	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
+	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
+	// ing or closing curtain.
+	// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+	else
+	{
+		if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
+		else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
+		else Gpio::move_until_closed(curtain.direction());
+	}
+#endif
 
 	// clean up and update curtain
 	curtain.set_location();

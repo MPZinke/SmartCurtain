@@ -15,17 +15,20 @@
 #pragma once
 
 
+// Code Switches
+// #define __GPIO__  // specify whether to include the GPIO code
+#define __WIFI__  // specify the connection type
+
+
 namespace User
 {
 	// ————————————————————————————————————————————————— USER: GLOBAL —————————————————————————————————————————————————
 	const char curtain_id[] = "1";
 
-
 	// ———— ETHERNET ————
 #ifdef __ETHERNET__
 	char SSID[] = "";  //POPULATE: wifi name
 	char password[] = "";  //POPULATE: wifi password
-
 #elif __WIFI__
 	// Node
 	uint8_t mac_address[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
@@ -40,5 +43,3 @@ namespace User
 #endif
 
 } // end namespace User
-
-#define USER_COMPLETE_PAGE "/api/update/event"
