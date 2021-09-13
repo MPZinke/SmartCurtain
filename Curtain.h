@@ -76,7 +76,7 @@ namespace Curtain
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
 	// the uint32_t number. Places segment into uint32_t parts for object.
-	Curtain::Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>& json)
+	Curtain::Curtain(StaticJsonDocument<Transmission::BUFFER_LENGTH>& json)
 	{
 		_current_position = json[Transmission::CURRENT_POS_KEY];
 		_length = json[Transmission::LENGTH_KEY];
@@ -267,8 +267,8 @@ namespace Curtain
 	void Curtain::send_hub_serialized_info()
 	{
 		char* serialized_data = serialize_data();
-		Transmission::post_json(serialized_data);
-		delete serialize_data;
+		Transmission::update_hub(serialized_data);
+		delete serialized_data;
 	}
 
 
