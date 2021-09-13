@@ -23,11 +23,6 @@
 
 
 #include <ArduinoJson.h>
-#ifdef __ETHERNET__
-	#include <Ethernet.h>
-#elif __WIFI__
-	#include <WiFi.h>
-#endif
 #include <SPI.h>
 
 #include "Curtain.h"
@@ -71,7 +66,6 @@ void loop()
 	Gpio::disable_motor();  // don't burn up the motor
 #endif
 
-	WiFiClient client = Transmission::wait_for_request();
 	Global::client = Transmission::wait_for_request();
 
 	// bad message: retry later

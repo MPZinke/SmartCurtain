@@ -20,7 +20,21 @@
 #pragma once
 
 
+#include <assert.h>
+#include <HttpClient.h>
+
 #include "User.h"
+// Defined in User.h
+#ifdef __ETHERNET__
+	#include <Ethernet.h>
+	#include <EthernetClient.h>
+#elif __WIFI__
+	#include <WiFi.h>
+	#include <WiFiClient.h>
+#endif
+
+
+#define JSON_BUFFER_SIZE 255
 
 
 // ————————————————————————————————————————————————————— C-STRING —————————————————————————————————————————————————————
@@ -222,7 +236,11 @@ namespace Global
 
 	const uint16_t loop_wait = 1024;  // a nice power of 2
 
+#ifdef __ETHERNET__
+	EthernetServer server(User::port);
+#elif __WIFI__
 	WiFiServer server(User::port);
+#endif
 	HttpClient* client = NULL;
 
 } // end namespace Global

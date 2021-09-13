@@ -14,7 +14,10 @@
 #pragma once
 
 
+#include <HttpClient.h>
+
 #include "Global.h"
+#include "User.h"
 
 
 namespace Transmission
@@ -33,7 +36,7 @@ namespace Transmission
 	//	  "auto correct":1}
 	
 	const uint8_t MIN_PACKET_LENGTH = 104;  // every valid packet received will have at least this amount of chars
-	const uint8_t BUFFER_LENGTH = 255;  // should be a max of 188(189) chars
+	const uint8_t BUFFER_LENGTH = JSON_BUFFER_SIZE;  // should be a max of 188(189) chars
 	// json
 	const char CURTAIN_KEY[] = "\"curtain\"";
 	const char CURRENT_POS_KEY[] = "\"current position\"";
@@ -56,7 +59,12 @@ namespace Transmission
 	// RETURN:	HttpClient referncing client.
 	HttpClient* wait_for_request()
 	{
-		static Client client = Global::server.available();
+#ifdef __ETHERNET__
+		EthernetClient client = Global::server.available();
+#elif __WIFI__
+		WiFiClient client = Global::server.available();
+#endif
+
 		while(!client)
 		{
 			delayMicroseconds(10);
@@ -69,8 +77,8 @@ namespace Transmission
 	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
-	void post_json(char json[])
-	// void post_json(char json[], const char path[])
+	// void post_json(char json[])
+	void post_json(char json[], const char path[])
 	{
 		// Global::client->sendHeader("Content-Type", "application/json");
 		// Global::client->sendHeader("Content-Length", C_String::length(json));
@@ -101,7 +109,7 @@ namespace Transmission
 	}
 
 
-	void send_invalid_response_and_delete_(char json_buffer)
+	void send_invalid_response_and_delete_(char json_buffer[])
 	{
 		Global::client->write(INVALID_JSON, C_String::length(INVALID_JSON));
 		Global::client->stop();
@@ -123,17 +131,17 @@ namespace Transmission
 #elif __WIFI__
 		WiFiClient connection_client;
 #endif
-		connection_client.connect(User::hub_host, 80);  //HARDCODED: port
+		connection_client.connect(User::hub_host, User::port);  //HARDCODED: port
 		if(Global::client->connected()) Global::client->stop();  // make sure I wasn't incompetent :)
 		Global::client = new HttpClient(connection_client);
 
 		uint8_t timeout = 255;
-		for(timeout = 255; !client.connected() && timeout; timeout--) delayMicroseconds(10);
+		for(timeout = 255; !Global::client->connected() && timeout; timeout--) delayMicroseconds(10);
 
 		if(timeout)
 		{
-			post_data((char*)packet_buffer, COMPLETE_PAGE_HEADER);
-			clear_buffer();
+			post_json((char*)packet_buffer, USER_COMPLETE_PAGE);
+			// clear_buffer();
 		}
 
 		Global::client->stop();
