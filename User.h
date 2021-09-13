@@ -15,8 +15,8 @@
 #pragma once
 
 
-#define __ETHERNET__ true  //POPULATE: uncomment if Ethernet version
-// #define __WIFI__ true  //POPULATE: uncomment if Wifi version
+// #define __ETHERNET__ true  //POPULATE: uncomment if Ethernet version
+#define __WIFI__ true  //POPULATE: uncomment if Wifi version
 
 
 namespace User
@@ -34,11 +34,9 @@ namespace User
 	uint8_t subnet_mask[] = {255,255,255,0};  // of the router
 
 	// ———— ETHERNET ————
-#ifdef __ETHERNET__
+#ifdef __WIFI__
 	char SSID[] = "";  //POPULATE: wifi name
 	char password[] = "";  //POPULATE: wifi password
-
-#elif __WIFI__
 	// Node
 #endif
 
