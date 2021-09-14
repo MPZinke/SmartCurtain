@@ -97,7 +97,7 @@ namespace Curtain
 	//   not need to retraverse recount the precalculated string literal changes.
 	char* Curtain::serialize_data()
 	{
-		char* buffer = malloc(Transmission::BUFFER_LENGTH);
+		char* buffer = (char*)malloc(Transmission::BUFFER_LENGTH);
 
 		buffer[0] = '{';
 		// current position
@@ -267,7 +267,7 @@ namespace Curtain
 	void Curtain::send_hub_serialized_info()
 	{
 		char* serialized_data = serialize_data();
-		Transmission::update_hub(serialized_data);
+		Transmission::update_hub((byte*)serialized_data);
 		delete serialized_data;
 	}
 

@@ -111,7 +111,7 @@ namespace Transmission
 
 	void send_invalid_response_and_delete_(char json_buffer[])
 	{
-		Global::client->write(INVALID_JSON, C_String::length(INVALID_JSON));
+		Global::client->write((byte*)INVALID_JSON, C_String::length((char*)INVALID_JSON));
 		Global::client->stop();
 		delete json_buffer;
 	}
@@ -119,7 +119,7 @@ namespace Transmission
 
 	void send_OK_response_and_stop_client()
 	{
-		Global::client->write(VALID_RESPONSE, C_String::length(VALID_RESPONSE));
+		Global::client->write((byte*)VALID_RESPONSE, C_String::length((char*)VALID_RESPONSE));
 		Global::client->stop();
 	}
 
