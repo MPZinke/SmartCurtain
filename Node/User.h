@@ -18,6 +18,9 @@
 // #define __ETHERNET__ true  //POPULATE: uncomment if Ethernet version
 #define __WIFI__ true  //POPULATE: uncomment if Wifi version
 
+#define __GPIO__ true
+#define __SERIAL__ true
+
 
 namespace User
 {
