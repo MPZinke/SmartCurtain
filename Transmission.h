@@ -110,13 +110,13 @@ namespace Transmission
 	{
 		char* content = (char*)malloc(JSON_BUFFER_SIZE);
 
-		uint16_t x;  //TRANSFER
+		uint16_t x;
 		if(!content || !skip_header()) return (char*)NULL;
 		for(x = 0; Global::client.available(); x++)
 		{
 			content[x] = Global::client.read();
 		}
-		content[x] = 0;  //TRANSFER
+		content[x] = 0;
 		if(JSON_BUFFER_SIZE < x)
 		{
 			delete content;
@@ -150,13 +150,13 @@ namespace Transmission
 	{
 		delete json_buffer;  // put here to allow returning from Node::loop function
 
-		Global::client.write(INVALID_REQUEST_STR, sizeof(INVALID_REQUEST_STR)-1);  //TRANSFER
-		Global::client.write(CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);  //TRANSFER
+		Global::client.write(INVALID_REQUEST_STR, sizeof(INVALID_REQUEST_STR)-1);
+		Global::client.write(CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);
 		// Content
 		String content_length_string = String(sizeof(VALID_RESPONSE)-1);
 		Global::client.write(CONTENT_LENGTH_TAG, sizeof(CONTENT_LENGTH_TAG)-1);
-		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());  //TRANSFER
-		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);  //TRANSFER
+		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());
+		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);
 		Global::client.write(INVALID_RESPONSE, sizeof(INVALID_RESPONSE)-1);
 
 		Global::client.stop();
@@ -166,13 +166,13 @@ namespace Transmission
 	// Request received from Hub. Sends response indicating request was valid.
 	void send_OK_response_and_stop_client()
 	{
-		Global::client.write((const uint8_t*)VALID_REQUEST_STR, sizeof(VALID_REQUEST_STR)-1);  //TRANSFER
-		Global::client.write((const uint8_t*)CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);  //TRANSFER
+		Global::client.write((const uint8_t*)VALID_REQUEST_STR, sizeof(VALID_REQUEST_STR)-1);
+		Global::client.write((const uint8_t*)CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);
 		// Content
 		String content_length_string = String(sizeof(VALID_RESPONSE)-1);
 		Global::client.write(CONTENT_LENGTH_TAG, sizeof(CONTENT_LENGTH_TAG)-1);
-		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());  //TRANSFER
-		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);  //TRANSFER
+		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());
+		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);
 		Global::client.write((const uint8_t*)VALID_RESPONSE, sizeof(VALID_RESPONSE)-1);
 
 		Global::client.stop();
