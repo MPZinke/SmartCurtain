@@ -241,7 +241,7 @@ namespace Global
 #elif __WIFI__
 	WiFiServer server(User::port);
 #endif
-	HttpClient* client = NULL;
+	HARDWARE_CLIENT client;
 
 } // end namespace Global
 

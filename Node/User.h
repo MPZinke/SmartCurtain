@@ -19,7 +19,14 @@
 #define __WIFI__ true  //POPULATE: uncomment if Wifi version
 
 #define __GPIO__ true
-#define __SERIAL__ true
+
+
+// Create hardware client based off of defined usage
+#ifdef __WIFI__
+	#define HARDWARE_CLIENT WiFiClient
+#elif __ETHERNET__
+	#define HARDWARE_CLIENT EthernetClient
+#endif
 
 
 namespace User
@@ -45,4 +52,4 @@ namespace User
 
 } // end namespace User
 
-#define USER_COMPLETE_PAGE "/api/update/event"
+#define USER_COMPLETE_PAGE "/api/update/deactivateevent"

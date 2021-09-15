@@ -72,7 +72,7 @@ void loop()
 	char* json_buffer = Transmission::read_transmission_data_into_buffer();
 	if(!json_buffer) return;
 
-	StaticJsonDocument<Transmission::BUFFER_LENGTH> json_document;
+	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 	if(deserializeJson(json_document, json_buffer)) return Transmission::send_invalid_response_and_delete_(json_buffer);
 	delete json_buffer;
 
