@@ -76,7 +76,7 @@ namespace Curtain
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
 	// the uint32_t number. Places segment into uint32_t parts for object.
-	Curtain::Curtain(StaticJsonDocument<Transmission::BUFFER_LENGTH>& json)
+	Curtain::Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>& json)
 	{
 		_current_position = json[Transmission::CURRENT_POS_KEY];
 		_length = json[Transmission::LENGTH_KEY];
@@ -97,39 +97,40 @@ namespace Curtain
 	//   not need to retraverse recount the precalculated string literal changes.
 	char* Curtain::serialize_data()
 	{
-		char* buffer = (char*)malloc(Transmission::BUFFER_LENGTH);
+		char* buffer_head = (char*)malloc(JSON_BUFFER_SIZE), *buffer = buffer_head;
 
-		buffer[0] = '{';
+		C_String::copy_n("{\"", buffer, 2);
 		// current position
-		C_String::copy(Transmission::CURRENT_POS_KEY, (char*)buffer+1);  // +2 from previous ", "
-		buffer += sizeof(Transmission::CURRENT_POS_KEY);  // -1 + 1 (for ignore NULL Terminator & start '{')
-		C_String::copy_n(" : ", (char*)buffer, 3);
-		C_String::itoa(_current_position, (char*)buffer+3);  // +3 from previous " : "
-		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)buffer, 2);
+		C_String::copy(Transmission::CURRENT_POS_KEY, buffer+2);  // +2 from previous "{\""
+		buffer += sizeof(Transmission::CURRENT_POS_KEY)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
+		C_String::copy_n("\" : ", buffer, 4);
+		C_String::itoa(_current_position, buffer+4);  // +4 from previous "\" : "
+		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
+		C_String::copy_n(", \"", buffer, 3);
 		// curtain
-		C_String::copy(Transmission::CURTAIN_KEY, (char*)buffer+2);  // +2 from previous ", "
-		buffer += sizeof(Transmission::CURTAIN_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)buffer, 3);
-		C_String::copy(User::curtain_id, (char*)buffer+3);  // +3 from previous " : "
-		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)buffer, 2);
+		C_String::copy(Transmission::CURTAIN_KEY, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::CURTAIN_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy_n("\" : ", buffer, 4);
+		C_String::copy(User::curtain_id, buffer+4);  // +4 from previous "\" : "
+		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
+		C_String::copy_n(", \"", buffer, 3);
 		// event
-		C_String::copy(Transmission::EVENT_KEY, (char*)buffer+2);  // +2 from previous ", "
-		buffer += sizeof(Transmission::EVENT_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)buffer, 3);
-		C_String::itoa(_event, (char*)buffer+3);  // +3 from previous " : "
-		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
-		C_String::copy_n(", ", (char*)buffer, 2);
+		C_String::copy(Transmission::EVENT_KEY, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::EVENT_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy_n("\" : ", buffer, 4);
+		C_String::itoa(_event, buffer+4);  // +4 from previous "\" : "
+		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
+		C_String::copy_n(", \"", buffer, 3);
 		// length
-		C_String::copy(Transmission::LENGTH_KEY, (char*)buffer+2);  // +2 from previous ", "
-		buffer += sizeof(Transmission::LENGTH_KEY) + 1;  // -1 + 2 (for ignore NULL Terminator & add ", ")
-		C_String::copy_n(" : ", (char*)buffer, 3);
-		C_String::itoa(_length, (char*)buffer+3);  // +3 from previous " : "
-		buffer += C_String::length((char*)buffer+3) + 3;  // move buffer to next NULL Terminator
+		C_String::copy(Transmission::LENGTH_KEY, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::LENGTH_KEY)+2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy_n("\" : ", buffer, 4);
+		C_String::itoa(_length, buffer+4);  // +4 from previous " : "
+		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
+		// finish json
+		C_String::copy_n("}\r\n", buffer, 3);
 
-		*buffer = '}';
-		buffer[1] = 0;
+		return buffer_head;
 	}
 
 
