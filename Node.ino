@@ -34,19 +34,19 @@
 
 void setup()
 {
-#ifdef __GPIO__
 	// ———— GPIO SETUP ————
+#if __SMARTCURTAIN__
 	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
 	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
+#endif
 	pinMode(Gpio::DIRECTION_PIN, OUTPUT);
 	pinMode(Gpio::ENABLE_PIN, OUTPUT);
 	pinMode(Gpio::PULSE_PIN, OUTPUT);
 
 	Gpio::disable_motor();  // don't burn up the motor
-#endif
 
 	// ———— GLOBAL VARIABLES ————
-#ifdef __ETHERNET__
+#if __ETHERNET__
 	// ethernet setup
 	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
 	Ethernet.begin(User::mac_address, User::node_host, User::router_gateway, User::subnet_mask);  // connect to LAN
@@ -62,9 +62,7 @@ void setup()
 
 void loop()
 {
-#ifdef __GPIO__
 	Gpio::disable_motor();  // don't burn up the motor
-#endif
 
 	Global::client = Transmission::wait_for_request();
 
@@ -79,7 +77,7 @@ void loop()
 	Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
 	Transmission::send_OK_response_and_stop_client();
 
-#ifdef __GPIO__
+#if __SMARTCURTAIN__
 	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
 	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
 	// ing or closing curtain.
@@ -90,6 +88,8 @@ void loop()
 		else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
 		else Gpio::move_until_closed(curtain.direction());
 	}
+#else
+	Gpio::move(curtain);
 #endif
 
 	// clean up and update curtain

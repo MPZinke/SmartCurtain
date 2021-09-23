@@ -110,8 +110,9 @@ namespace Transmission
 	{
 		char* content = (char*)malloc(JSON_BUFFER_SIZE);
 
-		uint16_t x;
 		if(!content || !skip_header()) return (char*)NULL;
+
+		uint16_t x;
 		for(x = 0; Global::client.available(); x++)
 		{
 			content[x] = Global::client.read();

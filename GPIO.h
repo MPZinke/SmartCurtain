@@ -23,33 +23,40 @@ namespace Gpio
 	void disable_motor();
 	void enable_motor();
 	void set_direction(bool, bool);
+	bool move(Curtain::Curtain&);
+#if __SMARTCURTAIN__
 	bool is_closed();
 	bool is_open();
 	Curtain::CurtainState state();
 	uint32_t steps_for_direction(bool, uint32_t, uint32_t);
-	bool move(Curtain::Curtain&);
 	void move_until_state_reached(bool(*)());
 	uint32_t move_and_count_until_state_reached(bool(*)());
 	bool sensor_triggered_moving_steps(register uint32_t, bool(*)());
 	void move_until_closed(bool);
 	void move_until_open(bool);
 	uint32_t calibrate_to_opposite(bool);
+#else
+	void move_motor_step_count(uint32_t);
+#endif
 
 
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
 	// ———— CONFIGURE ————
-	const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
+	const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 
 	// ———— HARDWARE ————
+	const uint8_t DIRECTION_PIN = 5;
+	const uint8_t ENABLE_PIN = 18;
+	const uint8_t PULSE_PIN = 19;
+#if __SMARTCURTAIN__
 	const uint8_t CLOSE_PIN = 0;
-	const uint8_t DIRECTION_PIN = 0;
-	const uint8_t ENABLE_PIN = 0;
 	const uint8_t OPEN_PIN = 0;
-	const uint8_t PULSE_PIN = 0;
 
 	const uint8_t HALL_EFFECT_IGNORED_PRECISION = 4;
 	const uint8_t MIN_HALL_EFFECT_TRUE_VALUE = 255 >> HALL_EFFECT_IGNORED_PRECISION;  // min needed to be "ON"
-	const uint16_t PULSE_WAIT = 16;
+#endif
+
+	const uint16_t PULSE_WAIT = 50;
 
 	// ———— SUGAR ————
 	const bool ON = HIGH ^ SWITCH;  // the "ON"/"ACTIVATE" state for the device
@@ -81,6 +88,7 @@ namespace Gpio
 	}
 
 
+#if __SMARTCURTAIN__
 	bool is_closed()
 	{
 		return analogRead(CLOSE_PIN) >> HALL_EFFECT_IGNORED_PRECISION > MIN_HALL_EFFECT_TRUE_VALUE;
@@ -111,6 +119,7 @@ namespace Gpio
 	}
 
 
+#endif
 	// ——————————————————————————————————————————————————— MOVEMENT ———————————————————————————————————————————————————
 
 	// Moves the curtain to its desired position based on curtain object data (with auto correct). The function is used
@@ -123,6 +132,7 @@ namespace Gpio
 	bool move(Curtain::Curtain& curtain)
 	{
 		// direction
+#if __SMARTCURTAIN__
 		bool direction = curtain.desired_position() < curtain.current_position() ? CLOSE : OPEN;
 		set_direction(direction, curtain.direction());
 
@@ -137,10 +147,19 @@ namespace Gpio
 			steps = steps_for_direction(direction, curtain.current_position(), curtain. desired_position());
 			return !sensor_triggered_moving_steps(steps, direction == CLOSE ? is_closed : is_open);
 		}
+#else
+		bool direction = curtain.desired_position() ? OPEN : CLOSE;
+		set_direction(direction, curtain.direction());
+
+		uint32_t steps = curtain.length();
+		move_motor_step_count(steps);
+#endif
+
 		return true;
 	}
 
 
+#if __SMARTCURTAIN__
 	// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
 	// Moves to an end until sensor is tripped.
 	// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
@@ -181,6 +200,7 @@ namespace Gpio
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
+
 			digitalWrite(PULSE_PIN, HIGH);
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
@@ -209,6 +229,7 @@ namespace Gpio
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
+
 			digitalWrite(PULSE_PIN, HIGH);
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
@@ -247,7 +268,7 @@ namespace Gpio
 	// Takes movement direction flag option (that is then XOR-ed).
 	// Determines the curtain state for setting direction & end stop check function.
 	// Sets direction, then call movement until state reached.
-	// Returns number of steps taken. 
+	// Returns number of steps taken.
 	uint32_t calibrate_to_opposite(bool curtain_direction)
 	{
 		Curtain::CurtainState current_state = state();
@@ -256,5 +277,28 @@ namespace Gpio
 		set_direction(current_state == Curtain::OPEN ? CLOSE : OPEN, curtain_direction);
 		return move_and_count_until_state_reached(current_state == Curtain::OPEN ? is_closed : is_open);
 	}
+#else
+	void move_motor_step_count(register uint32_t steps)
+	{
+		// make number of steps an even amount to match movement loop (prevent overflow)
+
+		enable_motor();
+		steps &= 0xFFFFFFFE;  // number of times loop unrolled
+		while(steps)
+		{
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+
+			digitalWrite(PULSE_PIN, HIGH);
+			delayMicroseconds(PULSE_WAIT);
+			digitalWrite(PULSE_PIN, LOW);
+			delayMicroseconds(PULSE_WAIT);
+			steps -= 2;
+		}
+		disable_motor();
+	}
+#endif
 
 }  // end namespace GPIO
