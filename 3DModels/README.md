@@ -27,14 +27,14 @@ This folder holds the 3D Models for the SmartCurtain.
 - [ ] __*Shuttle::Tether::DrillGuide*__ The part that is used to drill holes into the ends of the belts to allow for screwholes and easy fitting on the __*Shuttle::Tether*__
 
 
-### DETAILS
+## PART DETAILS
 
-#### *EndCap::FreeWheel*
+### *EndCap::FreeWheel*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -42,12 +42,12 @@ This folder holds the 3D Models for the SmartCurtain.
 - *Support:* Everywhere
 
 
-#### *EndCap::Motor*
+### *EndCap::Motor*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -55,12 +55,12 @@ This folder holds the 3D Models for the SmartCurtain.
 - *Support:* Touching Bed
 
 
-#### *Hanger::Ceiling::Interchange*
+### *Hanger::Ceiling::Interchange*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -68,13 +68,13 @@ This folder holds the 3D Models for the SmartCurtain.
 - *Support:* None
 
 
-#### *Hanger::Ceiling::End*
+### *Hanger::Ceiling::End*
 TODO: Update when done
 
-##### Quantity
+#### Quantity
 2
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -82,13 +82,13 @@ TODO: Update when done
 - *Support:* Touching Bed
 
 
-#### *Hanger::Rod*
+### *Hanger::Rod*
 TODO: Update when done
 
-##### Quantity
+#### Quantity
 2
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -96,12 +96,12 @@ TODO: Update when done
 - *Support:* Touching Bed
 
 
-#### *Housing::Driver/ESP32::Cover*
+### *Housing::Driver/ESP32::Cover*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 3
 - *Bottom Layers:* 2
 - *Top Layers:* 3
@@ -109,12 +109,12 @@ TODO: Update when done
 - *Support:* None
 
 
-#### *Housing::Driver/ESP32::Panel*
+### *Housing::Driver/ESP32::Panel*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 3
 - *Bottom Layers:* 3
 - *Top Layers:* 3
@@ -122,12 +122,12 @@ TODO: Update when done
 - *Support:* Everywhere
 
 
-#### *Interchange*
+### *Interchange*
 
-##### Quantity
+#### Quantity
 1
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -135,12 +135,12 @@ TODO: Update when done
 - *Support:* Touching Bed
 
 
-#### *Shuttle::Middle*
+### *Shuttle::Middle*
 
-##### Quantity
+#### Quantity
 0, 4, 8, 12 (or whatever multiple of 4 you need)
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -148,12 +148,12 @@ TODO: Update when done
 - *Support:* Touching Bed
 
 
-#### *Shuttle::Tether*
+### *Shuttle::Tether*
 
-##### Quantity
+#### Quantity
 4
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
@@ -161,12 +161,12 @@ TODO: Update when done
 - *Support:* Touching Bed
 
 
-#### *Shuttle::Tether::DrillGuide*
+### *Shuttle::Tether::DrillGuide*
 
-##### Quantity
+#### Quantity
 0 or 1 (if you want to eyeball it, you can)
 
-##### Settings
+#### Settings
 - *Line Count:* 4
 - *Bottom Layers:* 4
 - *Top Layers:* 4
