@@ -27,6 +27,14 @@ This folder holds the 3D Models for the SmartCurtain.
 - [ ] __*Shuttle::Tether::DrillGuide*__ The part that is used to drill holes into the ends of the belts to allow for screwholes and easy fitting on the __*Shuttle::Tether*__
 
 
+---
+
+## ASSEMBLY
+
+
+
+---
+
 ## PART DETAILS
 
 ### *EndCap::FreeWheel*
