@@ -16,8 +16,8 @@ This folder holds the 3D Models for the SmartCurtain.
 ### DESCRIPTION
 - [ ] __*EndCap::FreeWheel*__ The part that goes on an end of the rod that holds a toothless pulley to smoothly wrap the belt around the end of the rod.
 - [ ] __*EndCap::Motor*__ The part that goes on an end of the rod that holds the motor to drive the belt around the end of the rod.
-- [ ] __*Hanger::Ceiling::Interchange*__ The part that the Interchange screws into, which screws into the ceiling.
 - [ ] __*Hanger::Ceiling::End*__ The part that screws into the ceiling and connects to the __*Hanger::Rod*__ to hold the curtain to the ceiling.
+- [ ] __*Hanger::Ceiling::Interchange*__ The part that the Interchange screws into, which screws into the ceiling.
 - [ ] __*Hanger::Rod*__ The part that slides onto the rod and connects to the __*Hanger::Ceiling::End*__ to hold the curtain to the ceiling.
 - [ ] __*Housing::Driver/ESP32::Cover*__ The part that screws into the top of the Housing::Driver/ESP32::Panel.
 - [ ] __*Housing::Driver/ESP32::Panel*__ The part that contains the ESP32, TB6600 stepper driver & heatsink, Micro USB & Barrel panel mount cables. This is mounted on the wall.
@@ -101,7 +101,9 @@ TODO: Update when done
 - *Bottom Layers:* 4
 - *Top Layers:* 4
 - *Infill:* 25%
-- *Support:* Touching Bed
+- *Support:* None
+- *Orientation:* So that you are able to insert a 3mm nut
+- *Pause Layer:* 65 & insert 3mm nut
 
 
 ### *Housing::Driver/ESP32::Cover*

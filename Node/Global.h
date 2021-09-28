@@ -95,12 +95,13 @@ namespace C_String
 		}
 		to[x--] = 0;  // null terminate and back step
 
-		// the old switch-a-roo
-		for(uint8_t y = 0; y < (x+1) / 2; y++)
+		// the old switch-a-roo: switch character order since it was written backwards
+		for(register uint8_t left_index = 0; left_index < (x+1) / 2; left_index++)
 		{
-			char left = to[y];
-			to[y] = to[x-y];
-			to[x-y] = left;
+			register uint8_t right_index = x - left_index;
+			to[left_index] ^= to[right_index];
+			to[right_index] ^= to[left_index];
+			to[left_index] ^= to[right_index];
 		}
 	}
 
