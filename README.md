@@ -121,7 +121,7 @@ V+    °|–– +
 - [ ] 1. Google Calendar Event Setter
 - [ ] 2. Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
 - [ ] 3. Who Is Home (ping Android phones to see if person is on local network) closing/opening
-- [ ] 4. Updates module automatically updates Hub nightly when origin/Production branch is updated.
+- [ ] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
 - [ ] 5. Mobile App
 - [ ] 6. WearOS App
 
