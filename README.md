@@ -75,11 +75,11 @@ _|
 ```
 _______
 Ena - °|-------------------
-Ena + °|–– R-Pi 13 (GPIO)  |
-Dir - °|-------------------+---- R-Pi 6  (GND)
-Dir + °|–– R-Pi 7 (GPIO)   |
+Ena + °|–– ESP32 18 (GPIO) |
+Dir - °|-------------------+---- ESP32 (GND)
+Dir + °|–– ESP32 5  (GPIO) |
 Pul - °|-------------------
-Pul + °|–– R-Pi 11 (GPIO)
+Pul + °|–– ESP32 19 (GPIO)
 B-    °|–– Wire 1
 B+    °|–– Wire 2
 A-    °|–– Wire 3
@@ -93,6 +93,13 @@ V+    °|–– +
 - Create accounts for whatever options & feeds desired.
     - Adafruit IO feeds to open & close.
     - IFTTT connection to Google Assistant & Adafruit IO.
+
+## UPDATE
+
+### HUB
+
+- `cd ~/SmartCurtain/Hub`
+- `make update`
 
 ---
 
@@ -110,10 +117,13 @@ V+    °|–– +
 
 ---
 
-## CONSIDERED FUTURE PACKAGES
-- [ ] Google Calendar Event Setter
-- [ ] Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
-- [ ] Who Is Home (ping Android phones to see if person is on local network) closing/opening
+## CONSIDERED FUTURE ADDITIONS
+- [ ] 1. Google Calendar Event Setter
+- [ ] 2. Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
+- [ ] 3. Who Is Home (ping Android phones to see if person is on local network) closing/opening
+- [ ] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
+- [ ] 5. Mobile App
+- [ ] 6. WearOS App
 
 ---
 
