@@ -31,6 +31,7 @@
 #elif __WIFI__
 	#include <WiFi.h>
 	#include <WiFiClient.h>
+	#include <esp_wifi.h>
 #endif
 
 
