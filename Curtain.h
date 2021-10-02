@@ -87,6 +87,8 @@ namespace Curtain
 		_desired_position = json[Transmission::DESIRED_POS_KEY];
 
 		_direction = json[Transmission::DIRECTION_KEY];
+		Serial.println(String("Curtain::Curtain::_desired_position: ") + _desired_position);
+		Serial.println(String("Curtain::Curtain::_direction: ") + _direction);
 #if __SMARTCURTAIN__
 		_auto_calibrate = json[Transmission::CALIBRATE_KEY];
 		_auto_correct = json[Transmission::CORRECT_KEY];

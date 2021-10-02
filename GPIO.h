@@ -56,7 +56,7 @@ namespace Gpio
 	const uint8_t MIN_HALL_EFFECT_TRUE_VALUE = 255 >> HALL_EFFECT_IGNORED_PRECISION;  // min needed to be "ON"
 #endif
 
-	const uint16_t PULSE_WAIT = 50;
+	const uint16_t PULSE_WAIT = 60;
 
 	// ———— SUGAR ————
 	const bool ON = HIGH ^ SWITCH;  // the "ON"/"ACTIVATE" state for the device
@@ -83,8 +83,9 @@ namespace Gpio
 	// Take the ON/OFF dirction current, the curtain's direction option. 
 	void set_direction(bool direction_current, bool curtain_direction)
 	{
-		// "AND YOU GET AN XOR, AND YOU AN XOR, EVERYONE GETS XORS"
-		digitalWrite(DIRECTION_PIN, direction_current ^ curtain_direction);
+		// Curtain direction can overflow 0th bit to act as a switch. 
+		Serial.println(String("GPIO::set_direction::direction: ") + ((direction_current + curtain_direction) & 0b1));
+		digitalWrite(DIRECTION_PIN, ((direction_current + curtain_direction) & 0b1));
 	}
 
 
@@ -150,6 +151,7 @@ namespace Gpio
 #else
 		bool direction = curtain.desired_position() ? OPEN : CLOSE;
 		set_direction(direction, curtain.direction());
+		delayMicroseconds(PULSE_WAIT);
 
 		uint32_t steps = curtain.length();
 		move_motor_step_count(steps);
@@ -174,6 +176,7 @@ namespace Gpio
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
 			delayMicroseconds(PULSE_WAIT);
+
 			digitalWrite(PULSE_PIN, HIGH);
 			delayMicroseconds(PULSE_WAIT);
 			digitalWrite(PULSE_PIN, LOW);
@@ -280,10 +283,9 @@ namespace Gpio
 #else
 	void move_motor_step_count(register uint32_t steps)
 	{
-		// make number of steps an even amount to match movement loop (prevent overflow)
-
 		enable_motor();
-		steps &= 0xFFFFFFFE;  // number of times loop unrolled
+		// make number of steps an even amount to match movement loop (prevent overflow)
+		steps &= 0xFFFFFFFE;
 		while(steps)
 		{
 			digitalWrite(PULSE_PIN, HIGH);
