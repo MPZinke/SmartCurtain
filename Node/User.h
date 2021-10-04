@@ -15,7 +15,7 @@
 #pragma once
 
 
-#define __SMARTCURTAIN__ true  //POPULATE: set whether curtain is smart (can determine if it has reached an end)
+#define __SMARTCURTAIN__ false  //POPULATE: set whether curtain is smart (can determine if it has reached an end)
 
 
 #define __ETHERNET__ false  //POPULATE: set whether Ethernet version
@@ -40,8 +40,8 @@ namespace User
 	const char curtain_id[] = "1";
 
 	const uint16_t port = 80;  //POPULATE: port
-	uint8_t hub_host[] = {10, 0, 0, 23};  //POPULATE: hub host IP
-	const char hub_host_cstr[] = "10.0.0.23";  //POPULATE: hub host cstr
+	uint8_t hub_host[] = {10, 0, 0, 11};  //POPULATE: hub host IP
+	const char hub_host_cstr[] = "10.0.0.11";  //POPULATE: hub host cstr
 	uint8_t mac_address[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
 	// Router
 	uint8_t node_host[] = {10,0,0,12};  //POPULATE: node host
