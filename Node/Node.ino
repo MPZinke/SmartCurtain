@@ -36,10 +36,9 @@ void setup()
 {
 	Serial.begin(9600);
 	// ———— GPIO SETUP ————
-#if __SMARTCURTAIN__
 	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
 	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
-#endif
+
 	pinMode(Gpio::DIRECTION_PIN, OUTPUT);
 	pinMode(Gpio::ENABLE_PIN, OUTPUT);
 	pinMode(Gpio::PULSE_PIN, OUTPUT);
@@ -82,20 +81,20 @@ void loop()
 	Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
 	Transmission::send_OK_response_and_stop_client();
 
-#if __SMARTCURTAIN__
-	if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
-	// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-	// ing or closing curtain.
-	// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+	if(!curtain.is_smart()) Gpio::move(curtain);
 	else
 	{
-		if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
-		else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
-		else Gpio::move_until_closed(curtain.direction());
+		if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
+		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
+		// ing or closing curtain.
+		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+		else
+		{
+			if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
+			else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
+			else Gpio::move_until_closed(curtain.direction());
+		}
 	}
-#else
-	Gpio::move(curtain);
-#endif
 
 	// clean up and update curtain
 	curtain.set_location();
