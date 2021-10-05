@@ -23,7 +23,6 @@
 
 namespace Curtain
 {
-#if __SMARTCURTAIN__
 	bool is_approximate_position(uint32_t, uint32_t);
 	bool is_approximate_position(uint32_t, uint32_t, uint32_t);
 	CurtainState approximate_state_of(uint32_t, uint32_t);
@@ -70,7 +69,6 @@ namespace Curtain
 		return MIDDLE;
 	}
 
-#endif
 
 	// ————————————————————————————————————————————————————— CLASS —————————————————————————————————————————————————————
 
@@ -87,12 +85,14 @@ namespace Curtain
 		_desired_position = json[Transmission::DESIRED_POS_KEY];
 
 		_direction = json[Transmission::DIRECTION_KEY];
-		Serial.println(String("Curtain::Curtain::_desired_position: ") + _desired_position);
-		Serial.println(String("Curtain::Curtain::_direction: ") + _direction);
-#if __SMARTCURTAIN__
-		_auto_calibrate = json[Transmission::CALIBRATE_KEY];
-		_auto_correct = json[Transmission::CORRECT_KEY];
-#endif
+
+		_is_smart = json[Transmission::IS_SMART_KEY];
+
+		if(_is_smart)
+		{
+			_auto_calibrate = json[Transmission::CALIBRATE_KEY];
+			_auto_correct = json[Transmission::CORRECT_KEY];
+		}
 	}
 
 
@@ -142,7 +142,6 @@ namespace Curtain
 
 	// —————————————————————————————————————————— CLASS::GETTERS: ATTRIBUTES ——————————————————————————————————————————
 
-#if __SMARTCURTAIN__
 	bool Curtain::calibrate()
 	{
 		return _auto_calibrate;
@@ -154,23 +153,10 @@ namespace Curtain
 		return _auto_correct;
 	}
 
-#endif
-
-	bool Curtain::direction()
-	{
-		return _direction;
-	}
-
 
 	uint32_t Curtain::current_position()
 	{
 		return _current_position;
-	}
-
-
-	uint32_t Curtain::length()
-	{
-		return _length;
 	}
 
 
@@ -180,13 +166,30 @@ namespace Curtain
 	}
 
 
+	bool Curtain::direction()
+	{
+		return _direction;
+	}
+
+
 	uint32_t Curtain::event()
 	{
 		return _event;
 	}
 
 
-#if __SMARTCURTAIN__
+	bool Curtain::is_smart()
+	{
+		return _is_smart;
+	}
+
+
+	uint32_t Curtain::length()
+	{
+		return _length;
+	}
+
+
 	// ————————————————————————————————————————————— CLASS::GETTERS: DATA —————————————————————————————————————————————
 
 	bool Curtain::event_moves_to_an_end()
@@ -226,7 +229,6 @@ namespace Curtain
 	{
 		return state_of(_desired_position, _length);
 	}
-#endif
 
 
 	// —————————————————————————————————————————— CLASS::SETTERS: ATTRIBUTES ——————————————————————————————————————————
@@ -252,7 +254,6 @@ namespace Curtain
 
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
 
-#if __SMARTCURTAIN__
 	// Corrects position for DB unknowns relative to sensors.
 	// Sets self::_current_position to match open/closed if applicable.
 	void Curtain::set_current_position_if_does_not_match_sensors()
@@ -262,20 +263,19 @@ namespace Curtain
 		else if(Gpio::is_open() && !is_approximate_position(_current_position, _length))
 			_current_position = _length;
 	}
-#endif
 
 
 	// ASSUMES _desired_position WAS REACHED IF NOT AT AN END. COULD BE WRONG.
 	// Sets the location of the curtain based on GPIO if possible, other wise desired location.
 	void Curtain::set_location()
 	{
-#if __SMARTCURTAIN__
-		if(Gpio::is_open()) _current_position = _length;
-		else if(Gpio::is_closed()) _current_position = 0;
-		else _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
-#else
-		_current_position = _desired_position;  // curtain isn't that smart, so guess where it is
-#endif
+		if(!_is_smart) _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+		else
+		{
+			if(Gpio::is_open()) _current_position = _length;
+			else if(Gpio::is_closed()) _current_position = 0;
+			else _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+		}
 	}
 
 
