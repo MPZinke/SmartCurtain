@@ -15,9 +15,6 @@
 #pragma once
 
 
-#define __SMARTCURTAIN__ false  //POPULATE: set whether curtain is smart (can determine if it has reached an end)
-
-
 #define __ETHERNET__ false  //POPULATE: set whether Ethernet version
 #if __ETHERNET__
 	#define __WIFI__ false

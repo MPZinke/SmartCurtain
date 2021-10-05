@@ -61,6 +61,7 @@ namespace Transmission
 	const char CALIBRATE_KEY[] = "auto calibrate";
 	const char CORRECT_KEY[] = "auto correct";
 	const char DIRECTION_KEY[] = "direction";
+	const char IS_SMART_KEY[] = "is smart";
 	// messages
 	const uint8_t INVALID_RESPONSE[] = "{\"error\" : \"Package received does not match JSON format\"}\r\n";
 	const uint8_t VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}\r\n";

@@ -180,11 +180,10 @@ namespace Curtain  // also exists in Curtain.h
 	{
 		private:
 			// ———— OPTIONS ————
-#if __SMARTCURTAIN__
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
-#endif
 			bool _direction;  // XOR for direction (to switch which way is open)
+			bool _is_smart;  // whether the hardware is able to figure out where it is
 			// ———— CURRENT DATA ON CURTAIN ————
 			uint32_t _current_position;  // the current length according to the RPi
 			uint32_t _length;  // overall length of the curtain [steps]
@@ -197,11 +196,10 @@ namespace Curtain  // also exists in Curtain.h
 			char* serialize_data();
 
 			// —————————————— GETTERS: ATTRIBUTES ——————————————
-#if __SMARTCURTAIN__
 			bool calibrate();
 			bool correct();
-#endif
 			bool direction();
+			bool is_smart();
 
 			uint32_t current_position();
 			uint32_t length();
@@ -209,14 +207,12 @@ namespace Curtain  // also exists in Curtain.h
 			uint32_t desired_position();
 			uint32_t event();
 
-#if __SMARTCURTAIN__
 			// —————————————— GETTERS: DATA ——————————————
 			bool event_moves_to_an_end();
 			bool moves_full_span();
 			bool should_calibrate_across();
 			CurtainState state_of_current_position();
 			CurtainState state_of_desired_position();
-#endif
 
 			// —————————————— SETTERS: ATTRIBUTES ——————————————
 			void current_position(uint32_t);
@@ -224,9 +220,7 @@ namespace Curtain  // also exists in Curtain.h
 			void length(uint32_t);
 
 			// —————————————— SETTERS: DATA ——————————————
-#if __SMARTCURTAIN__
 			void set_current_position_if_does_not_match_sensors();
-#endif
 			void set_location();
 
 			// —————————————— WRITE ——————————————
