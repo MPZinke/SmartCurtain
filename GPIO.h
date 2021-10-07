@@ -80,7 +80,6 @@ namespace Gpio
 	void set_direction(bool direction_current, bool curtain_direction)
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
-		Serial.println(String("GPIO::set_direction::direction: ") + ((direction_current + curtain_direction) & 0b1));
 		digitalWrite(DIRECTION_PIN, ((direction_current + curtain_direction) & 0b1));
 	}
 

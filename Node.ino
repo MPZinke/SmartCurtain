@@ -34,7 +34,6 @@
 
 void setup()
 {
-	Serial.begin(9600);
 	// ———— GPIO SETUP ————
 	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
 	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
@@ -54,8 +53,6 @@ void setup()
 	// wifi setup
 	WiFi.mode(WIFI_STA);
 	esp_wifi_set_mac(WIFI_IF_STA, User::mac_address);
-	Serial.println("-------- \n");
-	Serial.println(WiFi.macAddress());
 	WiFi.begin(User::SSID, User::password);
 	while(WiFi.status() != WL_CONNECTED) delay(500);
 #endif
