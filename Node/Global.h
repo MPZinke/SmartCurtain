@@ -35,7 +35,7 @@
 #endif
 
 
-#define JSON_BUFFER_SIZE 255
+#define JSON_BUFFER_SIZE 0xFFFF
 
 
 // ————————————————————————————————————————————————————— C-STRING —————————————————————————————————————————————————————
@@ -45,9 +45,9 @@ namespace C_String
 	// ——————————————————————————————————————————————— C-STRING: GLOBAL ———————————————————————————————————————————————
 
 	void copy(const char[], char[]);
-	void copy_n(const char[], char[], uint8_t);
+	void copy_n(const char[], char[], uint16_t);
 	void itoa(uint32_t, char[]);
-	uint8_t length(char[]);
+	uint16_t length(char[]);
 
 
 	// —————————————————————————————————————————————— C-STRING: FUNCTIONS ——————————————————————————————————————————————
@@ -57,8 +57,8 @@ namespace C_String
 	// Iterates over number of character reading then writing.  Null terminates "to" after 254 or Null found.
 	void copy(const char from[], char to[])
 	{
-		uint8_t x;
-		for(x = 0; x < 255 && from[x]; x++) to[x] = from[x];
+		uint16_t x;
+		for(x = 0; x < 0xFFFF && from[x]; x++) to[x] = from[x];
 		to[x] = 0;
 	}
 
@@ -66,9 +66,9 @@ namespace C_String
 	// Copies n number of character & null terminates.
 	// Takes address of place to read from, address of place to write to, number of character to write.
 	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
-	void copy_n(const char from[], char to[], uint8_t length)
+	void copy_n(const char from[], char to[], uint16_t length)
 	{
-		for(uint8_t x = 0; x < length; x++) to[x] = from[x];
+		for(uint16_t x = 0; x < length; x++) to[x] = from[x];
 		to[length] = 0;
 	}
 
@@ -85,8 +85,9 @@ namespace C_String
 			return;
 		}
 
-		uint8_t x;
-		for(x = 0; x < 255 && integer; x++)
+		register uint16_t x;
+		// OxFFFE because following for loop adds 1 (this prevents overflow)
+		for(x = 0; x < 0xFFFE && integer; x++)
 		{
 			to[x] = (integer % 10) + 48;  // add character
 			integer /= 10;
@@ -94,9 +95,9 @@ namespace C_String
 		to[x--] = 0;  // null terminate and back step
 
 		// the old switch-a-roo: switch character order since it was written backwards
-		for(register uint8_t left_index = 0; left_index < (x+1) / 2; left_index++)
+		for(register uint16_t left_index = 0; left_index < (x+1) / 2; left_index++)
 		{
-			register uint8_t right_index = x - left_index;
+			register uint16_t right_index = x - left_index;
 			to[left_index] ^= to[right_index];
 			to[right_index] ^= to[left_index];
 			to[left_index] ^= to[right_index];
@@ -108,12 +109,12 @@ namespace C_String
 	// The old tried and test string with the new twist of a better name. ;)
 	// Takes a byte array (that is hopefully Null Terminated).
 	// Iterates array until Null terminator is found or max length is reached.
-	// Return length of string (or max uint8_t).
-	uint8_t length(char string[])
+	// Return length of string (or max uint16_t).
+	uint16_t length(char string[])
 	{
-		uint8_t length = 255;
-		while(length && string[255-length]) length--;
-		return 255-length;
+		uint16_t length = 0xFFFF;
+		while(length && string[0xFFFF-length]) length--;
+		return 0xFFFF-length;
 	}
 
 } // end namespace C_String
