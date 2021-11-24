@@ -124,6 +124,7 @@ V+    °|–– +
 - [ ] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
 - [ ] 5. Mobile App
 - [ ] 6. WearOS App
+- [ ] 7. JSON Log format
 
 ---
 
