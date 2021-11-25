@@ -46,6 +46,7 @@ Legacy .stl files for a 3D model can be found on [Thingiverse](https://www.thing
 - Compile & Bootload program to Arduino.
 
 ### RASPBERRY PI
+- Requires sudo generated sshkey (and the pubkey on github) if the git repo is cloned with ssh.
 - Clone repository to Raspberry Pi.
 - Edit `~/SmartCurtain/Hub/DB/Sample.sql` as needed for your setup.
 - Edit `~/SmartCurtain/Hub/Python/Other/Global.py` to supply your locale & information.
@@ -121,10 +122,11 @@ V+    °|–– +
 - [ ] 1. Google Calendar Event Setter
 - [ ] 2. Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
 - [ ] 3. Who Is Home (ping Android phones to see if person is on local network) closing/opening
-- [ ] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
+- [x] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
 - [ ] 5. Mobile App
 - [ ] 6. WearOS App
-- [ ] 7. JSON Log format
+- [x] 7. JSON Log format
+- [ ] 8. JSON string output for all objects
 
 ---
 
