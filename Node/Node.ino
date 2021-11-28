@@ -23,24 +23,24 @@
 
 
 #include <ArduinoJson.h>
+#include <exception>
 #include <SPI.h>
 
 #include "Curtain.h"
 #include "Global.h"
 #include "Gpio.h"
 #include "Transmission.h"
-#include "User.h"
 
 
 void setup()
 {
 	// ———— GPIO SETUP ————
-	pinMode(Gpio::CLOSE_PIN, INPUT);  // now analog, technically do not need
-	pinMode(Gpio::OPEN_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Configure::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Configure::Hardware::OPEN_PIN, INPUT);  // now analog, technically do not need
 
-	pinMode(Gpio::DIRECTION_PIN, OUTPUT);
-	pinMode(Gpio::ENABLE_PIN, OUTPUT);
-	pinMode(Gpio::PULSE_PIN, OUTPUT);
+	pinMode(Configure::Hardware::DIRECTION_PIN, OUTPUT);
+	pinMode(Configure::Hardware::ENABLE_PIN, OUTPUT);
+	pinMode(Configure::Hardware::PULSE_PIN, OUTPUT);
 
 	Gpio::disable_motor();  // don't burn up the motor
 
@@ -48,16 +48,19 @@ void setup()
 #if __ETHERNET__
 	// ethernet setup
 	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
-	Ethernet.begin(User::mac_address, User::node_host, User::router_gateway, User::subnet_mask);  // connect to LAN
+	Ethernet.begin(Configure::Network::MAC_ADDRESS, Configure::Network::NODE_HOST, Configure::Network::ROUTER_GATEWAY,
+	  Configure::Network::SUBNET_MASK);  // connect to LAN
 #elif __WIFI__
 	// wifi setup
 	WiFi.mode(WIFI_STA);
-	esp_wifi_set_mac(WIFI_IF_STA, User::mac_address);
-	WiFi.begin(User::SSID, User::password);
+	esp_wifi_set_mac(WIFI_IF_STA, Configure::Network::MAC_ADDRESS);
+	WiFi.begin(Configure::Network::SSID, Configure::Network::PASSWORD);
 	while(WiFi.status() != WL_CONNECTED) delay(500);
 #endif
 
 	Global::server.begin();
+
+//TODO: move completely closed if endstop
 }
 
 
@@ -65,37 +68,61 @@ void loop()
 {
 	Gpio::disable_motor();  // don't burn up the motor
 
+	StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
+
+	switch(json_document[Transmission::QUERY_TYPE_KEY])
+	{
+		case Transmission::Literals::JSON::Value::STATUS:
+			Transmission::send_status();
+			break;
+
+		// Reset curtain by moving it from alleged current position to close to actual current position.
+		case Transmission::Literals::JSON::Value::RESET:
+			Gpio::move_until_closed();
+
+		// Move to position
+		case Transmission::Literals::JSON::Value::MOVE:
+			Transmission::respond_with_json_and_stop(Transmission::Responses::VALID_RESPONSE);
+			Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
+			curtain.move();
+
+			// clean up and update curtain
+			curtain.set_location();
+			curtain.send_hub_serialized_info();
+			break;
+
+		default:
+			throw HTTP_Exception(404, "Unknown query type");
+	}
+
+	end_catch:
+
+	delay(700);
+}
+
+
+// RETURN: The JSON Document object.
+// THROWS: HTTPS_Exceptions
+StaticJsonDocument<Global::JSON_BUFFER_SIZE> decode_json()
+{
 	Global::client = Transmission::wait_for_request();
 
 	// bad message: retry later
 	char* json_buffer = Transmission::read_transmission_data_into_buffer();
-	if(!json_buffer) return;
-
-	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-	if(deserializeJson(json_document, json_buffer)) return Transmission::send_invalid_response_and_delete_(json_buffer);
-	delete json_buffer;
-
-	Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
-	Transmission::send_OK_response_and_stop_client();
-
-	if(!curtain.is_smart()) Gpio::move(curtain);
-	else
+	if(!json_buffer)
 	{
-		if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
-		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-		// ing or closing curtain.
-		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
-		else
-		{
-			if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
-			else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
-			else Gpio::move_until_closed(curtain.direction());
-		}
+		Exceptions::throw_HTTP_204("Could not read transmission into json_buffer");
 	}
 
-	// clean up and update curtain
-	curtain.set_location();
-	curtain.send_hub_serialized_info();
+	// Decode JSON
+	StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document;
+	bool successfully_deserialized = !deserializeJson(json_document, json_buffer);
+	delete[] json_buffer;
 
-	delay(700);
+	if(!successfully_deserialized)
+	{
+		Exceptions::throw_HTTP_400("Could not decode json");
+	}
+
+	return json_document;
 }

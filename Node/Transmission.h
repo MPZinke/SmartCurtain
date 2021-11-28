@@ -17,56 +17,114 @@
 #include <HttpClient.h>
 
 #include "Global.h"
-#include "User.h"
 
 
 namespace Transmission
 {
-	// ————————————————————————————————————————————— TRANSMISSION::GLOBAL —————————————————————————————————————————————
+	namespace Literals
+	{
+		namespace HTTP
+		{
+			// ———— START LINE ———— //
+			const uint8_t VALID_REQUEST_STR[] = "HTTP/1.1 200 OK";  // start string for valid request from device
+			const uint8_t INVALID_REQUEST_STR[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
+			// —— START LINE::POST —— //
+			const uint8_t POST_METHOD[] = "POST ";
+			const uint8_t HTTP_VERSION[] = " HTTP/1.1";
 
-	// ———— STRING LITERALS ————
-	// ———— HTTP LITERALS ————
-	const uint8_t VALID_REQUEST_STR[] = "HTTP/1.1 200 OK\r\n";  // start string for valid request from device
-	const uint8_t INVALID_REQUEST_STR[] = "HTTP/1.1 400 Bad Request\r\n";  // start string for invalid request from device
-	// ———— HTTP LITERALS::REQUEST TYPES ————
-	const uint8_t POST[] = "POST ";
-	const uint8_t HTTP_VERSION[] = " HTTP/1.1\r\n";
-	// ———— HTTP LITERALS::HEADER INFO ————
-	const uint8_t CONTENT_TYPE[] = "Content-Type: application/json\r\n";
-	const char CONTENT_TYPE_TAG[] = "Content-Type";
-	const char CONTENT_TYPE_VALUE[] = "application/json";
-	const uint8_t CONTENT_LENGTH_TAG[] = "Content-Length: ";
-	// ———— HTTP LITERALS::HEADER INFO ————
-	const uint8_t CARRIAGE_NEW_LINE[] = "\r\n";  // since I always forget the order
-	const uint8_t DOUBLE_CARRIAGE_NEW_LINE[] = "\r\n\r\n";  // since I always forget the order
+			// ———— HEADERS ———— //
+			const uint8_t CONTENT_TYPE[] = "Content-Type: application/json";
+			const uint8_t CONTENT_LENGTH_TAG[] = "Content-Length: ";
+			const uint8_t HOST_TAG[] = "Host: ";
+		}
 
-	// ———— ENCODING ————
-	// Designed for:
-	//	{"event" : 4294967295, "length" : 4294967295, "current position" : 4294967295, "desired position" : 4294967295,
-	//	  "direction" : 1, "auto calibrate" : 1, "auto correct" : 1}
-	// — OR —
-	//	{"event":0,"length":0,"current position":0,"desired position":0,"direction":1,"auto calibrate":1,
-	//	  "auto correct":1}
-	
-	const uint8_t MAX_PACKET_LENGTH = 188;  // should be a max of 188(189 w/ '\0') chars
-	const uint8_t MIN_PACKET_LENGTH = 104;  // every valid packet received will have at least this amount of chars
-	// json
-	const char CURTAIN_KEY[] = "curtain";
-	const char CURRENT_POS_KEY[] = "current position";
-	const char LENGTH_KEY[] = "length";
 
-	const char EVENT_KEY[] = "event";
-	const char DESIRED_POS_KEY[] = "desired position";
+		namespace JSON
+		{
+			namespace Key
+			{
+				const char QUERY_TYPE[] = "query type";
 
-	const char CALIBRATE_KEY[] = "auto calibrate";
-	const char CORRECT_KEY[] = "auto correct";
-	const char DIRECTION_KEY[] = "direction";
-	const char IS_SMART_KEY[] = "is smart";
-	// messages
-	const uint8_t INVALID_RESPONSE[] = "{\"error\" : \"Package received does not match JSON format\"}\r\n";
-	const uint8_t VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}\r\n";
+				const char CURTAIN[] = "curtain";
+				const char CURTAIN_ID[] = "id";
+				const char CURRENT_POS[] = "current position";
+				const char LENGTH[] = "length";
+				const char CALIBRATE[] = "auto calibrate";
+				const char CORRECT[] = "auto correct";
+				const char IS_SMART[] = "is smart";
 
-// —————————————————————————————————————————————————— RECEIVE DATA —————————————————————————————————————————————————— //
+				const char EVENT[] = "event";
+				const char EVENT_ID[] = "id";
+				const char EVENT_DESIRED_POS[] = "desired position";
+			}
+
+
+			namespace Value
+			{
+				const char MOVE[] = "move";  // Query type value for move
+				const char RESET[] = "reset";  // Query type value for reset
+				const char STATUS[] = "status";  // Query type value for status
+			}
+		}
+
+
+		namespace Responses
+		{
+			const uint8_t INVALID_RESPONSE[] = "{\"error\" : \"Package received does not match JSON format\"}";
+			const uint8_t VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
+		}
+	}
+
+
+	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
+
+	char* http_exception_json(Exceptions::HTTP_Exception& error)
+	{
+		// { "success" : false, "status code" : xxx, "message" : "" }
+		uint16_t malloc_length = 60 + C_String::length(error.what());
+		char* json_head = (char*)malloc(malloc_length), *json = json_head;
+
+		C_String::copy(json, "{\"success\": false, \"status code\": ");
+		json += C_String::length(json);
+		C_String::itoa(error.status_code(), json);
+
+		C_String::copy(json+3, ", \"message\": \"");
+		json += C_String::length(json+3) + 3;
+		C_String::copy(json, error.what());
+		json += C_String::length(json);
+
+		C_String::copy_n(json, "\"}", 2);
+
+		return json;
+	}
+
+
+	static char* status_json()
+	{
+		// "{ "" : 1234567890 , "" : 1234567890 }\0" plus keys
+		char* status_head = (char*)malloc(sizeof(CURTAIN_ID_KEY)+sizeof(CURRENT_POS_KEY)+38), *status = status_head+2;
+		C_String::copy_n(status_head, "{\"", 2);
+
+		C_String::copy(status, Literals::JSON::Key::CURTAIN_ID);
+		status += sizeof(Literals::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
+		C_String::copy_n(status, "\": ", 3);
+		C_String::copy(status+3, Configure::Curtain::CURTAIN_ID);
+		status += C_String::length(status+3) + 3;
+		C_String::copy_n(status, ", \"", 3);
+
+		C_String::copy(status+3, Literals::JSON::Key::CURRENT_POS);
+		status += sizeof(Literals::JSON::Key::CURRENT_POS) + 2;
+		C_String::copy_n(status, "\": ", 3);
+		C_String::itoa(Global::current_position, status+3);
+		status += C_String::length(status+3) + 3;
+
+		C_String::copy_n(status, "}", 2);
+
+		return status_head;
+	}
+
+
+	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
 	// Skips the header read in from the client.
 	// Reads through each character from client matching the character to the state machine to match to a double 
@@ -85,6 +143,7 @@ namespace Transmission
 		}
 		return false;
 	}
+
 
 	// SUMMARY:	Waits until client request received by the server, then converts and returns an HttpClient.
 	// DETAILS:	Creates static variable to stay alive for reference by returned HttpClient. Stays in loop until a client
@@ -129,57 +188,62 @@ namespace Transmission
 	}
 
 
-// ——————————————————————————————————————————————————— SEND  DATA ——————————————————————————————————————————————————— //
+	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 
 	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
 	// void post_json(char json[])
-	void post_json(char json[], const char path[])
+	void post_json(char json[], const uint8_t path[]=Configure::Transmission::ACTION_COMPLETE_URL)
 	{
-		Global::client.println("POST /api/update/deactivateevent HTTP/1.1");
-		Global::client.println("Host: 10.0.0.23");
-		Global::client.println("Content-Type: application/json");
-		Global::client.print((const char*)CONTENT_LENGTH_TAG);
+		// Start line
+		Global::client.print(Literals::HTTP::POST_METHOD);
+		Global::client.print(path);
+		Global::client.println(Literals::HTTP::HTTP_VERSION);
+
+		// Headers
+		Global::client.print(Literals::HTTP::HOST_TAG);
+		Global::client.println(Configure::Network::HUB_HOST_STR);
+
+		Global::client.println(Literals::HTTP::CONTENT_TYPE);
+
+		Global::client.print(Literals::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length(json));
+
+		// Contents
 		Global::client.println();
-		Global::client.print(json);
+		Global::client.println(json);
 	}
 
 
-	// Request received from Hub. Sends response indicating request was invalid.
-	void send_invalid_response_and_delete_(char json_buffer[])
+	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST_STR)
 	{
-		delete json_buffer;  // put here to allow returning from Node::loop function
+		// Start line
+		Global::client.println(response_type);
 
-		Global::client.write(INVALID_REQUEST_STR, sizeof(INVALID_REQUEST_STR)-1);
-		Global::client.write(CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);
-		// Content
-		String content_length_string = String(sizeof(VALID_RESPONSE)-1);
-		Global::client.write(CONTENT_LENGTH_TAG, sizeof(CONTENT_LENGTH_TAG)-1);
-		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());
-		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);
-		Global::client.write(INVALID_RESPONSE, sizeof(INVALID_RESPONSE)-1);
+		// Headers
+		Global::client.println(Literals::HTTP::CONTENT_TYPE);
+
+		Global::client.print(Literals::HTTP::CONTENT_LENGTH_TAG);
+		Global::client.println(C_String::length(json));
+
+		// Contents
+		Global::client.println();
+		Global::client.println(json);
 
 		Global::client.stop();
 	}
 
 
-	// Request received from Hub. Sends response indicating request was valid.
-	void send_OK_response_and_stop_client()
+	void send_status_and_stop_client()
 	{
-		Global::client.write((const uint8_t*)VALID_REQUEST_STR, sizeof(VALID_REQUEST_STR)-1);
-		Global::client.write((const uint8_t*)CONTENT_TYPE, sizeof(CONTENT_TYPE)-1);
-		// Content
-		String content_length_string = String(sizeof(VALID_RESPONSE)-1);
-		Global::client.write(CONTENT_LENGTH_TAG, sizeof(CONTENT_LENGTH_TAG)-1);
-		Global::client.write((const uint8_t*)content_length_string.c_str(), content_length_string.length());
-		Global::client.write(DOUBLE_CARRIAGE_NEW_LINE, 4);
-		Global::client.write((const uint8_t*)VALID_RESPONSE, sizeof(VALID_RESPONSE)-1);
-
-		Global::client.stop();
+		char* status_string = status_json();
+		respond_with_json_and_stop(status_string);
+		delete[] status_string;
 	}
 
+
+	// ————————————————————————————————————————— CONNECT TO & SEND HUB DATA ————————————————————————————————————————— //
 
 	void update_hub(byte packet_buffer[])
 	{
@@ -188,7 +252,7 @@ namespace Transmission
 		// Establish connection
 		static HARDWARE_CLIENT client;
 		Global::client = client;
-		if(!Global::client.connect(User::hub_host_cstr, User::port)) return;
+		if(!Global::client.connect(Configure::Network::HUB_HOST_STR, Configure::Network::port)) return;
 
 		// Send data if eventually connected
 		uint8_t timeout;

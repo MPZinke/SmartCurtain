@@ -41,6 +41,8 @@ Legacy .stl files for a 3D model can be found on [Thingiverse](https://www.thing
 ## INSTALLATION
 
 ### ARDUINO
+- Install ESP32 board library `https://dl.espressif.com/dl/package_esp32_index.json`
+- Install ArduinoJson library.
 - Open `~/SmartCurtain/Node/Node.ino` into Arduino IDE (or equivalent).
 - Edit `User.h` to match data to Hub IP address & curtain ID.
 - Compile & Bootload program to Arduino.

@@ -18,7 +18,6 @@
 #include "Global.h"
 #include "Gpio.h"
 #include "Transmission.h"
-#include "User.h"
 
 
 namespace Curtain
@@ -30,21 +29,21 @@ namespace Curtain
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
 
-	// Position1 is within Gobal::wiggle_room of position2.
-	// Takes two step positions.
-	// Returns whether they are within a certain amount of eachother.
-	bool is_approximate_position(uint32_t position1, uint32_t position2)
-	{
-		return is_approximate_position(position1, position2, Global::wiggle_room);
-	}
-
-
 	// Position1 is within an allowable difference of position2.
 	// Takes two step positions, and an allowable difference.
 	// Returns whether they are within a certain amount of eachother.
 	bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference)
 	{
 		return (position1 - allowable_difference <= position2) && (position2 <= position1 + allowable_difference);
+	}
+
+
+	// Position1 is within Gobal::wiggle_room of position2.
+	// Takes two step positions.
+	// Returns whether they are within a certain amount of eachother.
+	bool is_approximate_position(uint32_t position1, uint32_t position2)
+	{
+		return is_approximate_position(position1, position2, Global::wiggle_room);
 	}
 
 
@@ -70,24 +69,53 @@ namespace Curtain
 	}
 
 
-	// ————————————————————————————————————————————————————— CLASS —————————————————————————————————————————————————————
+	// ——————————————————————————————————————————————————— CLASS  ——————————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+	// ———————————————————————————————————————————————— CLASS::EVENT ———————————————————————————————————————————————— //
+
+	Events::Event(uint32_t id, uint32_t desired_position)
+	{
+		_id = id;
+		_desired_position = desired_position;
+	}
+
+
+	uint32_t Event::id()
+	{
+		return _id;
+	}
+
+
+	uint32_t Event::desired_position()
+	{
+		return _desired_position;
+	}
+
+
+	// ——————————————————————————————————————————————— CLASS::CURTAIN ——————————————————————————————————————————————— //
 
 	// Reads base128 data points from packet byte array.
 	// Takes the location of the packet array.
 	// Substracts the added 1 from each byte. Bit shifts each part of the base128 number to its corresponding part in 
 	// the uint32_t number. Places segment into uint32_t parts for object.
-	Curtain::Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>& json)
+	Curtain::Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>& json)
+	: _event{Event(
+		json[Transmission::EVENT_KEY][Transmission::EVENT_ID],
+		json[Transmission::EVENT_KEY][Transmission::EVENT_DESIRED_POS_KEY]
+	)}
 	{
+		uint16_t curtain_id = json[Transmission::CURTAIN_KEY][Transmission::CURTAIN_ID_KEY];
+		if(curtain_id != C_String::atoi(Configure::Curtain::curtain_id))
+		{
+			throw Exception("Message sent to wrong curtain");
+		}
+
 		_current_position = json[Transmission::CURRENT_POS_KEY];
 		_length = json[Transmission::LENGTH_KEY];
 
-		_event = json[Transmission::EVENT_KEY];
-		_desired_position = json[Transmission::DESIRED_POS_KEY];
-
 		_direction = json[Transmission::DIRECTION_KEY];
-
 		_is_smart = json[Transmission::IS_SMART_KEY];
-
 		if(_is_smart)
 		{
 			_auto_calibrate = json[Transmission::CALIBRATE_KEY];
@@ -103,7 +131,7 @@ namespace Curtain
 	//   not need to retraverse recount the precalculated string literal changes.
 	char* Curtain::serialize_data()
 	{
-		char* buffer_head = (char*)malloc(JSON_BUFFER_SIZE), *buffer = buffer_head;
+		char* buffer_head = (char*)malloc(Global::JSON_BUFFER_SIZE), *buffer = buffer_head;
 
 		C_String::copy_n("{\"", buffer, 2);
 		// current position
@@ -117,7 +145,7 @@ namespace Curtain
 		C_String::copy(Transmission::CURTAIN_KEY, buffer+3);  // +3 from previous ", \""
 		buffer += sizeof(Transmission::CURTAIN_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
-		C_String::copy(User::curtain_id, buffer+4);  // +4 from previous "\" : "
+		C_String::copy(Configure::Curtain::curtain_id, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// event
@@ -134,11 +162,30 @@ namespace Curtain
 		C_String::itoa(_length, buffer+4);  // +4 from previous " : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		// finish json
-		C_String::copy_n("}\r\n", buffer, 3);
+		C_String::copy_n("}", buffer, 1);
 
 		return buffer_head;
 	}
 
+
+	void Curtain::move()
+	{
+
+		if(!curtain.is_smart()) Gpio::move(curtain);
+		else
+		{
+			if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
+			// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
+			// ing or closing curtain.
+			// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+			else
+			{
+				if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
+				else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
+				else Gpio::move_until_closed(curtain.direction());
+			}
+		}
+	}
 
 	// —————————————————————————————————————————— CLASS::GETTERS: ATTRIBUTES ——————————————————————————————————————————
 
@@ -251,7 +298,6 @@ namespace Curtain
 	}
 
 
-
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
 
 	// Corrects position for DB unknowns relative to sensors.
@@ -269,12 +315,17 @@ namespace Curtain
 	// Sets the location of the curtain based on GPIO if possible, other wise desired location.
 	void Curtain::set_location()
 	{
-		if(!_is_smart) _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+		if(!_is_smart)
+		{
+			Global::current_position = _desired_position;
+			_current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+		}
 		else
 		{
 			if(Gpio::is_open()) _current_position = _length;
 			else if(Gpio::is_closed()) _current_position = 0;
 			else _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+			Global::current_position = _current_position;
 		}
 	}
 

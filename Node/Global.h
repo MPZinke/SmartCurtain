@@ -21,21 +21,56 @@
 
 
 #include <assert.h>
+#include <exception>
 #include <HttpClient.h>
 
-#include "User.h"
-// Defined in User.h
+#include "Configure.h"
+
+
 #if __ETHERNET__
+	#define __WIFI__ false
+
 	#include <Ethernet.h>
 	#include <EthernetClient.h>
-#elif __WIFI__
+#else
+	#define __WIFI__ true
+
 	#include <WiFi.h>
 	#include <WiFiClient.h>
 	#include <esp_wifi.h>
 #endif
 
 
-#define JSON_BUFFER_SIZE 0xFFFF
+// —————————————————————————————————————————————————— DEFININITION —————————————————————————————————————————————————— //
+
+// DEFINITION::CLIENT
+#if __ETHERNET__
+	#define HARDWARE_CLIENT EthernetClient
+#elif __WIFI__
+	#define HARDWARE_CLIENT WiFiClient
+#endif
+
+
+// DEFINITION::BUFFERS
+
+
+// —————————————————————————————————————————————————————— GLOBAL ——————————————————————————————————————————————————————
+
+namespace Global
+{
+#if __ETHERNET__
+	EthernetServer server(Configure::Network::PORT);
+#elif __WIFI__
+	WiFiServer server(Configure::Network::PORT);
+#endif
+
+	HARDWARE_CLIENT client;
+	uint32_t CURRENT_POSITION = 0;  // holds current position
+
+	const uint16_t JSON_BUFFER_SIZE = 0x1000;
+
+} // end namespace Global
+
 
 
 // ————————————————————————————————————————————————————— C-STRING —————————————————————————————————————————————————————
@@ -50,15 +85,29 @@ namespace C_String
 	uint16_t length(char[]);
 
 
-	// —————————————————————————————————————————————— C-STRING: FUNCTIONS ——————————————————————————————————————————————
+	// ———————————————————————————————————————————— C-STRING: FUNCTIONS ———————————————————————————————————————————— //
+
+	uint32_t atoi(char string[])
+	{
+		uint16_t length = C_String::length(string);
+		register uint32_t integer = 0;
+		for(uint8_t x = 0; x < length; x++)
+		{
+			integer *= 10;
+			integer += string[x] - 48;
+		}
+
+		return integer;
+	}
+
 
 	// Copies one c string to another & null terminates.
 	// Takes address of place to read from, address of place to write to.
 	// Iterates over number of character reading then writing.  Null terminates "to" after 254 or Null found.
 	void copy(const char from[], char to[])
 	{
-		uint16_t x;
-		for(x = 0; x < 0xFFFF && from[x]; x++) to[x] = from[x];
+		register uint16_t x;
+		for(x = 0; x < Global::JSON_BUFFER_SIZE && from[x]; x++) to[x] = from[x];
 		to[x] = 0;
 	}
 
@@ -68,8 +117,20 @@ namespace C_String
 	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
 	void copy_n(const char from[], char to[], uint16_t length)
 	{
-		for(uint16_t x = 0; x < length; x++) to[x] = from[x];
+		for(register uint16_t x = 0; x < length; x++) to[x] = from[x];
 		to[length] = 0;
+	}
+
+
+	bool equal(const char a[], char b[])
+	{
+		register uint16_t x;
+		for(x = 0; x < 0xFFFF && a[x]; x++)
+		{
+			if(a[x] != b[x]) return false;
+		}
+
+		return a[x] == b[x];
 	}
 
 
@@ -112,9 +173,9 @@ namespace C_String
 	// Return length of string (or max uint16_t).
 	uint16_t length(char string[])
 	{
-		uint16_t length = 0xFFFF;
-		while(length && string[0xFFFF-length]) length--;
-		return 0xFFFF-length;
+		uint16_t length = Global::JSON_BUFFER_SIZE;
+		while(length && string[Global::JSON_BUFFER_SIZE-length]) length--;
+		return Global::JSON_BUFFER_SIZE-length;
 	}
 
 } // end namespace C_String
@@ -134,6 +195,20 @@ namespace Curtain  // also exists in Curtain.h
 	} CurtainState;
 
 
+	class Event
+	{
+		private:
+			uint32_t _id;
+			uint32_t _desired_position;
+
+		public:
+			Event(uint32_t id, uint32_t desired_position);
+
+			uint32_t id();
+			uint32_t desired_position();
+	};
+
+
 	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
 	class Curtain
 	{
@@ -147,11 +222,10 @@ namespace Curtain  // also exists in Curtain.h
 			uint32_t _current_position;  // the current length according to the RPi
 			uint32_t _length;  // overall length of the curtain [steps]
 			// ———— EVENT INFO ————
-			uint32_t _desired_position;  // desired position according to the curtain
-			uint32_t _event;  // CurtainsEvents.id (0 if no event)
+			Event _event;
 
 		public:
-			Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>&);
+			Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>&);
 			char* serialize_data();
 
 			// —————————————— GETTERS: ATTRIBUTES ——————————————
@@ -163,8 +237,7 @@ namespace Curtain  // also exists in Curtain.h
 			uint32_t current_position();
 			uint32_t length();
 
-			uint32_t desired_position();
-			uint32_t event();
+			Event event();
 
 			// —————————————— GETTERS: DATA ——————————————
 			bool event_moves_to_an_end();
@@ -187,23 +260,3 @@ namespace Curtain  // also exists in Curtain.h
 	};
 
 } // end namespace Curtain
-
-
-// —————————————————————————————————————————————————————— GLOBAL ——————————————————————————————————————————————————————
-
-namespace Global
-{
-	const uint32_t ignore_movement_similarity = 10;  // max step difference to ignore event
-	const uint32_t wiggle_room = 5;  // steps within ends to consider "end zones"
-	const uint32_t steps_for_calibration = 5;  // how picky the program should be movement
-
-	const uint16_t loop_wait = 1024;  // a nice power of 2
-
-#if __ETHERNET__
-	EthernetServer server(User::port);
-#elif __WIFI__
-	WiFiServer server(User::port);
-#endif
-	HARDWARE_CLIENT client;
-
-} // end namespace Global
