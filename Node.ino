@@ -23,10 +23,10 @@
 
 
 #include <ArduinoJson.h>
-#include <exception>
 #include <SPI.h>
 
 #include "Curtain.h"
+#include "Exceptions.h"
 #include "Global.h"
 #include "Gpio.h"
 #include "Transmission.h"

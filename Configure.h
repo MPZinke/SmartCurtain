@@ -25,6 +25,9 @@ namespace Configure
 
 	namespace Hardware
 	{
+		#define CLOSE_ENDSTOP true
+		#define ENCODER false
+		#define OPEN_ENDSTOP false
 
 		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.

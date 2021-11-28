@@ -13,7 +13,7 @@
 
 namespace Exceptions
 {
-	void throw_general(const char message[])
+	void throw_generic(const char message[])
 	{
 
 		goto end_catch;

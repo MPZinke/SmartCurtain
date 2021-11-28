@@ -41,7 +41,7 @@
 #endif
 
 
-// —————————————————————————————————————————————————— DEFININITION —————————————————————————————————————————————————— //
+// —————————————————————————————————————————————————— PREPROCESSOR —————————————————————————————————————————————————— //
 
 // DEFINITION::CLIENT
 #if __ETHERNET__
@@ -49,6 +49,22 @@
 #elif __WIFI__
 	#define HARDWARE_CLIENT WiFiClient
 #endif
+
+
+// ———— SMARTINESS ————
+#if CLOSE_ENDSTOP
+	#define IS_SMART true
+	#define AUTO_CORRECT_CLOSE true
+#endif
+
+#if ENCODER || OPEN_ENDSTOP
+	#define AUTO_CORRECT true
+#endif
+
+#if OPEN_ENDSTOP
+	#define AUTO_CALIBRATE true
+#endif
+
 
 
 // DEFINITION::BUFFERS
@@ -199,13 +215,19 @@ namespace Curtain  // also exists in Curtain.h
 	{
 		private:
 			uint32_t _id;
+			uint32_t _curtain_length;
 			uint32_t _desired_position;
 
 		public:
-			Event(uint32_t id, uint32_t desired_position);
+			Event(uint32_t id, uint32_t curtain_length, uint32_t desired_position);
 
 			uint32_t id();
 			uint32_t desired_position();
+
+			// ———— MOVEMENT ———— //
+			bool event_moves_to_an_end();
+			bool moves_full_span();
+			CurtainState state_of_desired_position();
 	};
 
 
@@ -216,8 +238,6 @@ namespace Curtain  // also exists in Curtain.h
 			// ———— OPTIONS ————
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
-			bool _direction;  // XOR for direction (to switch which way is open)
-			bool _is_smart;  // whether the hardware is able to figure out where it is
 			// ———— CURRENT DATA ON CURTAIN ————
 			uint32_t _current_position;  // the current length according to the RPi
 			uint32_t _length;  // overall length of the curtain [steps]
@@ -231,20 +251,14 @@ namespace Curtain  // also exists in Curtain.h
 			// —————————————— GETTERS: ATTRIBUTES ——————————————
 			bool calibrate();
 			bool correct();
-			bool direction();
-			bool is_smart();
 
 			uint32_t current_position();
 			uint32_t length();
-
 			Event event();
 
 			// —————————————— GETTERS: DATA ——————————————
-			bool event_moves_to_an_end();
-			bool moves_full_span();
 			bool should_calibrate_across();
 			CurtainState state_of_current_position();
-			CurtainState state_of_desired_position();
 
 			// —————————————— SETTERS: ATTRIBUTES ——————————————
 			void current_position(uint32_t);

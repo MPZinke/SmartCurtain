@@ -65,7 +65,8 @@ namespace Gpio
 	void set_direction(bool direction_current)
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
-		digitalWrite(Configure::Hardware::DIRECTION_PIN, ((direction_current + DIRECTION_SWITCH) & 0b1));
+		digitalWrite(Configure::Hardware::DIRECTION_PIN, 
+		  ((direction_current + Configure::Hardware::DIRECTION_SWITCH) & 0b1));
 	}
 
 
