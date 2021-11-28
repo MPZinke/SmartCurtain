@@ -74,9 +74,10 @@ namespace Curtain
 
 	// ———————————————————————————————————————————————— CLASS::EVENT ———————————————————————————————————————————————— //
 
-	Events::Event(uint32_t id, uint32_t desired_position)
+	Events::Event(uint32_t id, uint32_t curtain_length, uint32_t desired_position)
 	{
 		_id = id;
+		_curtain_length = curtain_length;
 		_desired_position = desired_position;
 	}
 
@@ -93,6 +94,31 @@ namespace Curtain
 	}
 
 
+	bool Event::event_moves_to_an_end()
+	{
+		return _desired_position == 0 || _desired_position == _curtain_length;
+	}
+
+
+	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
+	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
+	// Returns true if curtain moves all the way across rod, false otherwise.
+	bool Curtain::moves_full_span()
+	{
+		CurtainState curtian_state = Gpio::state();
+		CurtainState desired_state = state_of(_desired_position, _curtain_length);
+		// parens not needed (precedence) but used to remove warnings
+		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
+	}
+
+
+	// SUGAR: whether desired position is open/close/middle.
+	CurtainState Event::state_of_desired_position()
+	{
+		return state_of(_desired_position, _curtain_length);
+	}
+
+
 	// ——————————————————————————————————————————————— CLASS::CURTAIN ——————————————————————————————————————————————— //
 
 	// Reads base128 data points from packet byte array.
@@ -101,25 +127,27 @@ namespace Curtain
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>& json)
 	: _event{Event(
-		json[Transmission::EVENT_KEY][Transmission::EVENT_ID],
-		json[Transmission::EVENT_KEY][Transmission::EVENT_DESIRED_POS_KEY]
+		json[Transmission::Literals::JSON::Key::EVENT][Transmission::Literals::JSON::Key::EVENT],
+		json[Transmission::Literals::JSON::Key::CURTAIN][Transmission::Literals::JSON::Key::CURTAIN_ID],
+		json[Transmission::Literals::JSON::Key::EVENT][Transmission::Literals::JSON::Key::EVENT_DESIRED_POS]
 	)}
 	{
-		uint16_t curtain_id = json[Transmission::CURTAIN_KEY][Transmission::CURTAIN_ID_KEY];
+		uint16_t curtain_id = json[Transmission::Literals::JSON::Key::CURTAIN]
+		  [Transmission::Literals::JSON::Key::CURTAIN_ID];
 		if(curtain_id != C_String::atoi(Configure::Curtain::curtain_id))
 		{
-			throw Exception("Message sent to wrong curtain");
+			Exceptions::throw_generic("Message sent to wrong curtain");
 		}
 
-		_current_position = json[Transmission::CURRENT_POS_KEY];
-		_length = json[Transmission::LENGTH_KEY];
+		_current_position = json[Transmission::Literals::JSON::Key::CURRENT_POS];
+		_length = json[Transmission::Literals::JSON::Key::LENGTH];
 
-		_direction = json[Transmission::DIRECTION_KEY];
-		_is_smart = json[Transmission::IS_SMART_KEY];
+		_direction = json[Transmission::Literals::JSON::Key::DIRECTION];
+		_is_smart = json[Transmission::Literals::JSON::Key::IS_SMART];
 		if(_is_smart)
 		{
-			_auto_calibrate = json[Transmission::CALIBRATE_KEY];
-			_auto_correct = json[Transmission::CORRECT_KEY];
+			_auto_calibrate = json[Transmission::Literals::JSON::Key::CALIBRATE];
+			_auto_correct = json[Transmission::Literals::JSON::Key::CORRECT];
 		}
 	}
 
@@ -207,18 +235,6 @@ namespace Curtain
 	}
 
 
-	uint32_t Curtain::desired_position()
-	{
-		return _desired_position;
-	}
-
-
-	bool Curtain::direction()
-	{
-		return _direction;
-	}
-
-
 	uint32_t Curtain::event()
 	{
 		return _event;
@@ -239,24 +255,6 @@ namespace Curtain
 
 	// ————————————————————————————————————————————— CLASS::GETTERS: DATA —————————————————————————————————————————————
 
-	bool Curtain::event_moves_to_an_end()
-	{
-		return _desired_position == 0 || _desired_position == _length;
-	}
-
-
-	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
-	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
-	// Returns true if curtain moves all the way across rod, false otherwise.
-	bool Curtain::moves_full_span()
-	{
-		CurtainState curtian_state = Gpio::state();
-		CurtainState desired_state = state_of(_desired_position, _length);
-		// parens not needed (precedence) but used to remove warnings
-		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
-	}
-
-
 	// SUGAR: whether the curtain should calibrate from moving the full span.
 	bool Curtain::should_calibrate_across()
 	{
@@ -268,13 +266,6 @@ namespace Curtain
 	CurtainState Curtain::state_of_current_position()
 	{
 		return state_of(_current_position, _length);
-	}
-
-
-	// SUGAR: whether desired position is open/close/middle.
-	CurtainState Curtain::state_of_desired_position()
-	{
-		return state_of(_desired_position, _length);
 	}
 
 
