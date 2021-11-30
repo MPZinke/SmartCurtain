@@ -64,10 +64,10 @@ namespace Encoder
 	bool is_positive_direction(uint8_t previous_state, uint8_t current_state)
 	{
 		bool A1 = (previous_state & 0b10) >> 1;  // A from the previous status
-		bool A2 = (current_state & 0b1) >> 1;  // A from the current status
+		bool A2 = (current_state & 0b10) >> 1;  // A from the current status
 
-		bool B1 = previous_state & 0b10;  // B from the previous status
-		bool B2 = current_state 0b1;  // B from the current status
+		bool B1 = previous_state & 0b1;  // B from the previous status
+		bool B2 = current_state & 0b1;  // B from the current status
 
 		// Return whether data matches POSITIVE 1/3 || 2/4 ;
 		if((A1 != A2 && A1 == B1 && A1 == B2) || (A1 == A2 && A1 != B1 && A1 == B2))
@@ -89,7 +89,7 @@ namespace Encoder
 	void movement_tracker()
 	{
 		uint32_t last_movement_time = 0; 
-		bool waiting_to_update_after_manual_movement	 = false;
+		bool waiting_to_update_after_manual_movement = false;
 		uint8_t previous_state = ENCODER_READ;
 
 		while(true)
