@@ -149,3 +149,11 @@ created by: MPZinke on 08.20.2018
 edited by: MPZinke on 2020.12.28 to actually make it a README instead of a text file.
 
 Remember that you're making this at your own accord and I take no responsibility for any mistakes or problems that may arise.
+
+---
+
+## Appendix
+- Nema 17 has a step size of 1.8°/step or 200 steps/revolution [Source](https://www.makerguides.com/tb6600-stepper-motor-driver-arduino-tutorial/)
+- TB6600 16x Micro stepping equates to ~80 steps/mm (I measured it to be ~80.5 steps/mm)
+- [Example for AMT10](https://hackaday.io/project/9914-open-robotics-eurobot/log/34812-amt10-encoder-setup)
+- [Example for Dual Core Arduino](https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/)
