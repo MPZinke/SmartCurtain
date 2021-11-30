@@ -43,13 +43,6 @@
 
 // —————————————————————————————————————————————————— PREPROCESSOR —————————————————————————————————————————————————— //
 
-// DEFINITION::CLIENT
-#if __ETHERNET__
-	#define HARDWARE_CLIENT EthernetClient
-#elif __WIFI__
-	#define HARDWARE_CLIENT WiFiClient
-#endif
-
 
 // ———— SMARTINESS ————
 #if CLOSE_ENDSTOP
@@ -74,14 +67,11 @@
 
 namespace Global
 {
-#if __ETHERNET__
-	EthernetServer server(Configure::Network::PORT);
-#elif __WIFI__
 	WiFiServer server(Configure::Network::PORT);
-#endif
 
-	HARDWARE_CLIENT client;
-	uint32_t CURRENT_POSITION = 0;  // holds current position
+	WiFiClient client;
+	uint32_t current_position = 0;  // holds current position
+	bool is_engaged = false;  // whether the motor is engaged (yay race conditions)
 
 	const uint16_t JSON_BUFFER_SIZE = 0x1000;
 

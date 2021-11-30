@@ -132,7 +132,7 @@ namespace Transmission
 	// Return whether the body of the client is found.
 	bool skip_header()
 	{
-		HARDWARE_CLIENT* client = &Global::client;  //SUGAR
+		WiFiClient* client = &Global::client;  //SUGAR
 		for(uint32_t x = 0; x < 0xFFFFFFFF && client->available() >= 4; x++)
 		{
 			// State machine
@@ -149,9 +149,9 @@ namespace Transmission
 	// DETAILS:	Creates static variable to stay alive for reference by returned HttpClient. Stays in loop until a client
 	//  is successfully returned by the server. Converts client to HttpClient.
 	// RETURN:	HttpClient referncing client.
-	HARDWARE_CLIENT wait_for_request()
+	WiFiClient wait_for_request()
 	{
-		HARDWARE_CLIENT client = Global::server.available();
+		WiFiClient client = Global::server.available();
 		while(!client)
 		{
 			delayMicroseconds(10);
@@ -250,7 +250,7 @@ namespace Transmission
 		if(Global::client.connected()) Global::client.stop();  // make sure I wasn't incompetent :)
 
 		// Establish connection
-		static HARDWARE_CLIENT client;
+		static WiFiClient client;
 		Global::client = client;
 		if(!Global::client.connect(Configure::Network::HUB_HOST_STR, Configure::Network::port)) return;
 

@@ -45,18 +45,11 @@ void setup()
 	Gpio::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
-#if __ETHERNET__
-	// ethernet setup
-	Ethernet.init();  // defaults to 10 (Teensy 3.2, etc)
-	Ethernet.begin(Configure::Network::MAC_ADDRESS, Configure::Network::NODE_HOST, Configure::Network::ROUTER_GATEWAY,
-	  Configure::Network::SUBNET_MASK);  // connect to LAN
-#elif __WIFI__
 	// wifi setup
 	WiFi.mode(WIFI_STA);
 	esp_wifi_set_mac(WIFI_IF_STA, Configure::Network::MAC_ADDRESS);
 	WiFi.begin(Configure::Network::SSID, Configure::Network::PASSWORD);
 	while(WiFi.status() != WL_CONNECTED) delay(500);
-#endif
 
 	Global::server.begin();
 
