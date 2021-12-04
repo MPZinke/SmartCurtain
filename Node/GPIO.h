@@ -40,7 +40,7 @@ namespace Gpio
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
 
 	// ———— SUGAR ————
-	const bool ON = HIGH ^ Configure::Hardware::SWITCH;  // the "ON"/"ACTIVATE" state for the device
+	const bool ON = HIGH ^ Config::Hardware::SWITCH;  // the "ON"/"ACTIVATE" state for the device
 	const bool OFF = !ON;  // the "OFF"/"DEACTIVATE" state for the device
 	const bool CLOSE = OFF;  // solidify convention
 	const bool OPEN = !CLOSE;  // solidify convention
@@ -50,13 +50,13 @@ namespace Gpio
 
 	void disable_motor()
 	{
-		digitalWrite(Configure::Hardware::ENABLE_PIN, ON);
+		digitalWrite(Config::Hardware::ENABLE_PIN, ON);
 	}
 
 
 	void enable_motor()
 	{
-		digitalWrite(Configure::Hardware::ENABLE_PIN, OFF);
+		digitalWrite(Config::Hardware::ENABLE_PIN, OFF);
 	}
 
 
@@ -65,20 +65,20 @@ namespace Gpio
 	void set_direction(bool direction_current)
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
-		digitalWrite(Configure::Hardware::DIRECTION_PIN, 
-		  ((direction_current + Configure::Hardware::DIRECTION_SWITCH) & 0b1));
+		digitalWrite(Config::Hardware::DIRECTION_PIN, 
+		  ((direction_current + Config::Hardware::DIRECTION_SWITCH) & 0b1));
 	}
 
 
 	bool is_closed()
 	{
-		return digitalRead(Configure::Hardware::CLOSE_PIN);
+		return digitalRead(Config::Hardware::CLOSE_PIN);
 	}
 
 
 	bool is_open()
 	{
-		return digitalRead(Configure::Hardware::OPEN_PIN);
+		return digitalRead(Config::Hardware::OPEN_PIN);
 	}
 
 
@@ -115,7 +115,7 @@ namespace Gpio
 		{
 			bool direction = curtain.desired_position() ? OPEN : CLOSE;
 			set_direction(direction);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 
 			uint32_t steps = curtain.length();
 			move_motor_step_count(steps);
@@ -152,15 +152,15 @@ namespace Gpio
 
 		while(!state_function())
 		{
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 		}
 
 		disable_motor();
@@ -179,15 +179,15 @@ namespace Gpio
 		register uint32_t steps = 0;
 		while(!state_function())
 		{
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 			steps += 2;
 		}
 
@@ -208,15 +208,15 @@ namespace Gpio
 		steps = steps & 0xFFFFFFFE;  // make number of steps an even amount to match movement loop (prevent overflow)
 		while(steps && !state_function())
 		{
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 			steps -= 2;
 		}
 
@@ -269,15 +269,15 @@ namespace Gpio
 		steps &= 0xFFFFFFFE;
 		while(steps)
 		{
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 
-			digitalWrite(Configure::Hardware::PULSE_PIN, HIGH);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
-			digitalWrite(Configure::Hardware::PULSE_PIN, LOW);
-			delayMicroseconds(Configure::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, HIGH);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
+			digitalWrite(Config::Hardware::PULSE_PIN, LOW);
+			delayMicroseconds(Config::Hardware::PULSE_WAIT);
 			steps -= 2;
 		}
 		disable_motor();

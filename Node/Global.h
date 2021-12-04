@@ -67,7 +67,7 @@
 
 namespace Global
 {
-	WiFiServer server(Configure::Network::PORT);
+	WiFiServer server(Config::Network::PORT);
 
 	WiFiClient client;
 	uint32_t current_position = 0;  // holds current position

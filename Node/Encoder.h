@@ -86,7 +86,7 @@ namespace Encoder
 	}
 
 
-	void movement_tracker()
+	void encoder_loop()
 	{
 		uint32_t last_movement_time = 0; 
 		bool waiting_to_update_after_manual_movement = false;
@@ -98,7 +98,11 @@ namespace Encoder
 
 			if(previous_state != current_state)
 			{
+				uint32_t current_time = millis();
+				if(current_time - last_movement_time >= Config::Hardware::MANUAL_MOVEMENT_INTERVAL)
+				{
 
+				}
 				// Manual move
 				if(!Global::is_engaged)
 				{
