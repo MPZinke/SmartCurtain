@@ -11,7 +11,7 @@
 ***********************************************************************************************************************/
 
 
-namespace Configure
+namespace Config
 {
 	namespace Curtain
 	{
@@ -62,7 +62,7 @@ namespace Configure
 		uint8_t SUBNET_MASK[] = {255,255,255,0};  // of the router
 		const char PASSWORD[] = "";  // WiFi password
 		const char SSID[] = "";  // WiFi name
-	}  // end namespace Configure::Network
+	}  // end namespace Config::Network
 
 
 	namespace Transmission

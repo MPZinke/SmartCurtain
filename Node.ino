@@ -32,90 +32,39 @@
 #include "Transmission.h"
 
 
+TaskHandle_t automation_task;
+TaskHandle_t encoder_task;
+
+
 void setup()
 {
 	// ———— GPIO SETUP ————
-	pinMode(Configure::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
-	pinMode(Configure::Hardware::OPEN_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Config::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
+	pinMode(Config::Hardware::OPEN_PIN, INPUT);  // now analog, technically do not need
 
-	pinMode(Configure::Hardware::DIRECTION_PIN, OUTPUT);
-	pinMode(Configure::Hardware::ENABLE_PIN, OUTPUT);
-	pinMode(Configure::Hardware::PULSE_PIN, OUTPUT);
+	pinMode(Config::Hardware::DIRECTION_PIN, OUTPUT);
+	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
+	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
 
 	Gpio::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
 	// wifi setup
 	WiFi.mode(WIFI_STA);
-	esp_wifi_set_mac(WIFI_IF_STA, Configure::Network::MAC_ADDRESS);
-	WiFi.begin(Configure::Network::SSID, Configure::Network::PASSWORD);
+	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::MAC_ADDRESS);
+	WiFi.begin(Config::Network::SSID, Config::Network::PASSWORD);
 	while(WiFi.status() != WL_CONNECTED) delay(500);
 
 	Global::server.begin();
 
 //TODO: move completely closed if endstop
+	// Task Params: Function to implement the task, Name of the task, Stack size in words, Task input parame, 
+	//  Priority of the task, Task handle to keep track of created task, Core where the task should run
+	xTaskCreatePinnedToCore(Automation::automation_loop, "Automation", 10000, NULL, 0, &automation_task, 0);
+	xTaskCreatePinnedToCore(Encoder::encoder_loop, "Encoder", 10000, NULL, 1, &encoder_task, 1);
 }
 
 
 void loop()
-{
-	Gpio::disable_motor();  // don't burn up the motor
+{}
 
-	StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
-
-	switch(json_document[Transmission::QUERY_TYPE_KEY])
-	{
-		case Transmission::Literals::JSON::Value::STATUS:
-			Transmission::send_status();
-			break;
-
-		// Reset curtain by moving it from alleged current position to close to actual current position.
-		case Transmission::Literals::JSON::Value::RESET:
-			Gpio::move_until_closed();
-
-		// Move to position
-		case Transmission::Literals::JSON::Value::MOVE:
-			Transmission::respond_with_json_and_stop(Transmission::Responses::VALID_RESPONSE);
-			Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
-			curtain.move();
-
-			// clean up and update curtain
-			curtain.set_location();
-			curtain.send_hub_serialized_info();
-			break;
-
-		default:
-			throw HTTP_Exception(404, "Unknown query type");
-	}
-
-	end_catch:
-
-	delay(700);
-}
-
-
-// RETURN: The JSON Document object.
-// THROWS: HTTPS_Exceptions
-StaticJsonDocument<Global::JSON_BUFFER_SIZE> decode_json()
-{
-	Global::client = Transmission::wait_for_request();
-
-	// bad message: retry later
-	char* json_buffer = Transmission::read_transmission_data_into_buffer();
-	if(!json_buffer)
-	{
-		Exceptions::throw_HTTP_204("Could not read transmission into json_buffer");
-	}
-
-	// Decode JSON
-	StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document;
-	bool successfully_deserialized = !deserializeJson(json_document, json_buffer);
-	delete[] json_buffer;
-
-	if(!successfully_deserialized)
-	{
-		Exceptions::throw_HTTP_400("Could not decode json");
-	}
-
-	return json_document;
-}

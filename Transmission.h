@@ -108,7 +108,7 @@ namespace Transmission
 		C_String::copy(status, Literals::JSON::Key::CURTAIN_ID);
 		status += sizeof(Literals::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
 		C_String::copy_n(status, "\": ", 3);
-		C_String::copy(status+3, Configure::Curtain::CURTAIN_ID);
+		C_String::copy(status+3, Config::Curtain::CURTAIN_ID);
 		status += C_String::length(status+3) + 3;
 		C_String::copy_n(status, ", \"", 3);
 
@@ -194,7 +194,7 @@ namespace Transmission
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
 	// void post_json(char json[])
-	void post_json(char json[], const uint8_t path[]=Configure::Transmission::ACTION_COMPLETE_URL)
+	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL)
 	{
 		// Start line
 		Global::client.print(Literals::HTTP::POST_METHOD);
@@ -203,7 +203,7 @@ namespace Transmission
 
 		// Headers
 		Global::client.print(Literals::HTTP::HOST_TAG);
-		Global::client.println(Configure::Network::HUB_HOST_STR);
+		Global::client.println(Config::Network::HUB_HOST_STR);
 
 		Global::client.println(Literals::HTTP::CONTENT_TYPE);
 
@@ -252,7 +252,7 @@ namespace Transmission
 		// Establish connection
 		static WiFiClient client;
 		Global::client = client;
-		if(!Global::client.connect(Configure::Network::HUB_HOST_STR, Configure::Network::port)) return;
+		if(!Global::client.connect(Config::Network::HUB_HOST_STR, Config::Network::port)) return;
 
 		// Send data if eventually connected
 		uint8_t timeout;

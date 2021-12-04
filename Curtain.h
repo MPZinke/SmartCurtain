@@ -134,7 +134,7 @@ namespace Curtain
 	{
 		uint16_t curtain_id = json[Transmission::Literals::JSON::Key::CURTAIN]
 		  [Transmission::Literals::JSON::Key::CURTAIN_ID];
-		if(curtain_id != C_String::atoi(Configure::Curtain::curtain_id))
+		if(curtain_id != C_String::atoi(Config::Curtain::curtain_id))
 		{
 			Exceptions::throw_generic("Message sent to wrong curtain");
 		}
@@ -173,7 +173,7 @@ namespace Curtain
 		C_String::copy(Transmission::CURTAIN_KEY, buffer+3);  // +3 from previous ", \""
 		buffer += sizeof(Transmission::CURTAIN_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
-		C_String::copy(Configure::Curtain::curtain_id, buffer+4);  // +4 from previous "\" : "
+		C_String::copy(Config::Curtain::curtain_id, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// event
