@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.11.30                                                                                                      *
+*   on 2021.12.10                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -11,17 +11,51 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
-
-
-#include "Config.h"
-
-
-#define ENCODER_READ digitalRead(Config::Hardware::ENCODER_PINA) << 1 | digitalRead(Config::Hardware::ENCODER_PINB)
+#include "Headers/Encoder.hpp"
 
 
 namespace Encoder
 {
+	void encoder_loop(void*)
+	{
+		// uint32_t last_movement_time = 0; 
+		// bool waiting_to_update_after_manual_movement = false;
+		uint8_t previous_state = ENCODER_READ;
+
+		while(true)
+		{
+			uint8_t current_state = ENCODER_READ;
+
+			if(previous_state != current_state)
+			{
+				// uint32_t current_time = millis();
+				// if(current_time - last_movement_time >= Config::Hardware::MANUAL_MOVEMENT_INTERVAL)
+				// {
+
+				// }
+				// // Manual move
+				// if(!Global::is_engaged)
+				// {
+				// 	// determine direction
+				// 	// determine steps
+				// 	// increment/decrement Global::current_position
+				// }
+
+				// set previous_state
+				// last_movement_time = millis();
+				// previous_state = current_state;
+			}
+			// if enough stationary time has passed
+			// else if()
+			// {
+			// 	last_movement_time = millis();
+			// }
+
+			delay(Config::Hardware::ENCODER_WAIT);
+		}
+	}
+
+
 	// DESCR: Determines whether the recorded movement is +/-.
 	// PARAMS: Takes the previous state, current state as 0bAB, where A & B are booleans of sensors.
 	// DETAIL:
@@ -63,65 +97,25 @@ namespace Encoder
 	// RETURN: Whether the direction is +/- (+: true, -: false).
 	bool is_positive_direction(uint8_t previous_state, uint8_t current_state)
 	{
-		bool A1 = (previous_state & 0b10) >> 1;  // A from the previous status
-		bool A2 = (current_state & 0b10) >> 1;  // A from the current status
+		bool eA1 = (previous_state & 0b10) >> 1;  // A from the previous status
+		bool eA2 = (current_state & 0b10) >> 1;  // A from the current status
 
-		bool B1 = previous_state & 0b1;  // B from the previous status
-		bool B2 = current_state & 0b1;  // B from the current status
+		bool eB1 = previous_state & 0b1;  // B from the previous status
+		bool eB2 = current_state & 0b1;  // B from the current status
 
 		// Return whether data matches POSITIVE 1/3 || 2/4 ;
-		if((A1 != A2 && A1 == B1 && A1 == B2) || (A1 == A2 && A1 != B1 && A1 == B2))
+		if((eA1 != eA2 && eA1 == eB1 && eA1 == eB2) || (eA1 == eA2 && eA1 != eB1 && eA1 == eB2))
 		{
 			return true;
 		}
 		// Return whether data matches NEGATIVE 1/3 || 2/4 ;
-		else if((A1 != A2 && A1 != B1 && A1 != B2) || (A1 == A2 && A1 == B1 && A1 != B2))
+		else if((eA1 != eA2 && eA1 != eB1 && eA1 != eB2) || (eA1 == eA2 && eA1 == eB1 && eA1 != eB2))
 		{
 			return false;
 		}
 		else
 		{
 			// RAISE EXCPETION: Encoder is not working properly (see above conditions that will not happen)
-		}
-	}
-
-
-	void encoder_loop()
-	{
-		uint32_t last_movement_time = 0; 
-		bool waiting_to_update_after_manual_movement = false;
-		uint8_t previous_state = ENCODER_READ;
-
-		while(true)
-		{
-			uint8_t current_state = ENCODER_READ;
-
-			if(previous_state != current_state)
-			{
-				uint32_t current_time = millis();
-				if(current_time - last_movement_time >= Config::Hardware::MANUAL_MOVEMENT_INTERVAL)
-				{
-
-				}
-				// Manual move
-				if(!Global::is_engaged)
-				{
-					// determine direction
-					// determine steps
-					// increment/decrement Global::current_position
-				}
-
-				// set previous_state
-				last_movement_time = millis();
-				previous_state = current_state;
-			}
-			// if enough stationary time has passed
-			else if()
-			{
-				last_movement_time = millis();
-			}
-
-			delay(Config::Hardware::ENCODER_WAIT);
 		}
 	}
 }
