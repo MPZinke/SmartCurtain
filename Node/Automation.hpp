@@ -24,7 +24,7 @@ namespace Automation
 	{
 		while(true)
 		{
-			Gpio::disable_motor();  // don't burn up the motor
+			Movement::disable_motor();  // don't burn up the motor
 		
 			StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
 	
@@ -36,7 +36,7 @@ namespace Automation
 	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
 				case Transmission::Literals::JSON::Value::RESET:
-					Gpio::move_until_closed();
+					Movement::move_until_closed();
 	
 				// Move to position
 				case Transmission::Literals::JSON::Value::MOVE:
