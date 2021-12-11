@@ -18,18 +18,14 @@
 #include "Global.hpp"
 
 
+#include "Movement.hpp"
 #include "Transmission.hpp"
 
 
 namespace Curtain
 {
 
-	typedef enum
-	{
-		CLOSED = -1,
-		MIDDLE,
-		OPEN
-	} CurtainState;
+	// using ::Movement::CurtainState;  //TODO: fix
 
 
 	bool is_approximate_position(uint32_t, uint32_t);
@@ -91,8 +87,8 @@ namespace Curtain
 			CurtainState state_of_position();
 
 			// —————————————— SETTERS: ATTRIBUTES ——————————————
-			void position(uint32_t);
-			void length(uint32_t);
+			void position(uint32_t new_position);
+			void length(uint32_t new_length);
 
 			// —————————————— SETTERS: DATA ——————————————
 			void set_position_if_does_not_match_sensors();

@@ -23,19 +23,20 @@ namespace Automation
 			Movement::disable_motor();  // don't burn up the motor
 		
 			StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
+			const char* query_type = json_document[Transmission::Literals::JSON::Key::QUERY_TYPE];
 	
-			switch(json_document[Transmission::Literals::JSON::QUERY_TYPE])
+			switch(Transmission::id_for_value(query_type))
 			{
-				case Transmission::Literals::JSON::Value::STATUS:
+				case Transmission::id_for_value(Transmission::Literals::JSON::Value::STATUS):
 					Transmission::send_status();
 					break;
 	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
-				case Transmission::Literals::JSON::Value::RESET:
+				case Transmission::id_for_value(Transmission::Literals::JSON::Value::RESET):
 					Movement::move_until_closed();
 	
 				// Move to position
-				case Transmission::Literals::JSON::Value::MOVE:
+				case Transmission::id_for_value(Transmission::Literals::JSON::Value::MOVE):
 					Transmission::respond_with_json_and_stop(Transmission::Responses::VALID_RESPONSE);
 					Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
 					curtain.move();

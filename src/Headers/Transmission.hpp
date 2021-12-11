@@ -24,8 +24,9 @@ namespace Transmission
 		namespace HTTP
 		{
 			// ———— START LINE ———— //
-			const char VALID_REQUEST_STR[] = "HTTP/1.1 200 OK";  // start string for valid request from device
-			const char INVALID_REQUEST_STR[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
+			const char VALID_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
+			const char INVALID_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
+			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
 			// —— START LINE::POST —— //
 			const char POST_METHOD[] = "POST ";
 			const char HTTP_VERSION[] = " HTTP/1.1";
@@ -59,27 +60,43 @@ namespace Transmission
 
 			namespace Value
 			{
-				constexpr char MOVE[] = "move";  // Query type value for move
-				constexpr char RESET[] = "reset";  // Query type value for reset
-				constexpr char STATUS[] = "status";  // Query type value for status
+				const char MOVE[] = "move";  // Query type value for move
+				const char RESET[] = "reset";  // Query type value for reset
+				const char STATUS[] = "status";  // Query type value for status
+
+
+				typedef struct
+				{
+					uint8_t id;
+					const char* value;
+				} ValueID;
+
+
+				ValueID VALUE_IDS[] =
+				{
+					{1, MOVE},
+					{2, RESET},
+					{3, STATUS}
+				};
 			}
 		}
 
 
 		namespace Responses
 		{
-			const uint8_t INVALID_RESPONSE[] = "{\"error\" : \"Package received does not match JSON format\"}";
-			const uint8_t VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
+			const uint8_t INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
+			const uint8_t VALID[] = "{\"success\":\"Valid JSON received\"}";
 		}
 	}
 
+	uint8_t id_for_value(const char* value);
 	char* http_exception_json(char error_message[]);
 	static char* status_json();
 	bool skip_header();
 	WiFiClient wait_for_request();
 	char* read_transmission_data_into_buffer();
 	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL);
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST_STR);
+	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
 
