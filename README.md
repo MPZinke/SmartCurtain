@@ -141,6 +141,7 @@ V+    °|–– +
 - [ ] 6. WearOS App
 - [x] 7. JSON Log format
 - [ ] 8. JSON string output for all objects
+- [ ] 9. Updater can run bash script (using same principle as DB updates)
 
 ---
 
