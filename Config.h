@@ -26,7 +26,7 @@ namespace Config
 	namespace Hardware
 	{
 		#define CLOSE_ENDSTOP true
-		#define ENCODER false
+		#define ENCODER true
 		#define OPEN_ENDSTOP false
 
 		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
@@ -41,6 +41,9 @@ namespace Config
 		const uint8_t OPEN_PIN = 0;
 
 		const uint16_t PULSE_WAIT = 60;
+
+		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
+		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
 	}
 
 

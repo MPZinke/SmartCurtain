@@ -18,7 +18,7 @@
 
 #include "Global.h"
 
-namespace Gpio
+namespace Movement
 {
 	void disable_motor();
 	void enable_motor();
