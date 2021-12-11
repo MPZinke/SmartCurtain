@@ -22,14 +22,14 @@
 ***********************************************************************************************************************/
 
 
-#include <ArduinoJson.h>
-#include <SPI.h>
+#include "src/Headers/Global.hpp"
 
-#include "Curtain.h"
-#include "Exceptions.h"
-#include "Global.h"
-#include "Gpio.h"
-#include "Transmission.h"
+#include "src/Headers/Automation.hpp"
+#include "src/Headers/Curtain.hpp"
+#include "src/Headers/Encoder.hpp"
+#include "src/Headers/Movement.hpp"
+#include "src/Headers/Transmission.hpp"
+#include "src/Headers/Exceptions.hpp"
 
 
 TaskHandle_t automation_task;
@@ -46,7 +46,7 @@ void setup()
 	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
 	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
 
-	Gpio::disable_motor();  // don't burn up the motor
+	Movement::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
 	// wifi setup

@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.06.06                                                                                                      *
+*   on 2021.12.10                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -11,74 +11,15 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#include "Headers/Transmission.hpp"
 
 
-#include <HttpClient.h>
-
-#include "Global.h"
-
-
-namespace Transmission
+namespace
 {
-	namespace Literals
-	{
-		namespace HTTP
-		{
-			// ———— START LINE ———— //
-			const uint8_t VALID_REQUEST_STR[] = "HTTP/1.1 200 OK";  // start string for valid request from device
-			const uint8_t INVALID_REQUEST_STR[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
-			// —— START LINE::POST —— //
-			const uint8_t POST_METHOD[] = "POST ";
-			const uint8_t HTTP_VERSION[] = " HTTP/1.1";
-
-			// ———— HEADERS ———— //
-			const uint8_t CONTENT_TYPE[] = "Content-Type: application/json";
-			const uint8_t CONTENT_LENGTH_TAG[] = "Content-Length: ";
-			const uint8_t HOST_TAG[] = "Host: ";
-		}
-
-
-		namespace JSON
-		{
-			namespace Key
-			{
-				const char QUERY_TYPE[] = "query type";
-
-				const char CURTAIN[] = "curtain";
-				const char CURTAIN_ID[] = "id";
-				const char CURRENT_POS[] = "current position";
-				const char LENGTH[] = "length";
-				const char CALIBRATE[] = "auto calibrate";
-				const char CORRECT[] = "auto correct";
-				const char IS_SMART[] = "is smart";
-
-				const char EVENT[] = "event";
-				const char EVENT_ID[] = "id";
-				const char EVENT_DESIRED_POS[] = "desired position";
-			}
-
-
-			namespace Value
-			{
-				const char MOVE[] = "move";  // Query type value for move
-				const char RESET[] = "reset";  // Query type value for reset
-				const char STATUS[] = "status";  // Query type value for status
-			}
-		}
-
-
-		namespace Responses
-		{
-			const uint8_t INVALID_RESPONSE[] = "{\"error\" : \"Package received does not match JSON format\"}";
-			const uint8_t VALID_RESPONSE[] = "{\"success\":\"Valid JSON received\"}";
-		}
-	}
-
-
+	
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
-	char* http_exception_json(Exceptions::HTTP_Exception& error)
+	char* http_exception_json(char error_message[])
 	{
 		// { "success" : false, "status code" : xxx, "message" : "" }
 		uint16_t malloc_length = 60 + C_String::length(error.what());
@@ -264,5 +205,4 @@ namespace Transmission
 			Global::client.stop();
 		}
 	}
-
-} // end namespace Transmission
+}

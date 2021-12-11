@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.12.04                                                                                                      *
+*   on 2021.12.10                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -11,16 +11,12 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
-
-
-#include "Exceptions.h"
-#include "Global.h"
+#include "Headers/Automation.hpp"
 
 
 namespace Automation
 {
-	void automation_loop()
+	void automation_loop(void*)
 	{
 		while(true)
 		{
@@ -28,7 +24,7 @@ namespace Automation
 		
 			StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
 	
-			switch(json_document[Transmission::QUERY_TYPE_KEY])
+			switch(json_document[Transmission::Literals::JSON::QUERY_TYPE])
 			{
 				case Transmission::Literals::JSON::Value::STATUS:
 					Transmission::send_status();
@@ -49,11 +45,11 @@ namespace Automation
 					curtain.send_hub_serialized_info();
 					break;
 	
-				default:
+				case default:
 					throw HTTP_Exception(404, "Unknown query type");
 			}
 	
-			end_catch:
+			setjmp(Global::jump_buffer);
 	
 			delay(700);
 		}

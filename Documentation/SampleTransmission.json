@@ -1,0 +1,17 @@
+{
+	"query type": "move",  // or status, reset
+	"curtain": 
+	{
+		"id": 4294967295,
+		"length": 4294967295,
+		"position": 4294967295,
+
+		"auto calibrate": false,
+		"auto correct": false
+	},
+	"event":
+	{
+		"id": 4294967295,
+		"position": 4294967295
+	}
+}

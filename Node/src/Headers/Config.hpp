@@ -11,6 +11,12 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
+#include <stdint.h>
+
+
 namespace Config
 {
 	namespace Curtain
@@ -18,7 +24,7 @@ namespace Config
 		const char CURTAIN_ID[] = "1";
 
 		const uint32_t IGNORE_MOVEMENT_SIMILARITY = 10;  // max step difference to ignore event
-		const uint32_t WIGGLE_ROOM = 5;  // steps within ends to consider "end zones"
+		const uint32_t POSITION_TOLLERANCE = 5;  // steps within ends to consider "close enough"
 		const uint32_t STEPS_FOR_CALIBRATION = 5;  // how picky the program should be to commence recalibration
 	}
 
@@ -38,9 +44,12 @@ namespace Config
 		const uint8_t PULSE_PIN = 19;
 
 		const uint8_t CLOSE_PIN = 0;
+		const uint8_t ENCODER_PINA = 0;
+		const uint8_t ENCODER_PINB = 0;
 		const uint8_t OPEN_PIN = 0;
 
 		const uint16_t PULSE_WAIT = 60;
+		const uint16_t ENCODER_WAIT = 60;
 
 		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
 		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;

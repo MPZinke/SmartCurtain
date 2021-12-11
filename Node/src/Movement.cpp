@@ -2,50 +2,20 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2020.11.28                                                                                                      *
+*   on 2021.12.10                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: Handware control part of the code. The trickiest part of this page is the XOR—direction and ON/OFF    *
-*       are depenent on physical setup of the motor, and the High/Low of the stepper driver.                           *
-*   CONVENTION: - OPEN = ON, CLOSE = OFF                                                                               *
+*   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
 
-#pragma once
+#include "Headers/Movement.hpp"
 
-
-#include "Global.h"
 
 namespace Movement
 {
-	void disable_motor();
-	void enable_motor();
-	void set_direction(bool);
-	bool move(Curtain::Curtain&);
-	bool is_closed();
-	bool is_open();
-	Curtain::CurtainState state();
-	uint32_t steps_for_direction(bool, uint32_t, uint32_t);
-	void move_until_state_reached(bool(*)());
-	uint32_t move_and_count_until_state_reached(bool(*)());
-	bool sensor_triggered_moving_steps(register uint32_t, bool(*)());
-	void move_until_closed();
-	void move_until_open();
-	uint32_t calibrate_to_opposite(bool);
-	void move_motor_step_count(uint32_t);
-
-
-	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
-
-	// ———— SUGAR ————
-	const bool ON = HIGH ^ Config::Hardware::SWITCH;  // the "ON"/"ACTIVATE" state for the device
-	const bool OFF = !ON;  // the "OFF"/"DEACTIVATE" state for the device
-	const bool CLOSE = OFF;  // solidify convention
-	const bool OPEN = !CLOSE;  // solidify convention
-
-
 	// ————————————————————————————————————————————————— ABSTRACTIONS —————————————————————————————————————————————————
 
 	void disable_motor()
@@ -122,7 +92,7 @@ namespace Movement
 		}
 		else
 		{
-			bool direction = curtain.desired_position() < curtain.current_position() ? CLOSE : OPEN;
+			bool direction = curtain.event().position() < curtain.current_position() ? CLOSE : OPEN;
 			set_direction(direction);
 
 			uint32_t steps = steps_for_direction(direction, curtain.current_position(), curtain. desired_position());
@@ -227,7 +197,7 @@ namespace Movement
 
 	// ————————————————————————————————————————————————————— SUGAR —————————————————————————————————————————————————————
 
-	// For functionality, see: Gpio::move_until_state_reached(.).
+	// For functionality, see: Movement::move_until_state_reached(.).
 	// Takes movement direction flag option (that is then XOR-ed).
 	void move_until_closed()
 	{
@@ -283,4 +253,4 @@ namespace Movement
 		disable_motor();
 	}
 
-}  // end namespace GPIO
+}

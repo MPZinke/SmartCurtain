@@ -20,47 +20,29 @@
 #pragma once
 
 
+#include <ArduinoJson.h>
 #include <assert.h>
-#include <exception>
+#include <esp_wifi.h>
 #include <HttpClient.h>
+#include <setjmp.h>
+#include <SPI.h>
+#include <stdint.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiServer.h>
 
-#include "Configure.h"
 
-
-#if __ETHERNET__
-	#define __WIFI__ false
-
-	#include <Ethernet.h>
-	#include <EthernetClient.h>
-#else
-	#define __WIFI__ true
-
-	#include <WiFi.h>
-	#include <WiFiClient.h>
-	#include <esp_wifi.h>
-#endif
+#include "Config.hpp"
+#include "Exceptions.hpp"
 
 
 // —————————————————————————————————————————————————— PREPROCESSOR —————————————————————————————————————————————————— //
 
 
 // ———— SMARTINESS ————
-#if CLOSE_ENDSTOP
-	#define IS_SMART true
-	#define AUTO_CORRECT_CLOSE true
-#endif
-
-#if ENCODER || OPEN_ENDSTOP
-	#define AUTO_CORRECT true
-#endif
-
-#if OPEN_ENDSTOP
-	#define AUTO_CALIBRATE true
-#endif
-
-
-
-// DEFINITION::BUFFERS
+#define CLOSE_ENDSTOP true
+#define ENCODER true
+#define OPEN_ENDSTOP false
 
 
 // —————————————————————————————————————————————————————— GLOBAL ——————————————————————————————————————————————————————
@@ -75,6 +57,7 @@ namespace Global
 
 	const uint16_t JSON_BUFFER_SIZE = 0x1000;
 
+	jmp_buf jump_buffer;
 } // end namespace Global
 
 
@@ -186,81 +169,3 @@ namespace C_String
 
 } // end namespace C_String
 
-
-// —————————————————————————————————————————————————————— CURTAIN ——————————————————————————————————————————————————————
-
-namespace Curtain  // also exists in Curtain.h
-{
-	// ———————————————————————————————————————————————— CURTAIN: TYPES ————————————————————————————————————————————————
-
-	typedef enum
-	{
-		CLOSED = -1,
-		MIDDLE,
-		OPEN
-	} CurtainState;
-
-
-	class Event
-	{
-		private:
-			uint32_t _id;
-			uint32_t _curtain_length;
-			uint32_t _desired_position;
-
-		public:
-			Event(uint32_t id, uint32_t curtain_length, uint32_t desired_position);
-
-			uint32_t id();
-			uint32_t desired_position();
-
-			// ———— MOVEMENT ———— //
-			bool event_moves_to_an_end();
-			bool moves_full_span();
-			CurtainState state_of_desired_position();
-	};
-
-
-	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
-	class Curtain
-	{
-		private:
-			// ———— OPTIONS ————
-			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
-			bool _auto_correct;  // if position is unexpected, go to expected position
-			// ———— CURRENT DATA ON CURTAIN ————
-			uint32_t _current_position;  // the current length according to the RPi
-			uint32_t _length;  // overall length of the curtain [steps]
-			// ———— EVENT INFO ————
-			Event _event;
-
-		public:
-			Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>&);
-			char* serialize_data();
-
-			// —————————————— GETTERS: ATTRIBUTES ——————————————
-			bool calibrate();
-			bool correct();
-
-			uint32_t current_position();
-			uint32_t length();
-			Event event();
-
-			// —————————————— GETTERS: DATA ——————————————
-			bool should_calibrate_across();
-			CurtainState state_of_current_position();
-
-			// —————————————— SETTERS: ATTRIBUTES ——————————————
-			void current_position(uint32_t);
-			void desired_position(uint32_t);
-			void length(uint32_t);
-
-			// —————————————— SETTERS: DATA ——————————————
-			void set_current_position_if_does_not_match_sensors();
-			void set_location();
-
-			// —————————————— WRITE ——————————————
-			void send_hub_serialized_info();
-	};
-
-} // end namespace Curtain

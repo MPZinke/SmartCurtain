@@ -2,30 +2,20 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2020.11.28                                                                                                      *
+*   on 2021.12.10                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: Main Curtain class for organizing received data into an object. Also contains abstracted curtain      *
-*    related functions such as what state a position would be.                                                         *
+*   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
-*   FUTURE: - Add cool temperature, light, & thermostat data.                                                          *
+*   FUTURE:                                                                                                            *
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
 
-#pragma once
-
-
-#include "Global.h"
-#include "Gpio.h"
-#include "Transmission.h"
+#include "Headers/Curtain.hpp"
 
 
 namespace Curtain
 {
-	bool is_approximate_position(uint32_t, uint32_t);
-	bool is_approximate_position(uint32_t, uint32_t, uint32_t);
-	CurtainState approximate_state_of(uint32_t, uint32_t);
-	CurtainState state_of(uint32_t, uint32_t);
 
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
 
@@ -43,7 +33,7 @@ namespace Curtain
 	// Returns whether they are within a certain amount of eachother.
 	bool is_approximate_position(uint32_t position1, uint32_t position2)
 	{
-		return is_approximate_position(position1, position2, Global::wiggle_room);
+		return is_approximate_position(position1, position2, Config::Curtain::POSITION_TOLLERANCE);
 	}
 
 
@@ -74,11 +64,11 @@ namespace Curtain
 
 	// ———————————————————————————————————————————————— CLASS::EVENT ———————————————————————————————————————————————— //
 
-	Events::Event(uint32_t id, uint32_t curtain_length, uint32_t desired_position)
+	Event::Event(uint32_t id, uint32_t curtain_length, uint32_t position)
 	{
 		_id = id;
 		_curtain_length = curtain_length;
-		_desired_position = desired_position;
+		_position = position;
 	}
 
 
@@ -88,15 +78,15 @@ namespace Curtain
 	}
 
 
-	uint32_t Event::desired_position()
+	uint32_t Event::position()
 	{
-		return _desired_position;
+		return _position;
 	}
 
 
 	bool Event::event_moves_to_an_end()
 	{
-		return _desired_position == 0 || _desired_position == _curtain_length;
+		return _position == 0 || _position == _curtain_length;
 	}
 
 
@@ -105,17 +95,17 @@ namespace Curtain
 	// Returns true if curtain moves all the way across rod, false otherwise.
 	bool Curtain::moves_full_span()
 	{
-		CurtainState curtian_state = Gpio::state();
-		CurtainState desired_state = state_of(_desired_position, _curtain_length);
+		CurtainState curtian_state = Movement::state();
+		CurtainState desired_state = state_of(_position, _curtain_length);
 		// parens not needed (precedence) but used to remove warnings
 		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
 	}
 
 
 	// SUGAR: whether desired position is open/close/middle.
-	CurtainState Event::state_of_desired_position()
+	CurtainState Event::state_of_position()
 	{
-		return state_of(_desired_position, _curtain_length);
+		return state_of(_position, _curtain_length);
 	}
 
 
@@ -139,7 +129,7 @@ namespace Curtain
 			Exceptions::throw_generic("Message sent to wrong curtain");
 		}
 
-		_current_position = json[Transmission::Literals::JSON::Key::CURRENT_POS];
+		_position = json[Transmission::Literals::JSON::Key::CURRENT_POS];
 		_length = json[Transmission::Literals::JSON::Key::LENGTH];
 
 		_direction = json[Transmission::Literals::JSON::Key::DIRECTION];
@@ -166,7 +156,7 @@ namespace Curtain
 		C_String::copy(Transmission::CURRENT_POS_KEY, buffer+2);  // +2 from previous "{\""
 		buffer += sizeof(Transmission::CURRENT_POS_KEY)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
 		C_String::copy_n("\" : ", buffer, 4);
-		C_String::itoa(_current_position, buffer+4);  // +4 from previous "\" : "
+		C_String::itoa(_position, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// curtain
@@ -198,19 +188,19 @@ namespace Curtain
 
 	void Curtain::move()
 	{
-
-		if(!curtain.is_smart()) Gpio::move(curtain);
+		
+		if(!curtain.is_smart()) Movement::move(curtain);
 		else
 		{
-			if(!curtain.event_moves_to_an_end()) Gpio::move(curtain);
+			if(!_event.event_moves_to_an_end()) Movement::move(curtain);
 			// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
 			// ing or closing curtain.
 			// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
 			else
 			{
-				if(curtain.should_calibrate_across()) curtain.length(Gpio::calibrate_to_opposite(curtain.direction()));
-				else if(curtain.state_of_desired_position() == Curtain::OPEN) Gpio::move_until_open(curtain.direction());
-				else Gpio::move_until_closed(curtain.direction());
+				if(should_calibrate_across()) _length(Movement::calibrate_to_opposite(inline direction()));
+				else if(inline state_of_position() == Curtain::OPEN) Movement::move_until_open(inline direction());
+				else Movement::move_until_closed(inline direction());
 			}
 		}
 	}
@@ -231,7 +221,7 @@ namespace Curtain
 
 	uint32_t Curtain::current_position()
 	{
-		return _current_position;
+		return _position;
 	}
 
 
@@ -258,14 +248,14 @@ namespace Curtain
 	// SUGAR: whether the curtain should calibrate from moving the full span.
 	bool Curtain::should_calibrate_across()
 	{
-		return calibrate() && moves_full_span();
+		return inline calibrate() && inline moves_full_span();
 	}
 
 
 	// SUGAR: whether current position is open/close/middle.
-	CurtainState Curtain::state_of_current_position()
+	CurtainState Curtain::state_of_position()
 	{
-		return state_of(_current_position, _length);
+		return state_of(_position, _length);
 	}
 
 
@@ -273,7 +263,7 @@ namespace Curtain
 
 	void Curtain::current_position(uint32_t current_position)
 	{
-		_current_position = current_position;	
+		_position = current_position;	
 	}
 
 
@@ -292,13 +282,13 @@ namespace Curtain
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
 
 	// Corrects position for DB unknowns relative to sensors.
-	// Sets self::_current_position to match open/closed if applicable.
-	void Curtain::set_current_position_if_does_not_match_sensors()
+	// Sets self::_position to match open/closed if applicable.
+	void Curtain::set_position_if_does_not_match_sensors()
 	{
-		if(Gpio::is_closed() && !is_approximate_position(_current_position, 0))
-			_current_position = 0;
-		else if(Gpio::is_open() && !is_approximate_position(_current_position, _length))
-			_current_position = _length;
+		if(Movement::is_closed() && !is_approximate_position(_position, 0))
+			_position = 0;
+		else if(Movement::is_open() && !is_approximate_position(_position, _length))
+			_position = _length;
 	}
 
 
@@ -309,14 +299,14 @@ namespace Curtain
 		if(!_is_smart)
 		{
 			Global::current_position = _desired_position;
-			_current_position = _desired_position;  // curtain isn't that smart, so guess where it is
+			_position = _desired_position;  // curtain isn't that smart, so guess where it is
 		}
 		else
 		{
-			if(Gpio::is_open()) _current_position = _length;
-			else if(Gpio::is_closed()) _current_position = 0;
-			else _current_position = _desired_position;  // curtain isn't that smart, so guess where it is
-			Global::current_position = _current_position;
+			if(Movement::is_open()) _position = _length;
+			else if(Movement::is_closed()) _position = 0;
+			else _position = _desired_position;  // curtain isn't that smart, so guess where it is
+			Global::current_position = _position;
 		}
 	}
 
@@ -330,5 +320,4 @@ namespace Curtain
 		delete serialized_data;
 	}
 
-
-} // end namespace Curtain
+}
