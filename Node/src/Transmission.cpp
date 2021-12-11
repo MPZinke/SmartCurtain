@@ -16,6 +16,23 @@
 
 namespace
 {
+	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
+
+	// Get the id for a given value from the Literals::JSON::Value::VALUE_IDS.
+	// Takes the value to match to.
+	uint8_t id_for_value(const char* value)
+	{
+		for(uint8_t x = 0; x < sizeof(Literals::JSON::Value::VALUE_IDS) / sizeof(Literals::JSON::Value::ValueID); x++)
+		{
+			if(C_String::equal(Literals::JSON::Value::VALUE_IDS[x].value, value))
+			{
+				return Literals::JSON::Value::VALUE_IDS[x].id;
+			}
+		}
+
+		Exceptions::throw_generic("No matching value found");
+	}
+
 	
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
@@ -157,7 +174,7 @@ namespace
 	}
 
 
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST_STR)
+	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST)
 	{
 		// Start line
 		Global::client.println(response_type);

@@ -1,9 +1,11 @@
+
+// Event requesting
 {
-	"query type": "move",  // or status, reset
+	"query type": "move",  // or about, reset
 	"curtain": 
 	{
 		"id": 4294967295,
-		"length": 4294967295,
+		"length": 4294967295,  //OPTIONAL
 		"position": 4294967295,
 
 		"auto calibrate": false,
@@ -14,4 +16,11 @@
 		"id": 4294967295,
 		"position": 4294967295
 	}
+}
+
+// About response
+{
+	"id": 4294967295,  // stored as a char array
+	"length": 4294967295,
+	"position": 4294967295
 }

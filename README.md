@@ -27,7 +27,7 @@ Legacy .stl files for a 3D model can be found on [Thingiverse](https://www.thing
 | Auto Correct (Close) | Close Endstop         | Yes | Curtain can correct itself moving towards closed position       |
 | Auto Correct (Open)  | Open Endstop          | Yes | Curtain can correct itself moving towards open position         |
 | Auto Direction       | Open & Close Endstops | Yes | Curtain can determine its direction on startup (with code)      |
-| Discrete Location (No Manual Movement) | An Endstop OR Encoder | Yes with Endstop | Move curtain to location relative to an open or closed position. Available between power cycling with an endstop and reset code (travel to endstop counting steps. Travel back, save location, and update hub). If the power cycles with encoder only, the relative location is not known and can cause belt grinding |
+| Discrete Location (No Manual Movement) | Any or None | Yes with Endstop | Move curtain to location relative to an open or closed position. Available between power cycling with an endstop and reset code (travel to endstop counting steps. Travel back, save location, and update hub). If the power cycles with encoder only, the relative location is not known and can cause belt grinding |
 | Discrete Location (Manual Movement) | An Endstop AND Encoder | Yes | Move curtain to location relative to an open or closed position. Available between power cycling with an endstop and reset code (travel to endstop counting steps. Travel back, save location, and update hub) |
 
 

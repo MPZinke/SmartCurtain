@@ -16,6 +16,8 @@
 
 #include "Global.hpp"
 
+#include "Transmission.hpp"
+
 
 namespace Exceptions
 {

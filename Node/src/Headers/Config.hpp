@@ -31,14 +31,23 @@ namespace Config
 
 	namespace Hardware
 	{
+		// ———————— HARDWARE DETERMINED VALUES ————————
 		#define CLOSE_ENDSTOP true
 		#define ENCODER true
 		#define OPEN_ENDSTOP false
 
-		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
-		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
+		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
+		// ———— STEPS ————
+		const uint32_t DEFAULT_LENGTH = 34000;
+		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
+		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
 
-		// ———— HARDWARE ————
+		// ———— SWITCHES ————
+		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
+		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
+
+		// ———————— HARDWARE DICTATING VALUES ————————
+		// ———— PINS ————
 		const uint8_t DIRECTION_PIN = 5;
 		const uint8_t ENABLE_PIN = 18;
 		const uint8_t PULSE_PIN = 19;
@@ -48,18 +57,14 @@ namespace Config
 		const uint8_t ENCODER_PINB = 0;
 		const uint8_t OPEN_PIN = 0;
 
-		const uint16_t PULSE_WAIT = 60;
-		const uint16_t ENCODER_WAIT = 60;
-
-		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
-		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
+		// ———— WAIT ————
+		const uint16_t ENCODER_WAIT = 60;  // Wait between reads of the encoder.
+		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
 	}
 
 
 	namespace Network
 	{
-		#define __ETHERNET__ false  //POPULATE: set whether Ethernet version
-
 		// NODE
 		const uint16_t PORT = 80;  // listening port
 		uint8_t MAC_ADDRESS[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}

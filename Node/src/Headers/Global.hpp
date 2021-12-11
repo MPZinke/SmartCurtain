@@ -33,7 +33,6 @@
 
 
 #include "Config.hpp"
-#include "Exceptions.hpp"
 
 
 // —————————————————————————————————————————————————— PREPROCESSOR —————————————————————————————————————————————————— //
@@ -52,8 +51,10 @@ namespace Global
 	WiFiServer server(Config::Network::PORT);
 
 	WiFiClient client;
+
+	// Mutable curtain information
 	uint32_t current_position = 0;  // holds current position
-	bool is_engaged = false;  // whether the motor is engaged (yay race conditions)
+	uint32_t curtain_length = Config::Hardware::DEFAULT_LENGTH;
 
 	const uint16_t JSON_BUFFER_SIZE = 0x1000;
 

@@ -93,9 +93,9 @@ namespace Curtain
 	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
 	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
 	// Returns true if curtain moves all the way across rod, false otherwise.
-	bool Curtain::moves_full_span()
+	bool Event::moves_full_span()
 	{
-		CurtainState curtian_state = Movement::state();
+		CurtainState curtian_state = Movement::current_state();
 		CurtainState desired_state = state_of(_position, _curtain_length);
 		// parens not needed (precedence) but used to remove warnings
 		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
@@ -133,7 +133,8 @@ namespace Curtain
 		_length = json[Transmission::Literals::JSON::Key::LENGTH];
 
 		_direction = json[Transmission::Literals::JSON::Key::DIRECTION];
-		_is_smart = json[Transmission::Literals::JSON::Key::IS_SMART];
+		_discrete_movement = json[Transmission::Literals::JSON::Key::DISCRETE_MOVEMENT];
+
 		if(_is_smart)
 		{
 			_auto_calibrate = json[Transmission::Literals::JSON::Key::CALIBRATE];
