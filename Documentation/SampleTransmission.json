@@ -14,6 +14,7 @@
 	"event":
 	{
 		"id": 4294967295,
+		"force": false,
 		"position": 4294967295
 	}
 }

@@ -16,10 +16,12 @@
 
 #include "Global.hpp"
 
+#include "Exceptions.hpp"
+
 
 namespace Transmission
 {
-	namespace Literals
+	namespace Literal
 	{
 		namespace HTTP
 		{
@@ -50,11 +52,13 @@ namespace Transmission
 				const char LENGTH[] = "length";
 				const char CALIBRATE[] = "auto calibrate";
 				const char CORRECT[] = "auto correct";
+				const char DISCRETE_MOVEMENT[] = "discrete movement";
 				const char IS_SMART[] = "is smart";
 
 				const char EVENT[] = "event";
 				const char EVENT_ID[] = "id";
-				const char EVENT_DESIRED_POS[] = "desired position";
+				const char EVENT_FORCE[] = "FORCE";
+				const char EVENT_POSITION[] = "desired position";
 			}
 
 
@@ -64,19 +68,27 @@ namespace Transmission
 				const char RESET[] = "reset";  // Query type value for reset
 				const char STATUS[] = "status";  // Query type value for status
 
+				// Used to auto increment the ID for the value
+				enum
+				{
+					MOVE_ID,
+					RESET_ID,
+					STATUS_ID
+				};
+
 
 				typedef struct
 				{
-					uint8_t id;
+					const uint8_t id;
 					const char* value;
 				} ValueID;
 
 
-				ValueID VALUE_IDS[] =
+				const ValueID VALUE_IDS[] =
 				{
-					{1, MOVE},
-					{2, RESET},
-					{3, STATUS}
+					{MOVE_ID, MOVE},
+					{RESET_ID, RESET},
+					{STATUS_ID, STATUS}
 				};
 			}
 		}
@@ -90,13 +102,13 @@ namespace Transmission
 	}
 
 	uint8_t id_for_value(const char* value);
-	char* http_exception_json(char error_message[]);
+	char* http_exception_json(uint16_t error_code, char error_message[]);
 	static char* status_json();
 	bool skip_header();
 	WiFiClient wait_for_request();
 	char* read_transmission_data_into_buffer();
 	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL);
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST);
+	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
 

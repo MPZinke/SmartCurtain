@@ -22,7 +22,7 @@ namespace Curtain
 	// Position1 is within an allowable difference of position2.
 	// Takes two step positions, and an allowable difference.
 	// Returns whether they are within a certain amount of eachother.
-	bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference)
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference)
 	{
 		return (position1 - allowable_difference <= position2) && (position2 <= position1 + allowable_difference);
 	}
@@ -31,7 +31,7 @@ namespace Curtain
 	// Position1 is within Gobal::wiggle_room of position2.
 	// Takes two step positions.
 	// Returns whether they are within a certain amount of eachother.
-	bool is_approximate_position(uint32_t position1, uint32_t position2)
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2)
 	{
 		return is_approximate_position(position1, position2, Config::Curtain::POSITION_TOLLERANCE);
 	}
@@ -40,22 +40,22 @@ namespace Curtain
 	// Approximates the position and then returns an enum value.
 	// Takes a position to check, the length of the curtain to compare it to.
 	// Returns the enum value of the approximated current state for position.
-	CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length)
+	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length)
 	{
-		if(is_approximate_position(position, 0)) return CLOSED;
-		if(is_approximate_position(position, curtain_length)) return OPEN;
-		return MIDDLE;
+		if(is_approximate_position(position, 0)) return CurtainState::CLOSED;
+		if(is_approximate_position(position, curtain_length)) return CurtainState::OPEN;
+		return CurtainState::MIDDLE;
 	}
 
 
 	// Determines the position and then returns an enum value.
 	// Takes a position to check, the length of the curtain to compare it to.
 	// Returns the enum value of the current state for position.
-	CurtainState state_of(uint32_t position, uint32_t curtain_length)
+	inline CurtainState state_of(uint32_t position, uint32_t curtain_length)
 	{
-		if(position == 0) return CLOSED;
-		if(position == curtain_length) return OPEN;
-		return MIDDLE;
+		if(position == 0) return CurtainState::CLOSED;
+		if(position == curtain_length) return CurtainState::OPEN;
+		return CurtainState::MIDDLE;
 	}
 
 
@@ -64,10 +64,11 @@ namespace Curtain
 
 	// ———————————————————————————————————————————————— CLASS::EVENT ———————————————————————————————————————————————— //
 
-	Event::Event(uint32_t id, uint32_t curtain_length, uint32_t position)
+	Event::Event(uint32_t id, uint32_t curtain_length, bool force, uint32_t position)
 	{
 		_id = id;
 		_curtain_length = curtain_length;
+		_force = force;
 		_position = position;
 	}
 
@@ -93,12 +94,13 @@ namespace Curtain
 	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
 	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
 	// Returns true if curtain moves all the way across rod, false otherwise.
-	bool Event::moves_full_span()
+	inline bool Event::moves_full_span()
 	{
 		CurtainState curtian_state = Movement::current_state();
 		CurtainState desired_state = state_of(_position, _curtain_length);
 		// parens not needed (precedence) but used to remove warnings
-		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
+		return (curtian_state == CurtainState::CLOSED && desired_state == CurtainState::OPEN) 
+		  || (curtian_state == CurtainState::OPEN && desired_state == CurtainState::CLOSED);
 	}
 
 
@@ -117,29 +119,25 @@ namespace Curtain
 	// the uint32_t number. Places segment into uint32_t parts for object.
 	Curtain::Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>& json)
 	: _event{Event(
-		json[Transmission::Literals::JSON::Key::EVENT][Transmission::Literals::JSON::Key::EVENT],
-		json[Transmission::Literals::JSON::Key::CURTAIN][Transmission::Literals::JSON::Key::CURTAIN_ID],
-		json[Transmission::Literals::JSON::Key::EVENT][Transmission::Literals::JSON::Key::EVENT_DESIRED_POS]
+		json[Transmission::Literal::JSON::Key::EVENT][Transmission::Literal::JSON::Key::EVENT_ID],
+		json[Transmission::Literal::JSON::Key::CURTAIN][Transmission::Literal::JSON::Key::LENGTH],
+		json[Transmission::Literal::JSON::Key::EVENT][Transmission::Literal::JSON::Key::EVENT_FORCE],
+		json[Transmission::Literal::JSON::Key::EVENT][Transmission::Literal::JSON::Key::EVENT_POSITION]
 	)}
 	{
-		uint16_t curtain_id = json[Transmission::Literals::JSON::Key::CURTAIN]
-		  [Transmission::Literals::JSON::Key::CURTAIN_ID];
-		if(curtain_id != C_String::atoi(Config::Curtain::curtain_id))
+		uint16_t curtain_id = json[Transmission::Literal::JSON::Key::CURTAIN]
+		  [Transmission::Literal::JSON::Key::CURTAIN_ID];
+		if(curtain_id != C_String::atoi((char*)Config::Curtain::CURTAIN_ID))
 		{
 			Exceptions::throw_generic("Message sent to wrong curtain");
 		}
 
-		_position = json[Transmission::Literals::JSON::Key::CURRENT_POS];
-		_length = json[Transmission::Literals::JSON::Key::LENGTH];
+		_position = json[Transmission::Literal::JSON::Key::CURRENT_POS];
+		_length = json[Transmission::Literal::JSON::Key::LENGTH];
 
-		_direction = json[Transmission::Literals::JSON::Key::DIRECTION];
-		_discrete_movement = json[Transmission::Literals::JSON::Key::DISCRETE_MOVEMENT];
-
-		if(_is_smart)
-		{
-			_auto_calibrate = json[Transmission::Literals::JSON::Key::CALIBRATE];
-			_auto_correct = json[Transmission::Literals::JSON::Key::CORRECT];
-		}
+		_auto_calibrate = json[Transmission::Literal::JSON::Key::CALIBRATE];
+		_auto_correct = json[Transmission::Literal::JSON::Key::CORRECT];
+		_discrete_movement = json[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT];
 	}
 
 
@@ -154,15 +152,15 @@ namespace Curtain
 
 		C_String::copy_n("{\"", buffer, 2);
 		// current position
-		C_String::copy(Transmission::CURRENT_POS_KEY, buffer+2);  // +2 from previous "{\""
-		buffer += sizeof(Transmission::CURRENT_POS_KEY)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
+		C_String::copy(Transmission::Liteal::JSON::Key::CURRENT_POS, buffer+2);  // +2 from previous "{\""
+		buffer += sizeof(Transmission::Liteal::JSON::Key::CURRENT_POS)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
 		C_String::copy_n("\" : ", buffer, 4);
 		C_String::itoa(_position, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// curtain
-		C_String::copy(Transmission::CURTAIN_KEY, buffer+3);  // +3 from previous ", \""
-		buffer += sizeof(Transmission::CURTAIN_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy(Transmission::Liteal::JSON::Key::CURTAIN, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::Liteal::JSON::Key::CURTAIN) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
 		C_String::copy(Config::Curtain::curtain_id, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
@@ -208,7 +206,7 @@ namespace Curtain
 
 	// —————————————————————————————————————————— CLASS::GETTERS: ATTRIBUTES ——————————————————————————————————————————
 
-	bool Curtain::calibrate()
+	inline bool Curtain::calibrate()
 	{
 		return _auto_calibrate;
 	}
@@ -249,7 +247,7 @@ namespace Curtain
 	// SUGAR: whether the curtain should calibrate from moving the full span.
 	bool Curtain::should_calibrate_across()
 	{
-		return inline calibrate() && inline moves_full_span();
+		return calibrate() && _event.moves_full_span();
 	}
 
 

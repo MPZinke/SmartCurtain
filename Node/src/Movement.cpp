@@ -60,35 +60,36 @@ namespace Movement
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
 	CurtainState current_state()
 	{
-		if(is_open()) return Direction::OPEN;
-		if(is_closed()) return Direction::CLOSE;
-		return Direction::MIDDLE;
+		if(is_open()) return OPEN;
+		if(is_closed()) return CLOSE;
+		return MIDDLE;
 	}
 
 
-	bool endstop_triggered()
+	inline bool endstop_triggered()
 	{
 		return is_closed() || is_open();
 	}
 
 
-	bool is_closed()
+	inline bool is_closed()
 	{
 		return digitalRead(Config::Hardware::CLOSE_PIN);
 	}
 
 
-	bool is_open()
+	inline bool is_open()
 	{
 		return digitalRead(Config::Hardware::OPEN_PIN);
 	}
 
 
-	bool (*function_for_side)()(bool open_close_value)
+	auto function_for_side(bool open_close_value)
+	// bool (*function_for_side)() (bool open_close_value)
 	{
-		const bool(*direction_function)()[2];
-		direction_function[Direction::CLOSE] = is_closed;
-		direction_function[Direction::OPEN] = is_open;
+		bool(*direction_function[2])();
+		direction_function[CLOSE] = is_closed;
+		direction_function[OPEN] = is_open;
 
 		return direction_function[open_close_value];
 	}

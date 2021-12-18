@@ -14,19 +14,19 @@
 #include "Headers/Transmission.hpp"
 
 
-namespace
+namespace Transmission
 {
 	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
 
-	// Get the id for a given value from the Literals::JSON::Value::VALUE_IDS.
+	// Get the id for a given value from the Literal::JSON::Value::VALUE_IDS.
 	// Takes the value to match to.
 	uint8_t id_for_value(const char* value)
 	{
-		for(uint8_t x = 0; x < sizeof(Literals::JSON::Value::VALUE_IDS) / sizeof(Literals::JSON::Value::ValueID); x++)
+		for(uint8_t x = 0; x < sizeof(Literal::JSON::Value::VALUE_IDS) / sizeof(Literal::JSON::Value::ValueID); x++)
 		{
-			if(C_String::equal(Literals::JSON::Value::VALUE_IDS[x].value, value))
+			if(C_String::equal((char*)Literal::JSON::Value::VALUE_IDS[x].value, (char*)value))
 			{
-				return Literals::JSON::Value::VALUE_IDS[x].id;
+				return Literal::JSON::Value::VALUE_IDS[x].id;
 			}
 		}
 
@@ -36,19 +36,19 @@ namespace
 	
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
-	char* http_exception_json(char error_message[])
+	char* http_exception_json(uint16_t error_code, char error_message[])
 	{
 		// { "success" : false, "status code" : xxx, "message" : "" }
-		uint16_t malloc_length = 60 + C_String::length(error.what());
+		uint16_t malloc_length = 60 + C_String::length(error_message);
 		char* json_head = (char*)malloc(malloc_length), *json = json_head;
 
 		C_String::copy(json, "{\"success\": false, \"status code\": ");
 		json += C_String::length(json);
-		C_String::itoa(error.status_code(), json);
+		C_String::itoa(error_code, json);
 
 		C_String::copy(json+3, ", \"message\": \"");
 		json += C_String::length(json+3) + 3;
-		C_String::copy(json, error.what());
+		C_String::copy(json, error_message);
 		json += C_String::length(json);
 
 		C_String::copy_n(json, "\"}", 2);
@@ -60,18 +60,20 @@ namespace
 	static char* status_json()
 	{
 		// "{ "" : 1234567890 , "" : 1234567890 }\0" plus keys
-		char* status_head = (char*)malloc(sizeof(CURTAIN_ID_KEY)+sizeof(CURRENT_POS_KEY)+38), *status = status_head+2;
+		char* status_head = (char*)malloc(sizeof(Literal::JSON::Key::CURTAIN_ID)
+		  +sizeof(Literal::JSON::Keys::CURRENT_POS)+38);
 		C_String::copy_n(status_head, "{\"", 2);
+		char* status = status_head+2;
 
-		C_String::copy(status, Literals::JSON::Key::CURTAIN_ID);
-		status += sizeof(Literals::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
+		C_String::copy(status, Literal::JSON::Key::CURTAIN_ID);
+		status += sizeof(Literal::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
 		C_String::copy_n(status, "\": ", 3);
 		C_String::copy(status+3, Config::Curtain::CURTAIN_ID);
 		status += C_String::length(status+3) + 3;
 		C_String::copy_n(status, ", \"", 3);
 
-		C_String::copy(status+3, Literals::JSON::Key::CURRENT_POS);
-		status += sizeof(Literals::JSON::Key::CURRENT_POS) + 2;
+		C_String::copy(status+3, Literal::JSON::Key::CURRENT_POS);
+		status += sizeof(Literal::JSON::Key::CURRENT_POS) + 2;
 		C_String::copy_n(status, "\": ", 3);
 		C_String::itoa(Global::current_position, status+3);
 		status += C_String::length(status+3) + 3;
@@ -155,17 +157,17 @@ namespace
 	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL)
 	{
 		// Start line
-		Global::client.print(Literals::HTTP::POST_METHOD);
+		Global::client.print(Literal::HTTP::POST_METHOD);
 		Global::client.print(path);
-		Global::client.println(Literals::HTTP::HTTP_VERSION);
+		Global::client.println(Literal::HTTP::HTTP_VERSION);
 
 		// Headers
-		Global::client.print(Literals::HTTP::HOST_TAG);
+		Global::client.print(Literal::HTTP::HOST_TAG);
 		Global::client.println(Config::Network::HUB_HOST_STR);
 
-		Global::client.println(Literals::HTTP::CONTENT_TYPE);
+		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
-		Global::client.print(Literals::HTTP::CONTENT_LENGTH_TAG);
+		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length(json));
 
 		// Contents
@@ -174,15 +176,15 @@ namespace
 	}
 
 
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literals::HTTP::VALID_REQUEST)
+	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST)
 	{
 		// Start line
 		Global::client.println(response_type);
 
 		// Headers
-		Global::client.println(Literals::HTTP::CONTENT_TYPE);
+		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
-		Global::client.print(Literals::HTTP::CONTENT_LENGTH_TAG);
+		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length(json));
 
 		// Contents

@@ -16,7 +16,9 @@
 
 #include "Global.hpp"
 
+#include "Curtain.hpp"
 #include "Movement.hpp"
+#include "Transmission.hpp"
 
 
 namespace Automation

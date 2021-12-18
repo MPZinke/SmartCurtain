@@ -23,21 +23,23 @@ namespace Automation
 			Movement::disable_motor();  // don't burn up the motor
 		
 			StaticJsonDocument<Global::JSON_BUFFER_SIZE> json_document = decode_json();
-			const char* query_type = json_document[Transmission::Literals::JSON::Key::QUERY_TYPE];
+			const char* query_type = json_document[Transmission::Literal::JSON::Key::QUERY_TYPE];
 	
 			switch(Transmission::id_for_value(query_type))
 			{
-				case Transmission::id_for_value(Transmission::Literals::JSON::Value::STATUS):
-					Transmission::send_status();
+				case Transmission::Literal::JSON::Value::STATUS_ID:
+					Transmission::send_status_and_stop_client();
 					break;
-	
+
+#if CLOSE_ENDSTOP || OPEN_ENDSTOP	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
-				case Transmission::id_for_value(Transmission::Literals::JSON::Value::RESET):
+				case Transmission::Literal::JSON::Value::RESET_ID:
 					Movement::move_until_closed();
-	
+#endif
+
 				// Move to position
-				case Transmission::id_for_value(Transmission::Literals::JSON::Value::MOVE):
-					Transmission::respond_with_json_and_stop(Transmission::Responses::VALID_RESPONSE);
+				case Transmission::Literal::JSON::Value::MOVE_ID:
+					Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
 					Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
 					curtain.move();
 	
@@ -46,7 +48,7 @@ namespace Automation
 					curtain.send_hub_serialized_info();
 					break;
 	
-				case default:
+				default:
 					throw HTTP_Exception(404, "Unknown query type");
 			}
 	
