@@ -17,7 +17,7 @@
 
 #include "Global.hpp"
 
-
+#include "Exceptions.hpp"
 #include "Movement.hpp"
 #include "Transmission.hpp"
 
@@ -25,7 +25,7 @@
 namespace Curtain
 {
 
-	// using ::Movement::CurtainState;  //TODO: fix
+	using Movement::CurtainState;
 
 
 	bool is_approximate_position(uint32_t, uint32_t);
@@ -42,10 +42,11 @@ namespace Curtain
 		private:
 			uint32_t _id;
 			uint32_t _curtain_length;
+			bool _force;
 			uint32_t _position;
 
 		public:
-			Event(uint32_t id, uint32_t curtain_length, uint32_t desired_position);
+			Event(uint32_t id, uint32_t curtain_length, bool force, uint32_t desired_position);
 
 			uint32_t id();
 			uint32_t position();
@@ -64,6 +65,7 @@ namespace Curtain
 			// ———— OPTIONS ————
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
+			bool _discrete_movement;  // if the curtain can move to a discrete location (not just open or closed)
 			// ———— CURRENT DATA ON CURTAIN ————
 			uint32_t _position;  // the current length according to the RPi
 			uint32_t _length;  // overall length of the curtain [steps]
@@ -77,6 +79,7 @@ namespace Curtain
 			// —————————————— GETTERS: ATTRIBUTES ——————————————
 			bool calibrate();
 			bool correct();
+			bool move_discretely();
 
 			uint32_t position();
 			uint32_t length();

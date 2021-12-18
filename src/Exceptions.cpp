@@ -12,6 +12,7 @@
 
 
 #include "Headers/Exceptions.hpp"
+#include "Headers/Transmission.hpp"
 
 
 namespace Excpetion
@@ -34,16 +35,16 @@ namespace Excpetion
 	void throw_HTTP_204(const char message[])
 	{
 
-		Transmission::respond_with_json_and_stop((char*)Transmission::Literals::Responses::INVALID, Transmission
-		  ::Literals::HTTP::NO_CONTENT_REQUEST);
+		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::INVALID, Transmission
+		  ::Literal::HTTP::NO_CONTENT_REQUEST);
 		longjmp(Global::jump_buffer, 1);
 	}
 
 
 	void throw_HTTP_400(const char message[])
 	{
-		Transmission::respond_with_json_and_stop((char*)Transmission::Literals::Responses::INVALID, Transmission
-		  ::Literals::HTTP::INVALID_REQUEST);
+		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::INVALID, Transmission
+		  ::Literal::HTTP::INVALID_REQUEST);
 		longjmp(Global::jump_buffer, 1);
 	}
 }

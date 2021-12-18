@@ -17,7 +17,6 @@
 
 
 #include "Global.hpp"
-#include "Curtain.hpp"
 
 
 namespace Movement
@@ -42,6 +41,7 @@ namespace Movement
 	{
 		MIDDLE = -1,
 		CLOSE = (int8_t)CurrentPull::CLOSE,
+		CLOSED = CLOSE,  // alias for sugar
 		OPEN = (int8_t)CurrentPull::OPEN
 	} CurtainState;
 
