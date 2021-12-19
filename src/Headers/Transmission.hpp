@@ -17,6 +17,7 @@
 
 #include "Global.hpp"
 
+#include "C_String.hpp"
 #include "Exceptions.hpp"
 
 
@@ -27,18 +28,18 @@ namespace Transmission
 		namespace HTTP
 		{
 			// ———— START LINE ———— //
-			const char VALID_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
-			const char INVALID_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
-			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
-			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
+			extern const char VALID_REQUEST[];  // start string for valid request from device
+			extern const char INVALID_REQUEST[];  // start string for invalid request from device
+			extern const char NO_CONTENT_REQUEST[];  // start string for no content for request
+			extern const char NOT_FOUND_REQUEST[];  // start string for no content for request
 			// —— START LINE::POST —— //
-			const char POST_METHOD[] = "POST ";
-			const char HTTP_VERSION[] = " HTTP/1.1";
+			extern const char POST_METHOD[];
+			extern const char HTTP_VERSION[];
 
 			// ———— HEADERS ———— //
-			const char CONTENT_TYPE[] = "Content-Type: application/json";
-			const char CONTENT_LENGTH_TAG[] = "Content-Length: ";
-			const char HOST_TAG[] = "Host: ";
+			extern const char CONTENT_TYPE[];
+			extern const char CONTENT_LENGTH_TAG[];
+			extern const char HOST_TAG[];
 		}
 
 
@@ -46,29 +47,29 @@ namespace Transmission
 		{
 			namespace Key
 			{
-				const char QUERY_TYPE[] = "query type";
+				extern const char QUERY_TYPE[];
 
-				const char CURTAIN[] = "curtain";
-				const char CURTAIN_ID[] = "id";
-				const char CURRENT_POS[] = "current position";
-				const char LENGTH[] = "length";
-				const char CALIBRATE[] = "auto calibrate";
-				const char CORRECT[] = "auto correct";
-				const char DISCRETE_MOVEMENT[] = "discrete movement";
-				const char IS_SMART[] = "is smart";
+				extern const char CURTAIN[];
+				extern const char CURTAIN_ID[];
+				extern const char CURRENT_POS[];
+				extern const char LENGTH[];
+				extern const char CALIBRATE[];
+				extern const char CORRECT[];
+				extern const char DISCRETE_MOVEMENT[];
+				extern const char IS_SMART[];
 
-				const char EVENT[] = "event";
-				const char EVENT_ID[] = "id";
-				const char EVENT_FORCE[] = "FORCE";
-				const char EVENT_POSITION[] = "desired position";
+				extern const char EVENT[];
+				extern const char EVENT_ID[];
+				extern const char EVENT_FORCE[];
+				extern const char EVENT_POSITION[];
 			}
 
 
 			namespace Value
 			{
-				const char MOVE[] = "move";  // Query type value for move
-				const char RESET[] = "reset";  // Query type value for reset
-				const char STATUS[] = "status";  // Query type value for status
+				extern const char MOVE[];  // Query type value for move
+				extern const char RESET[];  // Query type value for reset
+				extern const char STATUS[];  // Query type value for status
 
 				// Used to auto increment the ID for the value
 				enum
@@ -86,20 +87,15 @@ namespace Transmission
 				} ValueID;
 
 
-				const ValueID VALUE_IDS[] =
-				{
-					{MOVE_ID, MOVE},
-					{RESET_ID, RESET},
-					{STATUS_ID, STATUS}
-				};
+				extern const ValueID VALUE_IDS[];
 			}
 		}
 
 
 		namespace Responses
 		{
-			const uint8_t INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
-			const uint8_t VALID[] = "{\"success\":\"Valid JSON received\"}";
+			extern const uint8_t INVALID[];
+			extern const uint8_t VALID[];
 		}
 	}
 

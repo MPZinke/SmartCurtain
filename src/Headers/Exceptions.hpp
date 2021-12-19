@@ -17,6 +17,8 @@
 
 #include "Global.hpp"
 
+#include "C_String.hpp"
+
 
 namespace Exceptions
 {

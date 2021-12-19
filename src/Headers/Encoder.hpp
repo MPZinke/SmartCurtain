@@ -17,6 +17,7 @@
 
 #include "Arduino.h"
 
+#include "C_String.hpp"
 #include "Config.hpp"
 #include "Global.hpp"
 
