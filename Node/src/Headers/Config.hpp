@@ -11,7 +11,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __CONFIG__
+#define __CONFIG__
 
 
 #include <stdint.h>
@@ -87,3 +88,6 @@ namespace Config
 		const uint8_t ACTION_COMPLETE_URL[] = "/api/update/deactivateevent";
 	}
 }  // end namespace Configure
+
+
+#endif

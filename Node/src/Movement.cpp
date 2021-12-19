@@ -84,7 +84,7 @@ namespace Movement
 	}
 
 
-	auto function_for_side(bool open_close_value)
+	bool (*function_for_side(bool open_close_value))()
 	// bool (*function_for_side)() (bool open_close_value)
 	{
 		bool(*direction_function[2])();
@@ -199,7 +199,7 @@ namespace Movement
 	// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
 	// Returns number of steps taken to reach point.
-	uint32_t move_and_count_until_state_reached(bool(*state_function)()=endstop_triggered)
+	uint32_t move_and_count_until_state_reached(bool(*state_function)())
 	{
 		enable_motor();
 
@@ -220,7 +220,7 @@ namespace Movement
 	// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until all steps take or sensor is tripped.
 	// Returns remaining steps.
-	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)()=endstop_triggered)
+	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)())
 	{
 		enable_motor();
 
@@ -241,8 +241,7 @@ namespace Movement
 	// Takes a direction, and optionsal state function pointer used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
 	// Returns number of steps taken to reach point.
-	uint32_t set_direction_move_and_count_until_state_reached(const bool direction,
-	  bool(*state_function)()=endstop_triggered)
+	uint32_t set_direction_move_and_count_until_state_reached(const bool direction, bool(*state_function)())
 	{
 		set_direction(direction);
 
@@ -284,7 +283,7 @@ namespace Movement
 		uint32_t initial_steps = move_and_count_until_state_reached(is_closed);
 
 		// move back to original position
-		move_steps(initial_steps)
+		move_steps(initial_steps);
 
 	// Rely on direction switch to be accurate
 	#elif OPEN_ENDSTOP
@@ -325,11 +324,11 @@ namespace Movement
 	// Returns number of steps taken.
 	uint32_t calibrate_to_opposite(bool curtain_direction)
 	{
-		Curtain::CurtainState current_state = state();
-		if(!current_state) /* panic */ return 0 - Global::wiggle_room - 1;  // default to theoretical max
+		CurtainState state = current_state();
+		if(!state) /* panic */ return 0 - Config::Curtain::POSITION_TOLLERANCE - 1;  // default to theoretical max
 
-		set_direction(current_state == Curtain::OPEN ? CLOSE : OPEN);
-		return move_and_count_until_state_reached(current_state == Curtain::OPEN ? is_closed : is_open);
+		set_direction(state == OPEN ? CLOSE : OPEN);
+		return move_and_count_until_state_reached(state == OPEN ? is_closed : is_open);
 	}
 
 }

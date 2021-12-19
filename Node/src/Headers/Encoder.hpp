@@ -11,13 +11,14 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __ENCODER__
+#define __ENCODER__
 
 
 #include "Arduino.h"
 
-
 #include "Config.hpp"
+#include "Global.hpp"
 
 
 #define ENCODER_READ digitalRead(Config::Hardware::ENCODER_PINA) << 1 | digitalRead(Config::Hardware::ENCODER_PINB)
@@ -28,3 +29,6 @@ namespace Encoder
 	void encoder_loop(void*);
 	bool is_positive_direction(uint8_t previous_state, uint8_t current_state);
 }
+
+
+#endif

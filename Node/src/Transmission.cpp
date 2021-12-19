@@ -61,24 +61,24 @@ namespace Transmission
 	{
 		// "{ "" : 1234567890 , "" : 1234567890 }\0" plus keys
 		char* status_head = (char*)malloc(sizeof(Literal::JSON::Key::CURTAIN_ID)
-		  +sizeof(Literal::JSON::Keys::CURRENT_POS)+38);
-		C_String::copy_n(status_head, "{\"", 2);
+		  +sizeof(Literal::JSON::Key::CURRENT_POS)+38);
+		C_String::copy_n("{\"", status_head, 2);
 		char* status = status_head+2;
 
-		C_String::copy(status, Literal::JSON::Key::CURTAIN_ID);
+		C_String::copy(Literal::JSON::Key::CURTAIN_ID, status);
 		status += sizeof(Literal::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
-		C_String::copy_n(status, "\": ", 3);
-		C_String::copy(status+3, Config::Curtain::CURTAIN_ID);
+		C_String::copy_n("\": ", status, 3);
+		C_String::copy(Config::Curtain::CURTAIN_ID, status+3);
 		status += C_String::length(status+3) + 3;
-		C_String::copy_n(status, ", \"", 3);
+		C_String::copy_n(", \"", status, 3);
 
-		C_String::copy(status+3, Literal::JSON::Key::CURRENT_POS);
+		C_String::copy(Literal::JSON::Key::CURRENT_POS, status+3);
 		status += sizeof(Literal::JSON::Key::CURRENT_POS) + 2;
-		C_String::copy_n(status, "\": ", 3);
+		C_String::copy_n("\": ", status, 3);
 		C_String::itoa(Global::current_position, status+3);
 		status += C_String::length(status+3) + 3;
 
-		C_String::copy_n(status, "}", 2);
+		C_String::copy_n("}", status, 2);
 
 		return status_head;
 	}
@@ -128,7 +128,7 @@ namespace Transmission
 	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
 	char* read_transmission_data_into_buffer()
 	{
-		char* content = (char*)malloc(JSON_BUFFER_SIZE);
+		char* content = (char*)malloc(Global::JSON_BUFFER_SIZE);
 
 		if(!content || !skip_header()) return (char*)NULL;
 
@@ -138,7 +138,7 @@ namespace Transmission
 			content[x] = Global::client.read();
 		}
 		content[x] = 0;
-		if(JSON_BUFFER_SIZE < x)
+		if(Global::JSON_BUFFER_SIZE < x)
 		{
 			delete content;
 			return (char*)NULL;
@@ -154,11 +154,11 @@ namespace Transmission
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
 	// void post_json(char json[])
-	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL)
+	void post_json(char json[], const uint8_t path[])
 	{
 		// Start line
 		Global::client.print(Literal::HTTP::POST_METHOD);
-		Global::client.print(path);
+		Global::client.print(String((const char*)path));
 		Global::client.println(Literal::HTTP::HTTP_VERSION);
 
 		// Headers
@@ -176,7 +176,7 @@ namespace Transmission
 	}
 
 
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST)
+	void respond_with_json_and_stop(char json[], const char response_type[])
 	{
 		// Start line
 		Global::client.println(response_type);
@@ -212,14 +212,14 @@ namespace Transmission
 		// Establish connection
 		static WiFiClient client;
 		Global::client = client;
-		if(!Global::client.connect(Config::Network::HUB_HOST_STR, Config::Network::port)) return;
+		if(!Global::client.connect(Config::Network::HUB_HOST_STR, Config::Network::PORT)) return;
 
 		// Send data if eventually connected
 		uint8_t timeout;
 		for(timeout = 255; !Global::client.connected() && timeout; timeout--) delay(10);
 		if(timeout)
 		{
-			post_json((char*)packet_buffer, USER_COMPLETE_PAGE);
+			post_json((char*)packet_buffer, Config::Transmission::ACTION_COMPLETE_URL);
 			while(Global::client.available()) Global::client.read();
 			Global::client.stop();
 		}

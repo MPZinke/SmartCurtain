@@ -15,7 +15,7 @@
 #include "Headers/Transmission.hpp"
 
 
-namespace Excpetion
+namespace Exceptions
 {
 	void throw_generic(char message[])
 	{
@@ -45,6 +45,14 @@ namespace Excpetion
 	{
 		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::INVALID, Transmission
 		  ::Literal::HTTP::INVALID_REQUEST);
+		longjmp(Global::jump_buffer, 1);
+	}
+
+
+	void throw_HTTP_404(const char message[])
+	{
+		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::INVALID, Transmission
+		  ::Literal::HTTP::NOT_FOUND_REQUEST);
 		longjmp(Global::jump_buffer, 1);
 	}
 }

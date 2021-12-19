@@ -11,7 +11,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __AUTOMATION__
+#define __AUTOMATION__
 
 
 #include "Global.hpp"
@@ -26,3 +27,6 @@ namespace Automation
 	void automation_loop(void*);
 	StaticJsonDocument<Global::JSON_BUFFER_SIZE> decode_json();
 }
+
+
+#endif

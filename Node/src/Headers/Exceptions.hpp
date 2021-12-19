@@ -11,7 +11,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __EXCEPTIONS__
+#define __EXCEPTIONS__
 
 
 #include "Global.hpp"
@@ -22,4 +23,8 @@ namespace Exceptions
 	void throw_generic(const char message[]);
 	void throw_HTTP_204(const char message[]);
 	void throw_HTTP_400(const char message[]);
+	void throw_HTTP_404(const char message[]);
 }  // end namespace Exceptions
+
+
+#endif
