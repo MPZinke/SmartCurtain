@@ -22,14 +22,14 @@
 ***********************************************************************************************************************/
 
 
-#include "src/Headers/Global.hpp"
+#include "Headers/Global.hpp"
 
-#include "src/Headers/Automation.hpp"
-#include "src/Headers/Curtain.hpp"
-#include "src/Headers/Encoder.hpp"
-#include "src/Headers/Movement.hpp"
-#include "src/Headers/Transmission.hpp"
-#include "src/Headers/Exceptions.hpp"
+#include "Headers/Automation.hpp"
+#include "Headers/Curtain.hpp"
+#include "Headers/Encoder.hpp"
+#include "Headers/Movement.hpp"
+#include "Headers/Transmission.hpp"
+#include "Headers/Exceptions.hpp"
 
 
 TaskHandle_t automation_task;
