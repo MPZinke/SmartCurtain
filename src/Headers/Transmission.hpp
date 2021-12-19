@@ -11,7 +11,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __TRANSMISSION__
+#define __TRANSMISSION__
 
 
 #include "Global.hpp"
@@ -29,6 +30,7 @@ namespace Transmission
 			const char VALID_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
 			const char INVALID_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
+			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
 			// —— START LINE::POST —— //
 			const char POST_METHOD[] = "POST ";
 			const char HTTP_VERSION[] = " HTTP/1.1";
@@ -101,6 +103,7 @@ namespace Transmission
 		}
 	}
 
+
 	uint8_t id_for_value(const char* value);
 	char* http_exception_json(uint16_t error_code, char error_message[]);
 	static char* status_json();
@@ -111,5 +114,7 @@ namespace Transmission
 	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
-
 } // end namespace Transmission
+
+
+#endif

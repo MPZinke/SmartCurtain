@@ -28,28 +28,34 @@ namespace Automation
 			switch(Transmission::id_for_value(query_type))
 			{
 				case Transmission::Literal::JSON::Value::STATUS_ID:
+				{
 					Transmission::send_status_and_stop_client();
 					break;
-
+				}
 #if CLOSE_ENDSTOP || OPEN_ENDSTOP	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
 				case Transmission::Literal::JSON::Value::RESET_ID:
+				{
 					Movement::move_until_closed();
+				}
 #endif
 
 				// Move to position
 				case Transmission::Literal::JSON::Value::MOVE_ID:
+				{
 					Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
 					Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
-					curtain.move();
+					// curtain.move();
 	
 					// clean up and update curtain
-					curtain.set_location();
-					curtain.send_hub_serialized_info();
+					// curtain.set_location();
+					// curtain.send_hub_serialized_info();
 					break;
-	
+				}
 				default:
-					throw HTTP_Exception(404, "Unknown query type");
+				{
+					Exceptions::throw_HTTP_404("Unknown query type");
+				}
 			}
 	
 			setjmp(Global::jump_buffer);

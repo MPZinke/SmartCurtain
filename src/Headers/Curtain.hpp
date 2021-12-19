@@ -12,7 +12,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __CURTAIN__
+#define __CURTAIN__
 
 
 #include "Global.hpp"
@@ -28,10 +29,11 @@ namespace Curtain
 	using Movement::CurtainState;
 
 
-	bool is_approximate_position(uint32_t, uint32_t);
-	bool is_approximate_position(uint32_t, uint32_t, uint32_t);
-	CurtainState approximate_state_of(uint32_t, uint32_t);
-	CurtainState state_of(uint32_t, uint32_t);
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference);
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2);
+	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length);
+	inline CurtainState state_of(uint32_t position, uint32_t curtain_length);
+
 
 
 	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //
@@ -81,24 +83,25 @@ namespace Curtain
 			bool correct();
 			bool move_discretely();
 
-			uint32_t position();
-			uint32_t length();
 			Event event();
+			uint32_t length();
 
 			// —————————————— GETTERS: DATA ——————————————
 			bool should_calibrate_across();
 			CurtainState state_of_position();
 
 			// —————————————— SETTERS: ATTRIBUTES ——————————————
-			void position(uint32_t new_position);
 			void length(uint32_t new_length);
 
 			// —————————————— SETTERS: DATA ——————————————
-			void set_position_if_does_not_match_sensors();
-			void set_location();
+			// void set_position_if_does_not_match_sensors();
+			// void set_location();
 
 			// —————————————— WRITE ——————————————
 			void send_hub_serialized_info();
 	};
 
 } // end namespace Curtain
+
+
+#endif

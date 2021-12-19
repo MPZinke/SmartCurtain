@@ -13,7 +13,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __MOVEMENT__
+#define __MOVEMENT__
 
 
 #include "Global.hpp"
@@ -46,21 +47,29 @@ namespace Movement
 	} CurtainState;
 
 
-
-	CurtainState current_state();
+	inline void pulse_twice();
 	void disable_motor();
 	void enable_motor();
 	void set_direction(bool direction_current);
-	bool is_closed();
-	bool is_open();
+	CurtainState current_state();
+	inline bool endstop_triggered();
+	inline bool is_closed();
+	inline bool is_open();
+	bool (*function_for_side(bool open_close_value))();
 	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position);
+	void move_steps(const bool direction, register uint32_t steps);
+	void move_steps(register uint32_t steps);
 	void move_until_state_reached(bool(*state_function)());
-	uint32_t move_and_count_until_state_reached(bool(*state_function)());
-	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)());
+	uint32_t move_and_count_until_state_reached(bool(*state_function)()=endstop_triggered);
+	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)()=endstop_triggered);
+	uint32_t set_direction_move_and_count_until_state_reached(const bool direction,
+	  bool(*state_function)()=endstop_triggered);
+	void initial_positioning();
 	void move_until_closed();
 	void move_until_open();
 	uint32_t calibrate_to_opposite(bool curtain_direction);
-	void move_motor_step_count(register uint32_t steps);
-
 
 }  // end namespace GPIO
+
+
+#endif

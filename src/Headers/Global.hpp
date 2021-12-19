@@ -17,7 +17,8 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#ifndef __GLOBAL__
+#define __GLOBAL__
 
 
 #include <ArduinoJson.h>
@@ -170,3 +171,5 @@ namespace C_String
 
 } // end namespace C_String
 
+
+#endif

@@ -152,29 +152,29 @@ namespace Curtain
 
 		C_String::copy_n("{\"", buffer, 2);
 		// current position
-		C_String::copy(Transmission::Liteal::JSON::Key::CURRENT_POS, buffer+2);  // +2 from previous "{\""
-		buffer += sizeof(Transmission::Liteal::JSON::Key::CURRENT_POS)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
+		C_String::copy(Transmission::Literal::JSON::Key::CURRENT_POS, buffer+2);  // +2 from previous "{\""
+		buffer += sizeof(Transmission::Literal::JSON::Key::CURRENT_POS)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
 		C_String::copy_n("\" : ", buffer, 4);
 		C_String::itoa(_position, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// curtain
-		C_String::copy(Transmission::Liteal::JSON::Key::CURTAIN, buffer+3);  // +3 from previous ", \""
-		buffer += sizeof(Transmission::Liteal::JSON::Key::CURTAIN) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy(Transmission::Literal::JSON::Key::CURTAIN, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::Literal::JSON::Key::CURTAIN) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
-		C_String::copy(Config::Curtain::curtain_id, buffer+4);  // +4 from previous "\" : "
+		C_String::copy(Config::Curtain::CURTAIN_ID, buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// event
-		C_String::copy(Transmission::EVENT_KEY, buffer+3);  // +3 from previous ", \""
-		buffer += sizeof(Transmission::EVENT_KEY) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy(Transmission::Literal::JSON::Key::EVENT, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::Literal::JSON::Key::EVENT) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
-		C_String::itoa(_event, buffer+4);  // +4 from previous "\" : "
+		C_String::itoa(_event.id(), buffer+4);  // +4 from previous "\" : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
 		C_String::copy_n(", \"", buffer, 3);
 		// length
-		C_String::copy(Transmission::LENGTH_KEY, buffer+3);  // +3 from previous ", \""
-		buffer += sizeof(Transmission::LENGTH_KEY)+2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
+		C_String::copy(Transmission::Literal::JSON::Key::LENGTH, buffer+3);  // +3 from previous ", \""
+		buffer += sizeof(Transmission::Literal::JSON::Key::LENGTH)+2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
 		C_String::copy_n("\" : ", buffer, 4);
 		C_String::itoa(_length, buffer+4);  // +4 from previous " : "
 		buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
@@ -185,24 +185,24 @@ namespace Curtain
 	}
 
 
-	void Curtain::move()
-	{
+	// void Curtain::move()
+	// {
 		
-		if(!curtain.is_smart()) Movement::move(curtain);
-		else
-		{
-			if(!_event.event_moves_to_an_end()) Movement::move(curtain);
-			// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-			// ing or closing curtain.
-			// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
-			else
-			{
-				if(should_calibrate_across()) _length(Movement::calibrate_to_opposite(inline direction()));
-				else if(inline state_of_position() == Curtain::OPEN) Movement::move_until_open(inline direction());
-				else Movement::move_until_closed(inline direction());
-			}
-		}
-	}
+	// 	if(!curtain.is_smart()) Movement::move(curtain);
+	// 	else
+	// 	{
+	// 		if(!_event.event_moves_to_an_end()) Movement::move(curtain);
+	// 		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
+	// 		// ing or closing curtain.
+	// 		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
+	// 		else
+	// 		{
+	// 			if(should_calibrate_across()) _length(Movement::calibrate_to_opposite(inline direction()));
+	// 			else if(inline state_of_position() == Curtain::OPEN) Movement::move_until_open(inline direction());
+	// 			else Movement::move_until_closed(inline direction());
+	// 		}
+	// 	}
+	// }
 
 	// —————————————————————————————————————————— CLASS::GETTERS: ATTRIBUTES ——————————————————————————————————————————
 
@@ -218,27 +218,29 @@ namespace Curtain
 	}
 
 
-	uint32_t Curtain::current_position()
-	{
-		return _position;
-	}
-
-
-	uint32_t Curtain::event()
-	{
-		return _event;
-	}
-
-
-	bool Curtain::is_smart()
-	{
-		return _is_smart;
-	}
+	// bool Curtain::is_smart()
+	// {
+	// 	return _is_smart;
+	// }
 
 
 	uint32_t Curtain::length()
 	{
 		return _length;
+	}
+
+
+	Event Curtain::event()
+	{
+		return _event;
+	}
+
+
+	// —————————————————————————————————————————— CLASS::SETTERS: ATTRIBUTES ——————————————————————————————————————————
+
+	void Curtain::length(uint32_t length)
+	{
+		_length = length;	
 	}
 
 
@@ -258,56 +260,36 @@ namespace Curtain
 	}
 
 
-	// —————————————————————————————————————————— CLASS::SETTERS: ATTRIBUTES ——————————————————————————————————————————
-
-	void Curtain::current_position(uint32_t current_position)
-	{
-		_position = current_position;	
-	}
-
-
-	void Curtain::desired_position(uint32_t desired_position)
-	{
-		_desired_position = desired_position;	
-	}
-
-
-	void Curtain::length(uint32_t length)
-	{
-		_length = length;	
-	}
-
-
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
 
-	// Corrects position for DB unknowns relative to sensors.
-	// Sets self::_position to match open/closed if applicable.
-	void Curtain::set_position_if_does_not_match_sensors()
-	{
-		if(Movement::is_closed() && !is_approximate_position(_position, 0))
-			_position = 0;
-		else if(Movement::is_open() && !is_approximate_position(_position, _length))
-			_position = _length;
-	}
+	// // Corrects position for DB unknowns relative to sensors.
+	// // Sets self::_position to match open/closed if applicable.
+	// void Curtain::set_position_if_does_not_match_sensors()
+	// {
+	// 	if(Movement::is_closed() && !is_approximate_position(_position, 0))
+	// 		_position = 0;
+	// 	else if(Movement::is_open() && !is_approximate_position(_position, _length))
+	// 		_position = _length;
+	// }
 
 
-	// ASSUMES _desired_position WAS REACHED IF NOT AT AN END. COULD BE WRONG.
-	// Sets the location of the curtain based on GPIO if possible, other wise desired location.
-	void Curtain::set_location()
-	{
-		if(!_is_smart)
-		{
-			Global::current_position = _desired_position;
-			_position = _desired_position;  // curtain isn't that smart, so guess where it is
-		}
-		else
-		{
-			if(Movement::is_open()) _position = _length;
-			else if(Movement::is_closed()) _position = 0;
-			else _position = _desired_position;  // curtain isn't that smart, so guess where it is
-			Global::current_position = _position;
-		}
-	}
+	// // ASSUMES _desired_position WAS REACHED IF NOT AT AN END. COULD BE WRONG.
+	// // Sets the location of the curtain based on GPIO if possible, other wise desired location.
+	// void Curtain::set_location()
+	// {
+	// 	if(!_is_smart)
+	// 	{
+	// 		Global::current_position = _desired_position;
+	// 		_position = _desired_position;  // curtain isn't that smart, so guess where it is
+	// 	}
+	// 	else
+	// 	{
+	// 		if(Movement::is_open()) _position = _length;
+	// 		else if(Movement::is_closed()) _position = 0;
+	// 		else _position = _desired_position;  // curtain isn't that smart, so guess where it is
+	// 		Global::current_position = _position;
+	// 	}
+	// }
 
 
 	// ————————————————————————————————————————————————— CLASS::WRITE —————————————————————————————————————————————————
