@@ -18,6 +18,7 @@
 
 #include "Global.hpp"
 
+#include "C_String.hpp"
 #include "Exceptions.hpp"
 #include "Movement.hpp"
 #include "Transmission.hpp"
@@ -25,7 +26,6 @@
 
 namespace Curtain
 {
-
 	using Movement::CurtainState;
 
 
@@ -75,7 +75,7 @@ namespace Curtain
 			Event _event;
 
 		public:
-			Curtain(StaticJsonDocument<Global::JSON_BUFFER_SIZE>&);
+			Curtain(StaticJsonDocument<JSON_BUFFER_SIZE>&);
 			char* serialize_data();
 
 			// —————————————— GETTERS: ATTRIBUTES ——————————————

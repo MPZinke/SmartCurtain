@@ -19,6 +19,8 @@
 
 #include "Global.hpp"
 
+#include "C_String.hpp"
+
 
 namespace Movement
 {
@@ -28,23 +30,26 @@ namespace Movement
 	// ———— SUGAR ————
 	namespace CurrentPull
 	{
-		const bool ON = HIGH ^ Config::Hardware::SWITCH;  // the "ON"/"ACTIVATE" state for the device
-		const bool OFF = !ON;  // the "OFF"/"DEACTIVATE" state for the device
+		extern const bool ON;  // the "ON"/"ACTIVATE" state for the device
+		extern const bool OFF;  // the "OFF"/"DEACTIVATE" state for the device
 
-		const bool CLOSE = OFF;  // solidify convention
-		const bool OPEN = !CLOSE;  // solidify convention
+		extern const bool CLOSE;  // solidify convention
+		extern const bool OPEN;  // solidify convention
 
-		bool direction_switch = Config::Hardware::DIRECTION_SWITCH;
+		extern bool DIRECTION_SWITCH;
 	}
 
 
-	typedef enum
+	namespace CurtainStates
 	{
-		MIDDLE = -1,
-		CLOSE = (int8_t)CurrentPull::CLOSE,
-		CLOSED = CLOSE,  // alias for sugar
-		OPEN = (int8_t)CurrentPull::OPEN
-	} CurtainState;
+		extern const uint8_t MIDDLE;
+		extern const uint8_t CLOSE;
+		extern const uint8_t CLOSED;  // alias of CLOSE for sugar
+		extern const uint8_t OPEN;
+	}
+
+
+	typedef uint8_t CurtainState;
 
 
 	inline void pulse_twice();

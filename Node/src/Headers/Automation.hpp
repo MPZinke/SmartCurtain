@@ -25,7 +25,7 @@
 namespace Automation
 {
 	void automation_loop(void*);
-	StaticJsonDocument<Global::JSON_BUFFER_SIZE> decode_json();
+	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
 }
 
 
