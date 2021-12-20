@@ -18,6 +18,9 @@
 #include <stdint.h>
 
 
+#define JSON_BUFFER_SIZE 0x400
+
+
 namespace Config
 {
 	namespace Curtain
@@ -44,7 +47,7 @@ namespace Config
 		extern const uint16_t MOTOR_STEPS_PER_ROTATION;  // 200 st/rot * 16 microstepping
 
 		// ———— SWITCHES ————
-		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == ON and CLOSE == OFF.
+		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.
 		extern const bool SWITCH;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 
 		// ———————— HARDWARE DICTATING VALUES ————————

@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.12.04                                                                                                      *
+*   on 2021.12.19                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -11,21 +11,35 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __AUTOMATION__
-#define __AUTOMATION__
-
-
 #include <ArduinoJson.h>
 
 
-#include "Config.hpp"
+#include "../Headers/Movement.hpp"
 
 
-namespace Automation
+namespace Event
 {
-	void automation_loop(void*);
-	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+	using Movement::CurtainState;
+
+
+	class Event
+	{
+		private:
+			uint32_t _id;
+			uint32_t _curtain_length;
+			bool _force;
+			uint32_t _position;
+
+		public:
+			Event(JsonObject& event_object);
+			Event(uint32_t id, bool force, uint32_t desired_position);
+
+			uint32_t id();
+			uint32_t position();
+
+			// ———— MOVEMENT ———— //
+			bool event_moves_to_an_end();
+			bool moves_full_span();
+			CurtainState state();
+	};
 }
-
-
-#endif

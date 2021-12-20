@@ -17,14 +17,11 @@
 #define __MOVEMENT__
 
 
-#include "Global.hpp"
-
-#include "C_String.hpp"
+#include <stdint.h>
 
 
 namespace Movement
 {
-
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
 
 	// ———— SUGAR ————
@@ -35,10 +32,10 @@ namespace Movement
 
 		extern const bool CLOSE;  // solidify convention
 		extern const bool OPEN;  // solidify convention
-
-		extern bool DIRECTION_SWITCH;
 	}
 
+
+	typedef uint8_t CurtainState;
 
 	namespace CurtainStates
 	{
@@ -49,13 +46,19 @@ namespace Movement
 	}
 
 
-	typedef uint8_t CurtainState;
-
-
+	// ———— POSITIONING ————
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference);
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2);
+	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length);
+	inline CurtainState state_of(uint32_t position);
+	inline CurtainState state_of(uint32_t position, uint32_t curtain_length);
+	inline CurtainState state_of_position();
+	// ———— GPIO ————
 	inline void pulse_twice();
 	void disable_motor();
 	void enable_motor();
 	void set_direction(bool direction_current);
+
 	CurtainState current_state();
 	inline bool endstop_triggered();
 	inline bool is_closed();
@@ -73,7 +76,6 @@ namespace Movement
 	void move_until_closed();
 	void move_until_open();
 	uint32_t calibrate_to_opposite(bool curtain_direction);
-
 }  // end namespace GPIO
 
 

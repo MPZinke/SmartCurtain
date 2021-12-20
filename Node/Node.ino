@@ -22,14 +22,15 @@
 ***********************************************************************************************************************/
 
 
+#include <esp_wifi.h>
+#include <SPI.h>
+
+
+#include "Headers/Config.hpp"
 #include "Headers/Global.hpp"
 
 #include "Headers/Automation.hpp"
-#include "Headers/Curtain.hpp"
 #include "Headers/Encoder.hpp"
-#include "Headers/Movement.hpp"
-#include "Headers/Transmission.hpp"
-#include "Headers/Exceptions.hpp"
 
 
 TaskHandle_t automation_task;
