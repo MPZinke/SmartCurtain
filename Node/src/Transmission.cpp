@@ -62,12 +62,14 @@ namespace Transmission
 				const char MOVE[] = "move";  // Query type value for move
 				const char RESET[] = "reset";  // Query type value for reset
 				const char STATUS[] = "status";  // Query type value for status
+				const char UPDATE[] = "update";  // Query type value for update
 
 				const ValueID VALUE_IDS[] =
 				{
 					{MOVE_ID, MOVE},
 					{RESET_ID, RESET},
-					{STATUS_ID, STATUS}
+					{STATUS_ID, STATUS},
+					{UPDATE_ID, UPDATE}
 				};
 			}
 		}

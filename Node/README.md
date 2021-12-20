@@ -19,3 +19,7 @@ This folder is what goes on the Arduino.
 - Open `~/Node/Node.ino` into Arduino IDE (or equivalent).
 - Edit `User.h` to match data to Hub IP address & curtain ID.
 - Compile & Bootload program to Arduino.
+
+
+## Communication
+- If the "curtain" key is set in a JSON, the curtain's information will be (volatilely) set.

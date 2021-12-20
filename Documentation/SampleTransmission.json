@@ -5,17 +5,19 @@
 	"curtain": 
 	{
 		"id": 4294967295,
-		"length": 4294967295,  //OPTIONAL
-		"position": 4294967295,
 
+		// Settable
 		"auto calibrate": false,
-		"auto correct": false
+		"auto correct": false,
+		"direction": false,
+		"discrete movement": false,
+		"length": 4294967295,  //OPTIONAL
+		"position": 100
 	},
 	"event":
 	{
 		"id": 4294967295,
-		"force": false,
-		"position": 4294967295
+		"position": 100  // percentage
 	}
 }
 

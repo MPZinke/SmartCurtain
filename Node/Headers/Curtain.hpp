@@ -34,19 +34,21 @@ namespace Curtain
 	class Curtain
 	{
 		private:
-			// ———— OPTIONS ————
+			// ———— OPTIONS ———— //
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
-			bool _discrete_movement;  // if the curtain can move to a discrete location (not just open or closed)
-			// ———— CURRENT DATA ON CURTAIN ————
 			bool _direction;
+			bool _discrete_movement;  // if the curtain can move to a discrete location (not just open or closed)
 			uint32_t _length;  // overall length of the curtain [steps]
 			uint32_t _position;  // the current length according to the RPi
 
 		public:
 			Curtain(bool initialize);
 
-			// —————————————— GETTERS: ATTRIBUTES ——————————————
+			operator char*();
+			operator JsonObject();
+
+			// ———— GETTERS ————
 			bool auto_calibrate();
 			bool auto_correct();
 			bool direction();
@@ -54,11 +56,7 @@ namespace Curtain
 			uint32_t length();
 			uint32_t position();
 
-			// —————————————— GETTERS: DATA ——————————————
-			bool should_calibrate_across();
-			CurtainState state_of_position();
-
-			// —————————————— SETTERS: ATTRIBUTES ——————————————
+			// ———— SETTERS ————
 			void auto_calibrate(bool new_auto_calibrate);
 			void auto_correct(bool new_auto_correct);
 			void direction(bool new_direction);
@@ -66,9 +64,6 @@ namespace Curtain
 			void discrete_movement(bool new_discrete_movement);
 			void position(uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-
-			operator char*();
-			operator JsonObject();
 
 			// —————————————— SETTERS: DATA ——————————————
 			// void set_position_if_does_not_match_sensors();

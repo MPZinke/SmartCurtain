@@ -26,16 +26,18 @@ namespace Event
 	{
 		private:
 			uint32_t _id;
-			uint32_t _curtain_length;
-			bool _force;
-			uint32_t _position;
+			uint8_t _position;
 
 		public:
 			Event(JsonObject& event_object);
-			Event(uint32_t id, bool force, uint32_t desired_position);
+			Event(uint32_t id, uint8_t desired_position);
 
+			operator char*();
+			operator JsonObject();
+
+			// ———— GETTERS ———— //
 			uint32_t id();
-			uint32_t position();
+			uint8_t position();
 
 			// ———— MOVEMENT ———— //
 			bool event_moves_to_an_end();
