@@ -30,34 +30,39 @@ namespace Automation
 		
 			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 
+			// If curtain information, update Global::curtain information
 			if(json_document.to<JsonObject>().containsKey(Transmission::Literal::JSON::Key::CURTAIN))
 			{
 				Global::curtain.update(json_document);
 			}
 
-			const char* query_type = json_document[Transmission::Literal::JSON::Key::QUERY_TYPE];
-	
-			switch(Transmission::id_for_value(query_type))
+			// Call action for QUERY_TYPE
+			switch(Transmission::id_for_value(json_document[Transmission::Literal::JSON::Key::QUERY_TYPE]))
 			{
+				// Update information about curtain
+				case Transmission::Literal::JSON::Value::UPDATE_ID:
+				{
+					// Fall through to STATUS_ID
+				}
+
+				// Return information about Curtain
 				case Transmission::Literal::JSON::Value::STATUS_ID:
 				{
 					Transmission::send_status_and_stop_client();
 					break;
 				}
-#if CLOSE_ENDSTOP || OPEN_ENDSTOP	
+	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
 				case Transmission::Literal::JSON::Value::RESET_ID:
 				{
-					Movement::move_until_closed();
+					Movement::reset();
+					break;
 				}
-#endif
 
 				// Move to position
 				case Transmission::Literal::JSON::Value::MOVE_ID:
 				{
-					Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
-					JsonObject event_object = json_document[Transmission::Literal::JSON::Key::EVENT];
-					Event::Event event(event_object);
+					
 					// curtain.move();
 	
 					// clean up and update curtain
@@ -65,6 +70,7 @@ namespace Automation
 					// curtain.send_hub_serialized_info();
 					break;
 				}
+
 				default:
 				{
 					Exceptions::throw_HTTP_404("Unknown query type");
@@ -103,4 +109,24 @@ namespace Automation
 
 		return json_document;
 	}
+
+
+	// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
+
+	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE> json_document)
+	{
+		if(!json_document.containsKey(Transmission::Literal::JSON::Key::EVENT))
+		{
+			String error_message = String("Missing key: \"") + Transmission::Literal::JSON::Key::EVENT
+			  + "\" for QUERY_TYPE: \"" + Transmission::Literal::JSON::Value::MOVE + "\"";
+			Exceptions::throw_HTTP_404(error_message.c_str());
+		}
+
+		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
+		Event::Event event(json_document[Transmission::Literal::JSON::Key::EVENT]);
+
+	}
+
+
+
 }
