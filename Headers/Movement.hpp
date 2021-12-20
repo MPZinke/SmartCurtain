@@ -20,6 +20,12 @@
 #include <stdint.h>
 
 
+namespace Event
+{
+	class Event;  // Declare it so it knows it exists
+}
+
+
 namespace Movement
 {
 	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
@@ -46,24 +52,26 @@ namespace Movement
 	}
 
 
-	// ———— POSITIONING ————
+	// ———— POSITIONING ———— //
 	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference);
 	inline bool is_approximate_position(uint32_t position1, uint32_t position2);
 	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length);
 	inline CurtainState state_of(uint32_t position);
 	inline CurtainState state_of(uint32_t position, uint32_t curtain_length);
 	inline CurtainState state_of_position();
-	// ———— GPIO ————
+	// ———— GPIO ———— //
 	inline void pulse_twice();
 	void disable_motor();
 	void enable_motor();
 	void set_direction(bool direction_current);
-
+	// ———— STATE ———— //
 	CurtainState current_state();
 	inline bool endstop_triggered();
 	inline bool is_closed();
 	inline bool is_open();
 	bool (*function_for_side(bool open_close_value))();
+	// ———— MOVEMENT ———— //
+	void move(Event::Event& event);
 	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position);
 	void move_steps(const bool direction, register uint32_t steps);
 	void move_steps(register uint32_t steps);

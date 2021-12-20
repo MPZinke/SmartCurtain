@@ -13,8 +13,9 @@
 
 #include "../Headers/Movement.hpp"
 
-#include "../Headers/Global.hpp"
 #include "../Headers/C_String.hpp"
+#include "../Headers/Event.hpp"
+#include "../Headers/Global.hpp"
 
 
 namespace Movement
@@ -44,6 +45,8 @@ namespace Movement
 	using namespace CurtainStates;  // used CurtainStates as enum
 
 
+	// ———————————————————————————————————————————————————— GPIO ———————————————————————————————————————————————————— //
+
 	// Pulse motor (HIGH->LOW) twice.
 	inline void pulse_twice()
 	{
@@ -58,8 +61,6 @@ namespace Movement
 		delayMicroseconds(Config::Hardware::PULSE_WAIT);
 	}
 
-
-	// ————————————————————————————————————————————————— ABSTRACTIONS —————————————————————————————————————————————————
 
 	void disable_motor()
 	{
@@ -189,7 +190,12 @@ namespace Movement
 	}
 
 
-	// ——————————————————————————————————————————————————— MOVEMENT ———————————————————————————————————————————————————
+	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
+
+	void move(Event::Event& event)
+	{
+
+	}
 
 	// // Moves the curtain to its desired position based on curtain object data (with auto correct). The function is used
 	// //  for when the curtain is not moving to an end location.
