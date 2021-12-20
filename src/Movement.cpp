@@ -13,6 +13,9 @@
 
 #include "../Headers/Movement.hpp"
 
+#include "../Headers/Global.hpp"
+#include "../Headers/C_String.hpp"
+
 
 namespace Movement
 {
@@ -26,8 +29,6 @@ namespace Movement
 
 		const bool CLOSE = OFF;  // solidify convention
 		const bool OPEN = !CLOSE;  // solidify convention
-
-		bool DIRECTION_SWITCH = Config::Hardware::DIRECTION_SWITCH;
 	}
 
 
@@ -78,7 +79,64 @@ namespace Movement
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
 		digitalWrite(Config::Hardware::DIRECTION_PIN,
-		  ((direction_current + CurrentPull::DIRECTION_SWITCH) & 0b1));
+		  ((direction_current + Global::curtain.direction()) & 0b1));
+	}
+
+
+	// —————————————————————————————————————————————————— POSITION —————————————————————————————————————————————————— //
+
+	// Position1 is within an allowable difference of position2.
+	// Takes two step positions, and an allowable difference.
+	// Returns whether they are within a certain amount of eachother.
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference)
+	{
+		return (position1 - allowable_difference <= position2) && (position2 <= position1 + allowable_difference);
+	}
+
+
+	// Position1 is within Gobal::wiggle_room of position2.
+	// Takes two step positions.
+	// Returns whether they are within a certain amount of eachother.
+	inline bool is_approximate_position(uint32_t position1, uint32_t position2)
+	{
+		return is_approximate_position(position1, position2, Config::Curtain::POSITION_TOLLERANCE);
+	}
+
+
+	// Approximates the position and then returns an enum value.
+	// Takes a position to check, the length of the curtain to compare it to.
+	// Returns the enum value of the approximated current state for position.
+	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length)
+	{
+		if(is_approximate_position(position, 0)) return CLOSED;
+		if(is_approximate_position(position, curtain_length)) return OPEN;
+		return MIDDLE;
+	}
+
+
+	// Determines the position and then returns an enum value.
+	// Takes a position to check, the length of the curtain to compare it to.
+	// Returns the enum value of the current state for position.
+	inline CurtainState state_of(uint32_t position, uint32_t curtain_length)
+	{
+		if(position == 0) return CLOSED;
+		if(position == curtain_length) return OPEN;
+		return MIDDLE;
+	}
+
+
+	// Determines the position and then returns an enum value.
+	// Takes a position to check, the length of the curtain to compare it to.
+	// Returns the enum value of the current state for position.
+	inline CurtainState state_of(uint32_t position)
+	{
+		return state_of(position, Global::curtain.length());
+	}
+
+
+	CurtainState state_of_position()
+	{
+		return state_of(Global::curtain.position(), Global::curtain.length());
 	}
 
 

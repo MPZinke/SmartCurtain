@@ -16,13 +16,10 @@
 
 namespace Global
 {
-	WiFiServer server(Config::Network::PORT);
+	Curtain::Curtain curtain(true);
 
 	WiFiClient client;
-
-	// Mutable curtain information
-	uint32_t current_position = 0;  // holds current position
-	uint32_t curtain_length = Config::Hardware::DEFAULT_LENGTH;
+	WiFiServer server(Config::Network::PORT);
 
 	jmp_buf jump_buffer;
 } // end namespace Global
