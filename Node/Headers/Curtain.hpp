@@ -55,7 +55,6 @@ namespace Curtain
 			uint32_t position();
 
 			// —————————————— GETTERS: DATA ——————————————
-			char* serialized_data();
 			bool should_calibrate_across();
 			CurtainState state_of_position();
 
@@ -68,12 +67,15 @@ namespace Curtain
 			void position(uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 
+			operator char*();
+			operator JsonObject();
+
 			// —————————————— SETTERS: DATA ——————————————
 			// void set_position_if_does_not_match_sensors();
 			// void set_location();
 
 			// —————————————— WRITE ——————————————
-			void send_hub_serialized_info();
+			// void send_hub_serialized_info();
 	};
 
 } // end namespace Curtain
