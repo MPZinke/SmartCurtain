@@ -15,11 +15,10 @@
 #define __AUTOMATION__
 
 
-#include "Global.hpp"
+#include <ArduinoJson.h>
 
-#include "Curtain.hpp"
-#include "Movement.hpp"
-#include "Transmission.hpp"
+
+#include "Config.hpp"
 
 
 namespace Automation

@@ -13,6 +13,12 @@
 
 #include "../Headers/Automation.hpp"
 
+#include "../Headers/Global.hpp"
+#include "../Headers/Curtain.hpp"
+#include "../Headers/Event.hpp"
+#include "../Headers/Movement.hpp"
+#include "../Headers/Transmission.hpp"
+
 
 namespace Automation
 {
@@ -23,6 +29,12 @@ namespace Automation
 			Movement::disable_motor();  // don't burn up the motor
 		
 			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
+
+			if(json_document.to<JsonObject>().containsKey(Transmission::Literal::JSON::Key::CURTAIN))
+			{
+				Global::curtain.update(json_document);
+			}
+
 			const char* query_type = json_document[Transmission::Literal::JSON::Key::QUERY_TYPE];
 	
 			switch(Transmission::id_for_value(query_type))
@@ -44,7 +56,8 @@ namespace Automation
 				case Transmission::Literal::JSON::Value::MOVE_ID:
 				{
 					Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
-					Curtain::Curtain curtain(json_document);  // setup data (things are getting real interesting...)
+					JsonObject event_object = json_document[Transmission::Literal::JSON::Key::EVENT];
+					Event::Event event(event_object);
 					// curtain.move();
 	
 					// clean up and update curtain

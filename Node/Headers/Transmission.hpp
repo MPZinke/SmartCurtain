@@ -51,12 +51,13 @@ namespace Transmission
 
 				extern const char CURTAIN[];
 				extern const char CURTAIN_ID[];
-				extern const char CURRENT_POS[];
-				extern const char LENGTH[];
-				extern const char CALIBRATE[];
-				extern const char CORRECT[];
+				extern const char AUTO_CALIBRATE[];
+				extern const char AUTO_CORRECT[];
+				extern const char CURTAIN_POSITION[];
+				extern const char DIRECTION[];
 				extern const char DISCRETE_MOVEMENT[];
-				extern const char IS_SMART[];
+				extern const char LENGTH[];
+
 
 				extern const char EVENT[];
 				extern const char EVENT_ID[];
