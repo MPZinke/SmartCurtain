@@ -21,12 +21,7 @@
 #define __GLOBAL__
 
 
-#include <ArduinoJson.h>
-#include <assert.h>
-#include <esp_wifi.h>
-#include <HttpClient.h>
 #include <setjmp.h>
-#include <SPI.h>
 #include <stdint.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -34,24 +29,17 @@
 
 
 #include "Config.hpp"
-
-
-// —————————————————————————————————————————————————— PREPROCESSOR —————————————————————————————————————————————————— //
-
-#define JSON_BUFFER_SIZE 0x1000
+#include "Curtain.hpp"
 
 
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //
 
 namespace Global
 {
-	extern WiFiServer server;
+	extern Curtain::Curtain curtain;
 
 	extern WiFiClient client;
-
-	// Mutable curtain information
-	extern uint32_t current_position;  // holds current position
-	extern uint32_t curtain_length;
+	extern WiFiServer server;
 
 	extern jmp_buf jump_buffer;
 } // end namespace Global

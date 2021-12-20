@@ -43,12 +43,12 @@ namespace Transmission
 
 				const char CURTAIN[] = "curtain";
 				const char CURTAIN_ID[] = "id";
-				const char CURRENT_POS[] = "current position";
-				const char LENGTH[] = "length";
-				const char CALIBRATE[] = "auto calibrate";
-				const char CORRECT[] = "auto correct";
+				const char AUTO_CALIBRATE[] = "auto calibrate";
+				const char AUTO_CORRECT[] = "auto correct";
+				const char CURTAIN_POSITION[] = "position";
+				const char DIRECTION[] = "direction";
 				const char DISCRETE_MOVEMENT[] = "discrete movement";
-				const char IS_SMART[] = "is smart";
+				const char LENGTH[] = "length";
 
 				const char EVENT[] = "event";
 				const char EVENT_ID[] = "id";
@@ -128,7 +128,7 @@ namespace Transmission
 		// TODO: Use JSON library
 		// "{ "" : 1234567890 , "" : 1234567890 }\0" plus keys
 		char* status_head = (char*)malloc(sizeof(Literal::JSON::Key::CURTAIN_ID)
-		  +sizeof(Literal::JSON::Key::CURRENT_POS)+38);
+		  +sizeof(Literal::JSON::Key::CURTAIN_POSITION)+38);
 		C_String::copy_n("{\"", status_head, 2);
 		char* status = status_head+2;
 
@@ -139,10 +139,10 @@ namespace Transmission
 		status += C_String::length(status+3) + 3;
 		C_String::copy_n(", \"", status, 3);
 
-		C_String::copy(Literal::JSON::Key::CURRENT_POS, status+3);
-		status += sizeof(Literal::JSON::Key::CURRENT_POS) + 2;
+		C_String::copy(Literal::JSON::Key::CURTAIN_POSITION, status+3);
+		status += sizeof(Literal::JSON::Key::CURTAIN_POSITION) + 2;
 		C_String::copy_n("\": ", status, 3);
-		C_String::itoa(Global::current_position, status+3);
+		C_String::itoa(Global::curtain.position(), status+3);
 		status += C_String::length(status+3) + 3;
 
 		C_String::copy_n("}", status, 2);
