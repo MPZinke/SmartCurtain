@@ -71,13 +71,15 @@ namespace Transmission
 				extern const char MOVE[];  // Query type value for move
 				extern const char RESET[];  // Query type value for reset
 				extern const char STATUS[];  // Query type value for status
+				extern const char UPDATE[];  // Query type value for updating curtain details
 
 				// Used to auto increment the ID for the value
 				enum
 				{
 					MOVE_ID,
 					RESET_ID,
-					STATUS_ID
+					STATUS_ID,
+					UPDATE_ID
 				};
 
 

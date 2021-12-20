@@ -21,25 +21,67 @@ namespace Event
 	using namespace Movement::CurtainStates;
 
 
+	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
+
 	Event::Event(JsonObject& event_object)
 	{
+		if(!event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_ID))
+		{
+			String error_message = String("Key value \"") + Transmission::Literal::JSON::Key::EVENT
+			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_ID + "\"";
+			Exceptions::throw_HTTP_404(error_message.c_str());
+		}
+
+		if(!event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_ID))
+		{
+			String error_message = String("Key value \"") + Transmission::Literal::JSON::Key::EVENT
+			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_POSITION + "\"";
+			Exceptions::throw_HTTP_404(error_message.c_str());
+		}
+
 		_id = event_object[Transmission::Literal::JSON::Key::EVENT_ID];
 		_position = event_object[Transmission::Literal::JSON::Key::EVENT_POSITION];
-		_force = false;
-		if(event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_FORCE))
-		{
-			_force = event_object[Transmission::Literal::JSON::Key::EVENT_FORCE];
-		}
 	}
 
 
-	Event::Event(uint32_t id, bool force, uint32_t position)
+	Event::Event(uint32_t id, uint8_t position)
 	{
 		_id = id;
-		_force = force;
 		_position = position;
 	}
 
+
+	// FREE ME WHEN DONE
+	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
+	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
+	//  Mallocs char* array for c_string. Serializes data to c_string.
+	Event::operator char*()
+	{
+		JsonObject event_object = (JsonObject)(*this);
+
+		size_t c_string_size = measureJson(event_object) + 1;
+		char* json_c_string = (char*)malloc(c_string_size);
+		serializeJson(event_object, json_c_string, c_string_size);
+
+		return json_c_string;
+	}
+
+
+	// SUMMARY: Creates a JsonObject for partially JSONing the Curtain object.
+	// DETAILS: Called when a Curtain object is attempted to be converted to a JsonObject. Adds object attributes to
+	//  JsonObject and returns it.
+	Event::operator JsonObject()
+	{
+		JsonObject event_object = JsonObject();
+
+		event_object[Transmission::Literal::JSON::Key::EVENT_ID] = _id;
+		event_object[Transmission::Literal::JSON::Key::EVENT_POSITION] = _position;
+
+		return event_object;
+	}
+
+
+	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
 
 	uint32_t Event::id()
 	{
@@ -47,7 +89,7 @@ namespace Event
 	}
 
 
-	uint32_t Event::position()
+	uint8_t Event::position()
 	{
 		return _position;
 	}

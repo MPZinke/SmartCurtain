@@ -24,10 +24,7 @@ namespace Curtain
 	using namespace Movement::CurtainStates;
 
 
-	// ——————————————————————————————————————————————————— CLASS  ——————————————————————————————————————————————————— //
-	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-	// ——————————————————————————————————————————————— CLASS::CURTAIN ——————————————————————————————————————————————— //
+	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
 	Curtain::Curtain(bool initialize)
 	{
@@ -42,7 +39,7 @@ namespace Curtain
 
 
 	// FREE ME WHEN DONE
-	// DESCR: Creates a malloced char array the size of the serialized json and writes it.
+	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Curtain::operator char*()
@@ -57,7 +54,7 @@ namespace Curtain
 	}
 
 
-	// DESCR: Creates a JsonObject for partially JSONing the Curtain object.
+	// SUMMARY: Creates a JsonObject for partially JSONing the Curtain object.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a JsonObject. Adds object attributes to
 	//  JsonObject and returns it.
 	Curtain::operator JsonObject()
@@ -95,6 +92,9 @@ namespace Curtain
 	// 	}
 	// }
 
+
+	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
+
 	bool Curtain::auto_calibrate()
 	{
 		return _auto_calibrate;
@@ -131,9 +131,7 @@ namespace Curtain
 	}
 
 
-
-	// —————————————————————————————————————————— CLASS::SETTERS: ATTRIBUTES ——————————————————————————————————————————
-
+	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
 	
 	void Curtain::auto_calibrate(bool new_auto_calibrate)
 	{
@@ -171,6 +169,10 @@ namespace Curtain
 	}
 
 
+	// SUMMARY: Update attributes based on key-values of a json.
+	// PARAMS: Takes the json document.
+	// DETAILS: For every class attribute key that exists in the JSON, the class attribute is updated to the key's
+	//  value.
 	void Curtain::update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
 		JsonObject curtain_object = json_document[Transmission::Literal::JSON::Key::CURTAIN];
@@ -205,7 +207,6 @@ namespace Curtain
 			_position = curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION];
 		}
 	}
-
 
 
 	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————

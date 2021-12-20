@@ -56,7 +56,7 @@ namespace Encoder
 	}
 
 
-	// DESCR: Determines whether the recorded movement is +/-.
+	// SUMMARY: Determines whether the recorded movement is +/-.
 	// PARAMS: Takes the previous state, current state as 0bAB, where A & B are booleans of sensors.
 	// DETAIL:
 	//  Waves:   ___     ___     ___     ___     _
