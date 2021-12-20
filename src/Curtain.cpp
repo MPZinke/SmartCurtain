@@ -41,47 +41,38 @@ namespace Curtain
 	}
 
 
-	// Writes relevent data to packet array.
-	// Takes location of packet array, the location of curtain (to prevent needing to copy).
-	// Sets current position and length in base 128 + 1 equivalent values.
-	// NOTES: when C_String::length is used, the previous skipped value is added to the buffer pointer so that it does
-	//   not need to retraverse recount the precalculated string literal changes.
-	char* Curtain::serialized_data()
+	// FREE ME WHEN DONE
+	// DESCR: Creates a malloced char array the size of the serialized json and writes it.
+	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
+	//  Mallocs char* array for c_string. Serializes data to c_string.
+	Curtain::operator char*()
 	{
-		char* buffer_head = (char*)malloc(JSON_BUFFER_SIZE), *buffer = buffer_head;
-		// TODO: Use JSON library
-		// C_String::copy_n("{\"", buffer, 2);
-		// // current position
-		// C_String::copy(Transmission::Literal::JSON::Key::CURTAIN_POSITION, buffer+2);  // +2 from previous "{\""
-		// buffer += sizeof(Transmission::Literal::JSON::Key::CURTAIN_POSITION)+1;  // -1 + 2 (for ignore NULL Terminator & start "{\"")
-		// C_String::copy_n("\" : ", buffer, 4);
-		// C_String::itoa(_position, buffer+4);  // +4 from previous "\" : "
-		// buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
-		// C_String::copy_n(", \"", buffer, 3);
-		// // curtain
-		// C_String::copy(Transmission::Literal::JSON::Key::CURTAIN, buffer+3);  // +3 from previous ", \""
-		// buffer += sizeof(Transmission::Literal::JSON::Key::CURTAIN) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
-		// C_String::copy_n("\" : ", buffer, 4);
-		// C_String::copy(Config::Curtain::CURTAIN_ID, buffer+4);  // +4 from previous "\" : "
-		// buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
-		// C_String::copy_n(", \"", buffer, 3);
-		// // event
-		// C_String::copy(Transmission::Literal::JSON::Key::EVENT, buffer+3);  // +3 from previous ", \""
-		// buffer += sizeof(Transmission::Literal::JSON::Key::EVENT) + 2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
-		// C_String::copy_n("\" : ", buffer, 4);
-		// C_String::itoa(_event.id(), buffer+4);  // +4 from previous "\" : "
-		// buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
-		// C_String::copy_n(", \"", buffer, 3);
-		// // length
-		// C_String::copy(Transmission::Literal::JSON::Key::LENGTH, buffer+3);  // +3 from previous ", \""
-		// buffer += sizeof(Transmission::Literal::JSON::Key::LENGTH)+2;  // -1 + 3 (for ignore NULL Terminator & add ", \"")
-		// C_String::copy_n("\" : ", buffer, 4);
-		// C_String::itoa(_length, buffer+4);  // +4 from previous " : "
-		// buffer += C_String::length(buffer+4) + 4;  // move buffer to '\0'; ((+4) + 4) to skip counting redundant chars
-		// // finish json
-		// C_String::copy_n("}", buffer, 1);
+		JsonObject curtain_object = (JsonObject)(*this);
 
-		return buffer_head;
+		size_t c_string_size = measureJson(curtain_object) + 1;
+		char* json_c_string = (char*)malloc(c_string_size);
+		serializeJson(curtain_object, json_c_string, c_string_size);
+
+		return json_c_string;
+	}
+
+
+	// DESCR: Creates a JsonObject for partially JSONing the Curtain object.
+	// DETAILS: Called when a Curtain object is attempted to be converted to a JsonObject. Adds object attributes to
+	//  JsonObject and returns it.
+	Curtain::operator JsonObject()
+	{
+		JsonObject curtain_object = JsonObject();
+
+		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
+		curtain_object[Transmission::Literal::JSON::Key::AUTO_CALIBRATE] = Global::curtain.auto_calibrate();
+		curtain_object[Transmission::Literal::JSON::Key::AUTO_CORRECT] = Global::curtain.auto_correct();
+		curtain_object[Transmission::Literal::JSON::Key::DIRECTION] = Global::curtain.direction();
+		curtain_object[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT] = Global::curtain.discrete_movement();
+		curtain_object[Transmission::Literal::JSON::Key::LENGTH] = Global::curtain.length();
+		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.position();
+
+		return curtain_object;
 	}
 
 
@@ -251,11 +242,11 @@ namespace Curtain
 
 	// ————————————————————————————————————————————————— CLASS::WRITE —————————————————————————————————————————————————
 
-	void Curtain::send_hub_serialized_info()
-	{
-		char* serialized_data_c_str = serialized_data();
-		Transmission::update_hub((byte*)serialized_data_c_str);
-		delete[] serialized_data_c_str;
-	}
+	// void Curtain::send_hub_serialized_info()
+	// {
+	// 	char* serialized_data_c_str = serialized_data();
+	// 	Transmission::update_hub((byte*)serialized_data_c_str);
+	// 	delete[] serialized_data_c_str;
+	// }
 
 }
