@@ -26,22 +26,22 @@ namespace Event
 
 	Event::Event(JsonObject& event_object)
 	{
-		if(!event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_ID))
+		using namespace Transmission::Literal::JSON::Key;
+
+		if(!event_object.containsKey(EVENT_ID))
 		{
-			String error_message = String("Key value \"") + Transmission::Literal::JSON::Key::EVENT
-			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_ID + "\"";
+			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
 			Exceptions::throw_HTTP_404(error_message.c_str());
 		}
 
-		if(!event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_ID))
+		if(!event_object.containsKey(EVENT_ID))
 		{
-			String error_message = String("Key value \"") + Transmission::Literal::JSON::Key::EVENT
-			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_PERCENTAGE + "\"";
+			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_PERCENTAGE + "\"";
 			Exceptions::throw_HTTP_404(error_message.c_str());
 		}
 
-		_id = event_object[Transmission::Literal::JSON::Key::EVENT_ID];
-		_percentage = event_object[Transmission::Literal::JSON::Key::EVENT_PERCENTAGE];
+		_id = event_object[EVENT_ID];
+		_percentage = event_object[EVENT_PERCENTAGE];
 	}
 
 

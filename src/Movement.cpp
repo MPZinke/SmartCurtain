@@ -218,7 +218,7 @@ namespace Movement
 	{
 		if(Global::curtain.auto_calibrate() && event.moves_full_span())
 		{
-
+			auto_calibrate(event);
 		}
 		else if(CLOSE_ENDSTOP && event.state() == CLOSED)
 		{
@@ -233,9 +233,18 @@ namespace Movement
 			// get desired direction
 			set_direction(event.direction());
 			// determine steps to take
-
+			// check if auto_correct
+			// call move function
 		}
 
+	}
+
+
+	void auto_calibrate(Event::Event& event)
+	{
+		bool (*function)() = function_for_side(!event.state());
+		uint32_t steps = move_and_count_until_state_reached(function);
+		Global::curtain.length(steps);
 	}
 
 
