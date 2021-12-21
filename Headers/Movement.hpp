@@ -56,6 +56,8 @@ namespace Movement
 	inline bool is_approximate_position(uint32_t position1, uint32_t position2, uint32_t allowable_difference);
 	inline bool is_approximate_position(uint32_t position1, uint32_t position2);
 	inline CurtainState approximate_state_of(uint32_t position, uint32_t curtain_length);
+	CurtainState state_of(uint8_t percentage);
+	// inline CurtainState state_of(unsigned char percentage);
 	inline CurtainState state_of(uint32_t position);
 	inline CurtainState state_of(uint32_t position, uint32_t curtain_length);
 	inline CurtainState state_of_position();
@@ -72,6 +74,12 @@ namespace Movement
 	bool (*function_for_side(bool open_close_value))();
 	// ———— MOVEMENT ———— //
 	void move(Event::Event& event);
+	void reset();
+
+
+
+
+
 	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position);
 	void move_steps(const bool direction, register uint32_t steps);
 	void move_steps(register uint32_t steps);

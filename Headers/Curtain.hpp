@@ -40,7 +40,10 @@ namespace Curtain
 			bool _direction;
 			bool _discrete_movement;  // if the curtain can move to a discrete location (not just open or closed)
 			uint32_t _length;  // overall length of the curtain [steps]
+			uint8_t _percentage;  // the percentage amount open of the curtain
 			uint32_t _position;  // the current length according to the RPi
+
+			uint32_t _last_event_id = 0;  // the ID of the last event (helps determine if fresh restart)
 
 		public:
 			Curtain(bool initialize);
@@ -54,6 +57,7 @@ namespace Curtain
 			bool direction();
 			bool discrete_movement();
 			uint32_t length();
+			uint8_t percentage();
 			uint32_t position();
 
 			// ———— SETTERS ————
@@ -62,6 +66,7 @@ namespace Curtain
 			void direction(bool new_direction);
 			void length(uint32_t new_length);
 			void discrete_movement(bool new_discrete_movement);
+			void percentage(uint8_t new_percentage);
 			void position(uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 

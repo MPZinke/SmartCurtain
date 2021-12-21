@@ -53,6 +53,7 @@ namespace Transmission
 				extern const char CURTAIN_ID[];
 				extern const char AUTO_CALIBRATE[];
 				extern const char AUTO_CORRECT[];
+				extern const char CURTAIN_PERCENTAGE[];
 				extern const char CURTAIN_POSITION[];
 				extern const char DIRECTION[];
 				extern const char DISCRETE_MOVEMENT[];
@@ -62,7 +63,7 @@ namespace Transmission
 				extern const char EVENT[];
 				extern const char EVENT_ID[];
 				extern const char EVENT_FORCE[];
-				extern const char EVENT_POSITION[];
+				extern const char EVENT_PERCENTAGE[];
 			}
 
 

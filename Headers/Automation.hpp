@@ -24,6 +24,7 @@
 namespace Automation
 {
 	void automation_loop(void*);
+	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
 }
 

@@ -31,7 +31,7 @@ namespace Automation
 			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 
 			// If curtain information, update Global::curtain information
-			if(json_document.to<JsonObject>().containsKey(Transmission::Literal::JSON::Key::CURTAIN))
+			if(json_document.containsKey(Transmission::Literal::JSON::Key::CURTAIN))
 			{
 				Global::curtain.update(json_document);
 			}
@@ -62,8 +62,7 @@ namespace Automation
 				// Move to position
 				case Transmission::Literal::JSON::Value::MOVE_ID:
 				{
-					
-					// curtain.move();
+					case_move(json_document);
 	
 					// clean up and update curtain
 					// curtain.set_location();
@@ -113,7 +112,7 @@ namespace Automation
 
 	// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
 
-	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE> json_document)
+	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
 		if(!json_document.containsKey(Transmission::Literal::JSON::Key::EVENT))
 		{
@@ -123,8 +122,10 @@ namespace Automation
 		}
 
 		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
-		Event::Event event(json_document[Transmission::Literal::JSON::Key::EVENT]);
+		JsonObject event_object = json_document[Transmission::Literal::JSON::Key::EVENT];
+		Event::Event event(event_object);
 
+		Movement::move(event);
 	}
 
 

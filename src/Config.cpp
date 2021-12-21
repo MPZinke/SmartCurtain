@@ -28,21 +28,6 @@ namespace Config
 
 	namespace Hardware
 	{
-		// ———————— HARDWARE DETERMINED VALUES ————————
-		#define CLOSE_ENDSTOP true
-		#define ENCODER true
-		#define OPEN_ENDSTOP false
-
-		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
-		// ———— STEPS ————
-		const uint32_t DEFAULT_LENGTH = 34000;
-		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
-		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
-
-		// ———— SWITCHES ————
-		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
-		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
-
 		// ———————— HARDWARE DICTATING VALUES ————————
 		// ———— PINS ————
 		const uint8_t DIRECTION_PIN = 5;
@@ -57,6 +42,21 @@ namespace Config
 		// ———— WAIT ————
 		const uint16_t ENCODER_WAIT = 60;  // Wait between reads of the encoder.
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
+
+		// ———————— HARDWARE DETERMINED VALUES ————————
+		const bool CLOSE_ENDSTOP = (bool)Config::Hardware::CLOSE_PIN;
+		const bool OPEN_ENDSTOP = (bool)Config::Hardware::OPEN_PIN;
+		const bool ENCODER = (bool)(Config::Hardware::ENCODER_PINA | Config::Hardware::ENCODER_PINB);
+
+		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
+		// ———— STEPS ————
+		const uint32_t DEFAULT_LENGTH = 34000;
+		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
+		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
+
+		// ———— SWITCHES ————
+		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
+		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
 
 
