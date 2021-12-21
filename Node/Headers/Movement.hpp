@@ -63,15 +63,15 @@ namespace Movement
 	inline CurtainState state_of_position();
 	// ———— GPIO ———— //
 	inline void pulse_twice();
-	void disable_motor();
-	void enable_motor();
-	void set_direction(bool direction_current);
+	inline void disable_motor();
+	inline void enable_motor();
+	inline void set_direction(CurtainState direction);
 	// ———— STATE ———— //
 	CurtainState current_state();
 	inline bool endstop_triggered();
 	inline bool is_closed();
 	inline bool is_open();
-	bool (*function_for_side(bool open_close_value))();
+	bool (*function_for_side(CurtainState state))();
 	// ———— MOVEMENT ———— //
 	void move(Event::Event& event);
 	void reset();

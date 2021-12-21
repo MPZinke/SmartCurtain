@@ -18,7 +18,8 @@
 	{
 		"id": 4294967295,
 		"position": 100  // percentage
-	}
+	},
+	"Hub IP": "192.168.255.255"
 }
 
 // About response

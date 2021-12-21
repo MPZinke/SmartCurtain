@@ -69,7 +69,8 @@ namespace Config
 
 		// HUB
 		uint8_t HUB_HOST[] = {10, 0, 0, 11};  // hub host IP
-		const char HUB_HOST_STR[] = "10.0.0.11";  // hub host cstr
+		char HUB_HOST_STR[16] = "10.0.0.11";  // hub host cstr  //TODO: Add update function for.
+		// const char HUB_HOST_STR[] = {'1','0','.','0','.','0','.','1','1','\0','\0','\0','\0','\0','\0','\0'};  // hub host cstr
 
 		// ROUTER
 		uint8_t ROUTER_GATEWAY[] = {10,0,0,1};  // router gateway
