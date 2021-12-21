@@ -14,13 +14,17 @@
 #include "../Headers/Movement.hpp"
 
 #include "../Headers/C_String.hpp"
+#include "../Headers/Config.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Global.hpp"
 
 
 namespace Movement
 {
-	// ————————————————————————————————————————————————— GPIO: GLOBAL —————————————————————————————————————————————————
+	using Config::Hardware::CLOSE_ENDSTOP;
+	using Config::Hardware::OPEN_ENDSTOP;
+	using Config::Hardware::ENCODER;
+
 
 	// ———— SUGAR ————
 	namespace CurrentPull
@@ -135,6 +139,24 @@ namespace Movement
 	}
 
 
+	// Determines the position and then returns an enum value.
+	// Takes a position to check, the length of the curtain to compare it to.
+	// Returns the enum value of the current state for position.
+	CurtainState state_of(uint8_t percentage)
+	{
+		return state_of((uint32_t)percentage, 100);
+	}
+
+
+	// // Determines the position and then returns an enum value.
+	// // Takes a position to check, the length of the curtain to compare it to.
+	// // Returns the enum value of the current state for position.
+	// inline CurtainState state_of(unsigned char percentage)
+	// {
+	// 	return state_of((uint32_t)percentage, 100);
+	// }
+
+
 	CurtainState state_of_position()
 	{
 		return state_of(Global::curtain.position(), Global::curtain.length());
@@ -194,8 +216,34 @@ namespace Movement
 
 	void move(Event::Event& event)
 	{
+		if(Global::curtain.auto_calibrate() && event.moves_full_span())
+		{
+
+		}
+		else if(CLOSE_ENDSTOP && event.state() == CLOSED)
+		{
+			move_until_closed();
+		}
+		else if(OPEN_ENDSTOP && event.state() == OPEN)
+		{
+			move_until_open();
+		}
+		else
+		{
+			// get desired direction
+			set_direction(event.direction());
+			// determine steps to take
+
+		}
 
 	}
+
+
+	void reset()
+	{
+		//TODO:
+	}
+
 
 	// // Moves the curtain to its desired position based on curtain object data (with auto correct). The function is used
 	// //  for when the curtain is not moving to an end location.

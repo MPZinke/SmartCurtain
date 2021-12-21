@@ -45,6 +45,7 @@ namespace Transmission
 				const char CURTAIN_ID[] = "id";
 				const char AUTO_CALIBRATE[] = "auto calibrate";
 				const char AUTO_CORRECT[] = "auto correct";
+				const char CURTAIN_PERCENTAGE[] = "percentage";
 				const char CURTAIN_POSITION[] = "position";
 				const char DIRECTION[] = "direction";
 				const char DISCRETE_MOVEMENT[] = "discrete movement";
@@ -53,7 +54,7 @@ namespace Transmission
 				const char EVENT[] = "event";
 				const char EVENT_ID[] = "id";
 				const char EVENT_FORCE[] = "FORCE";
-				const char EVENT_POSITION[] = "desired position";
+				const char EVENT_PERCENTAGE[] = "desired position";
 			}
 
 

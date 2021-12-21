@@ -13,6 +13,7 @@
 
 #include "../Headers/Event.hpp"
 
+#include "../Headers/Movement.hpp"
 #include "../Headers/Transmission.hpp"
 
 
@@ -35,19 +36,19 @@ namespace Event
 		if(!event_object.containsKey(Transmission::Literal::JSON::Key::EVENT_ID))
 		{
 			String error_message = String("Key value \"") + Transmission::Literal::JSON::Key::EVENT
-			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_POSITION + "\"";
+			  + "\" is missing key: \"" + Transmission::Literal::JSON::Key::EVENT_PERCENTAGE + "\"";
 			Exceptions::throw_HTTP_404(error_message.c_str());
 		}
 
 		_id = event_object[Transmission::Literal::JSON::Key::EVENT_ID];
-		_position = event_object[Transmission::Literal::JSON::Key::EVENT_POSITION];
+		_percentage = event_object[Transmission::Literal::JSON::Key::EVENT_PERCENTAGE];
 	}
 
 
-	Event::Event(uint32_t id, uint8_t position)
+	Event::Event(uint32_t id, uint8_t percentage)
 	{
 		_id = id;
-		_position = position;
+		_percentage = percentage;
 	}
 
 
@@ -75,7 +76,7 @@ namespace Event
 		JsonObject event_object = JsonObject();
 
 		event_object[Transmission::Literal::JSON::Key::EVENT_ID] = _id;
-		event_object[Transmission::Literal::JSON::Key::EVENT_POSITION] = _position;
+		event_object[Transmission::Literal::JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
 		return event_object;
 	}
@@ -89,25 +90,33 @@ namespace Event
 	}
 
 
-	uint8_t Event::position()
+	uint8_t Event::percentage()
 	{
-		return _position;
+		return _percentage;
+	}
+
+
+	CurtainState Event::direction()
+	{
+		if(_percentage < Global::curtain.percentage()) return CLOSE;
+		else if(Global::curtain.percentage() < _percentage) return OPEN;
+		return MIDDLE;
 	}
 
 
 	bool Event::event_moves_to_an_end()
 	{
-		return _position == 0 || _position == Global::curtain.length();
+		return _percentage == 0 || _percentage == Global::curtain.length();
 	}
 
 
 	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
 	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
 	// Returns true if curtain moves all the way across rod, false otherwise.
-	inline bool Event::moves_full_span()
+	bool Event::moves_full_span()
 	{
 		CurtainState curtian_state = Movement::current_state();
-		CurtainState desired_state = Movement::state_of(_position);
+		CurtainState desired_state = Movement::state_of(_percentage);
 		// parens not needed (precedence) but used to remove warnings
 		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
 	}
@@ -116,6 +125,6 @@ namespace Event
 	// SUGAR: whether desired position is open/close/middle.
 	CurtainState Event::state()
 	{
-		return Movement::state_of(_position);
+		return Movement::state_of(_percentage);
 	}
 }  // end namespace Event

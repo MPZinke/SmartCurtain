@@ -28,6 +28,10 @@ namespace Curtain
 
 	Curtain::Curtain(bool initialize)
 	{
+		using Config::Hardware::CLOSE_ENDSTOP;
+		using Config::Hardware::OPEN_ENDSTOP;
+		using Config::Hardware::ENCODER;
+
 		_auto_calibrate = CLOSE_ENDSTOP && OPEN_ENDSTOP;
 		_auto_correct = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 		_discrete_movement = CLOSE_ENDSTOP || OPEN_ENDSTOP;
@@ -62,12 +66,13 @@ namespace Curtain
 		JsonObject curtain_object = JsonObject();
 
 		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
-		curtain_object[Transmission::Literal::JSON::Key::AUTO_CALIBRATE] = Global::curtain.auto_calibrate();
-		curtain_object[Transmission::Literal::JSON::Key::AUTO_CORRECT] = Global::curtain.auto_correct();
-		curtain_object[Transmission::Literal::JSON::Key::DIRECTION] = Global::curtain.direction();
-		curtain_object[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT] = Global::curtain.discrete_movement();
-		curtain_object[Transmission::Literal::JSON::Key::LENGTH] = Global::curtain.length();
-		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.position();
+		curtain_object[Transmission::Literal::JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
+		curtain_object[Transmission::Literal::JSON::Key::AUTO_CORRECT] = _auto_correct;
+		curtain_object[Transmission::Literal::JSON::Key::DIRECTION] = _direction;
+		curtain_object[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
+		curtain_object[Transmission::Literal::JSON::Key::LENGTH] = _length;
+		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
+		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION] = _position;
 
 		return curtain_object;
 	}
@@ -125,6 +130,12 @@ namespace Curtain
 	}
 
 
+	uint8_t Curtain::percentage()
+	{
+		return _percentage;
+	}
+
+
 	uint32_t Curtain::position()
 	{
 		return _position;
@@ -163,6 +174,12 @@ namespace Curtain
 	}
 
 
+	void Curtain::percentage(uint8_t new_percentage)
+	{
+		_percentage = new_percentage;
+	}
+
+
 	void Curtain::position(uint32_t new_position)
 	{
 		_position = new_position;
@@ -175,36 +192,42 @@ namespace Curtain
 	//  value.
 	void Curtain::update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		JsonObject curtain_object = json_document[Transmission::Literal::JSON::Key::CURTAIN];
+		using namespace Transmission::Literal;
+		using Config::Hardware::CLOSE_ENDSTOP;
+		using Config::Hardware::OPEN_ENDSTOP;
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::AUTO_CALIBRATE))
+		JsonObject curtain_object = json_document[JSON::Key::CURTAIN];
+
+		// Restrict auto_calibrate to hardware
+		if(curtain_object.containsKey(JSON::Key::AUTO_CALIBRATE) && OPEN_ENDSTOP && CLOSE_ENDSTOP)
 		{
-			_auto_calibrate = curtain_object[Transmission::Literal::JSON::Key::AUTO_CALIBRATE];
+			_auto_calibrate = curtain_object[JSON::Key::AUTO_CALIBRATE];
 		}
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::AUTO_CORRECT))
+		// Restrict auto_correct to hardware
+		if(curtain_object.containsKey(JSON::Key::AUTO_CORRECT) && (OPEN_ENDSTOP || CLOSE_ENDSTOP))
 		{
-			_auto_correct = curtain_object[Transmission::Literal::JSON::Key::AUTO_CORRECT];
+			_auto_correct = curtain_object[JSON::Key::AUTO_CORRECT];
 		}
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::DIRECTION))
+		if(curtain_object.containsKey(JSON::Key::DIRECTION))
 		{
-			_direction = curtain_object[Transmission::Literal::JSON::Key::DIRECTION];
+			_direction = curtain_object[JSON::Key::DIRECTION];
 		}
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT))
+		if(curtain_object.containsKey(JSON::Key::DISCRETE_MOVEMENT))
 		{
-			_discrete_movement = curtain_object[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT];
+			_discrete_movement = curtain_object[JSON::Key::DISCRETE_MOVEMENT];
 		}
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::LENGTH))
+		if(curtain_object.containsKey(JSON::Key::LENGTH))
 		{
-			_length = curtain_object[Transmission::Literal::JSON::Key::LENGTH];
+			_length = curtain_object[JSON::Key::LENGTH];
 		}
 
-		if(curtain_object.containsKey(Transmission::Literal::JSON::Key::CURTAIN_POSITION))
+		if(curtain_object.containsKey(JSON::Key::CURTAIN_POSITION))
 		{
-			_position = curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION];
+			_position = curtain_object[JSON::Key::CURTAIN_POSITION];
 		}
 	}
 
