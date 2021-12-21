@@ -50,6 +50,21 @@ namespace Movement
 
 
 	// ———————————————————————————————————————————————————— GPIO ———————————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+	// ———————————————————————————————————————————————— GPIO::WRITE  ———————————————————————————————————————————————— //
+
+	inline void disable_motor()
+	{
+		digitalWrite(Config::Hardware::ENABLE_PIN, CurrentPull::ON);
+	}
+
+
+	inline void enable_motor()
+	{
+		digitalWrite(Config::Hardware::ENABLE_PIN, CurrentPull::OFF);
+	}
+
 
 	// Pulse motor (HIGH->LOW) twice.
 	inline void pulse_twice()
@@ -66,29 +81,47 @@ namespace Movement
 	}
 
 
-	void disable_motor()
-	{
-		digitalWrite(Config::Hardware::ENABLE_PIN, CurrentPull::ON);
-	}
-
-
-	void enable_motor()
-	{
-		digitalWrite(Config::Hardware::ENABLE_PIN, CurrentPull::OFF);
-	}
-
-
 	// Sets the direction pin of the motor for the stepper driver.
 	// Take the ON/OFF dirction current, the curtain's direction option. 
-	void set_direction(bool direction_current)
+	inline void set_direction(CurtainState direction)
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
-		digitalWrite(Config::Hardware::DIRECTION_PIN,
-		  ((direction_current + Global::curtain.direction()) & 0b1));
+		digitalWrite(Config::Hardware::DIRECTION_PIN, ((direction + Global::curtain.direction()) & 0b1));
+	}
+
+
+	// ————————————————————————————————————————————————— GPIO::READ ————————————————————————————————————————————————— //
+
+	inline bool endstop_triggered()
+	{
+		return is_closed() || is_open();
+	}
+
+
+	bool (*function_for_side(CurtainState state))()
+	{
+		bool(*direction_function[2])();
+		direction_function[CLOSE] = is_closed;
+		direction_function[OPEN] = is_open;
+
+		return direction_function[state];
+	}
+
+
+	inline bool is_closed()
+	{
+		return digitalRead(Config::Hardware::CLOSE_PIN);
+	}
+
+
+	inline bool is_open()
+	{
+		return digitalRead(Config::Hardware::OPEN_PIN);
 	}
 
 
 	// —————————————————————————————————————————————————— POSITION —————————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 	// Position1 is within an allowable difference of position2.
 	// Takes two step positions, and an allowable difference.
@@ -108,6 +141,8 @@ namespace Movement
 	}
 
 
+	// —————————————————————————————————————————————— POSITION::STATE  —————————————————————————————————————————————— //
+
 	// Approximates the position and then returns an enum value.
 	// Takes a position to check, the length of the curtain to compare it to.
 	// Returns the enum value of the approximated current state for position.
@@ -115,6 +150,15 @@ namespace Movement
 	{
 		if(is_approximate_position(position, 0)) return CLOSED;
 		if(is_approximate_position(position, curtain_length)) return OPEN;
+		return MIDDLE;
+	}
+
+
+	// Gets the state (in form CurtainState) of the curtain based on hardware.
+	CurtainState current_state()
+	{
+		if(is_open()) return OPEN;
+		if(is_closed()) return CLOSE;
 		return MIDDLE;
 	}
 
@@ -139,7 +183,7 @@ namespace Movement
 	}
 
 
-	// Determines the position and then returns an enum value.
+	// Determines the state of a percentage and then returns an enum value.
 	// Takes a position to check, the length of the curtain to compare it to.
 	// Returns the enum value of the current state for position.
 	CurtainState state_of(uint8_t percentage)
@@ -148,67 +192,25 @@ namespace Movement
 	}
 
 
-	// // Determines the position and then returns an enum value.
-	// // Takes a position to check, the length of the curtain to compare it to.
-	// // Returns the enum value of the current state for position.
-	// inline CurtainState state_of(unsigned char percentage)
-	// {
-	// 	return state_of((uint32_t)percentage, 100);
-	// }
-
-
 	CurtainState state_of_position()
 	{
 		return state_of(Global::curtain.position(), Global::curtain.length());
 	}
 
 
-	// ——————————————————————————————————————————————————— STATE  ——————————————————————————————————————————————————— //
-
-	// Gets the state (in form CurtainState) of the curtain based on hardware.
-	CurtainState current_state()
-	{
-		if(is_open()) return OPEN;
-		if(is_closed()) return CLOSE;
-		return MIDDLE;
-	}
-
-
-	inline bool endstop_triggered()
-	{
-		return is_closed() || is_open();
-	}
-
-
-	inline bool is_closed()
-	{
-		return digitalRead(Config::Hardware::CLOSE_PIN);
-	}
-
-
-	inline bool is_open()
-	{
-		return digitalRead(Config::Hardware::OPEN_PIN);
-	}
-
-
-	bool (*function_for_side(bool open_close_value))()
-	// bool (*function_for_side)() (bool open_close_value)
-	{
-		bool(*direction_function[2])();
-		direction_function[CLOSE] = is_closed;
-		direction_function[OPEN] = is_open;
-
-		return direction_function[open_close_value];
-	}
-
-
 	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
 
-	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position)
+	uint32_t steps(Event::Event& event)
 	{
-		if(direction == CLOSE) return current_position - desired_position;
-		return desired_position - current_position;
+		uint32_t desired_position = (uint32_t)event.percentage() * Global::curtain.length() / 100;
+
+		// More complicated statements are processed in if clause so that if the pipeline is broken, there is less to
+		//  recover to.
+		if(event.direction() == OPEN)
+		{
+			return desired_position - Global::curtain.position();
+		}
+		return Global::curtain.position();
 	}
 
 
@@ -220,20 +222,42 @@ namespace Movement
 		{
 			auto_calibrate(event);
 		}
+		// If hardware allowed and the event moves to CLOSED (including discrete movement check)
 		else if(CLOSE_ENDSTOP && event.state() == CLOSED)
 		{
 			move_until_closed();
 		}
+		// If hardware allowed and the event moves to OPEN (including discrete movement check)
 		else if(OPEN_ENDSTOP && event.state() == OPEN)
 		{
 			move_until_open();
 		}
 		else
 		{
-			// get desired direction
-			set_direction(event.direction());
-			// determine steps to take
-			// check if auto_correct
+			uint32_t steps = steps(event);
+
+			CurtainState direction = event.direction();
+			set_direction(direction);
+
+			// Non-discrete movement is covered by Event object, and will automatically go to the else to the below if,
+			//  since it is automatically converted to OPEN/CLOSED and if it had an endstop, it would be caught above.
+			// If has ability to prevent self-destructive behavior
+			if((OPEN_ENDSTOP && direction == OPEN) || (CLOSE_ENDSTOP && direction == CLOSE))
+			{
+				register uint32_t remaining_steps = step_and_count_to_position_or_end(steps, direction);
+
+				if(remaining_steps > Config::Curtain::POSITION_TOLLERANCE && Global::curtain.auto_correct())
+				{
+
+				}
+			}
+			// Shoot first, ask questions later (no hardware to prevent self-destructive behavior, so just guess)
+			else
+			{
+
+			}
+			// Move to alleged OPEN/CLOSED position
+
 			// call move function
 		}
 

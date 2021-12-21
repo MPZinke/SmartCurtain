@@ -76,7 +76,7 @@ namespace Config
 
 		// HUB
 		extern uint8_t HUB_HOST[];  // hub host IP
-		extern const char HUB_HOST_STR[];  // hub host cstr
+		extern char HUB_HOST_STR[];  // hub host cstr
 
 		// ROUTER
 		extern uint8_t ROUTER_GATEWAY[];  // router gateway

@@ -33,7 +33,6 @@ namespace Event
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
 			Exceptions::throw_HTTP_404(error_message.c_str());
 		}
-
 		if(!event_object.containsKey(EVENT_ID))
 		{
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_PERCENTAGE + "\"";
@@ -41,14 +40,41 @@ namespace Event
 		}
 
 		_id = event_object[EVENT_ID];
-		_percentage = event_object[EVENT_PERCENTAGE];
+
+		// Set percentage based on functioning percentage since Events are consumed immediately.
+		register uint8_t event_percentage = event_object[EVENT_PERCENTAGE];
+		if(!event_percentage)
+		{
+			_percentage = 0;
+		}
+		else if(!Global::curtain.discrete_movement())
+		{
+			_percentage = 100;
+		}
+		else
+		{
+			_percentage = event_percentage;
+		}
 	}
 
 
-	Event::Event(uint32_t id, uint8_t percentage)
+	Event::Event(register uint32_t id, register uint8_t percentage)
 	{
 		_id = id;
-		_percentage = percentage;
+
+		// Set percentage based on functioning percentage since Events are consumed immediately.
+		if(!percentage)
+		{
+			_percentage = 0;
+		}
+		else if(!Global::curtain.discrete_movement())
+		{
+			_percentage = 100;
+		}
+		else
+		{
+			_percentage = percentage;
+		}
 	}
 
 
