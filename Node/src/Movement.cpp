@@ -234,7 +234,7 @@ namespace Movement
 		}
 		else
 		{
-			uint32_t steps = steps(event);
+			uint32_t movement_steps = steps(event);
 
 			CurtainState direction = event.direction();
 			set_direction(direction);
@@ -244,7 +244,7 @@ namespace Movement
 			// If has ability to prevent self-destructive behavior
 			if((OPEN_ENDSTOP && direction == OPEN) || (CLOSE_ENDSTOP && direction == CLOSE))
 			{
-				register uint32_t remaining_steps = step_and_count_to_position_or_end(steps, direction);
+				register uint32_t remaining_steps = step_down_to_position_or_end(movement_steps, direction);
 
 				if(remaining_steps > Config::Curtain::POSITION_TOLLERANCE && Global::curtain.auto_correct())
 				{
@@ -254,7 +254,7 @@ namespace Movement
 			// Shoot first, ask questions later (no hardware to prevent self-destructive behavior, so just guess)
 			else
 			{
-
+				step(movement_steps);
 			}
 			// Move to alleged OPEN/CLOSED position
 
@@ -267,7 +267,7 @@ namespace Movement
 	void auto_calibrate(Event::Event& event)
 	{
 		bool (*function)() = function_for_side(!event.state());
-		uint32_t steps = move_and_count_until_state_reached(function);
+		uint32_t steps = step_and_count_to_position_or_end(function);
 		Global::curtain.length(steps);
 	}
 
@@ -325,12 +325,20 @@ namespace Movement
 	// }
 
 
-	void move_steps(const bool direction, register uint32_t steps)
+	void step(const bool direction, register uint32_t steps)
 	{
 		set_direction(direction);
 
 		enable_motor();
 		// make number of steps an even amount to match movement loop (prevent overflow)
+		step(steps);
+	}
+
+
+
+	//TODO: determine if necessary
+	inline void step(register uint32_t steps)
+	{
 		steps &= 0xFFFFFFFE;
 		while(steps)
 		{
@@ -338,14 +346,6 @@ namespace Movement
 			steps -= 2;
 		}
 		disable_motor();
-	}
-
-
-
-	//TODO: determine if necessary
-	void move_steps(register uint32_t steps)
-	{
-		
 	}
 
 
@@ -371,7 +371,7 @@ namespace Movement
 	// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
 	// Returns number of steps taken to reach point.
-	uint32_t move_and_count_until_state_reached(bool(*state_function)())
+	uint32_t step_and_count_to_position_or_end(bool(*state_function)())
 	{
 		enable_motor();
 
@@ -392,7 +392,7 @@ namespace Movement
 	// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 	// Does two pulses every iteration until all steps take or sensor is tripped.
 	// Returns remaining steps.
-	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)())
+	uint32_t step_down_to_position_or_end(register uint32_t steps, bool (*state_function)())
 	{
 		enable_motor();
 
@@ -404,68 +404,80 @@ namespace Movement
 		}
 
 		disable_motor();
-		return steps > 0;
+		return steps;
 	}
 
 
 	// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
-	// Sets direction, moves to an end until sensor is tripped, counting steps along the way.
-	// Takes a direction, and optionsal state function pointer used to determine whether the sensor is tripped.
-	// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
-	// Returns number of steps taken to reach point.
-	uint32_t set_direction_move_and_count_until_state_reached(const bool direction, bool(*state_function)())
+	// Checks whether an endstop has been reached after taking each step.
+	// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
+	// Does two pulses every iteration until all steps take or sensor is tripped.
+	// Returns remaining steps.
+	uint32_t step_down_to_position_or_end(register uint32_t steps, CurtainState direction)
 	{
-		set_direction(direction);
-
-		return move_and_count_until_state_reached(state_function);
+		bool (*state_function)() = function_for_side(direction);
+		step_down_to_position_or_end(steps, state_function);
 	}
+
+
+	// // DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
+	// // Sets direction, moves to an end until sensor is tripped, counting steps along the way.
+	// // Takes a direction, and optionsal state function pointer used to determine whether the sensor is tripped.
+	// // Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
+	// // Returns number of steps taken to reach point.
+	// uint32_t set_direction_move_and_count_until_state_reached(const bool direction, bool(*state_function)())
+	// {
+	// 	set_direction(direction);
+
+	// 	return move_and_count_until_state_reached(state_function);
+	// }
 
 
 	// ——————————————————————————————————————————————————— EVENTS ——————————————————————————————————————————————————— //
 
-#if CLOSE_ENDSTOP || OPEN_ENDSTOP
-	void initial_positioning()
-	{
-	#if CLOSE_ENDSTOP && OPEN_ENDSTOP
-		const bool initial_direction = CLOSE;
-		bool opposite_direction = !initial_direction;
+// #if CLOSE_ENDSTOP || OPEN_ENDSTOP
+// 	void initial_positioning()
+// 	{
+// 	#if CLOSE_ENDSTOP && OPEN_ENDSTOP
+// 		const bool initial_direction = CLOSE;
+// 		bool opposite_direction = !initial_direction;
 
-		// move completely closed or open, counting steps (for original position to move back to)
-		uint32_t initial_steps = move_and_count_until_state_reached(initial_direction);
+// 		// move completely closed or open, counting steps (for original position to move back to)
+// 		uint32_t initial_steps = move_and_count_until_state_reached(initial_direction);
 
-		// Set DIRECTION_SWITCHed from expected to actual. Expected direction can change based on default direction. EG,
-		//  curtain tries to move to CLOSE, but actually moves to open, so it turns on the direction switch to make OPEN
-		//  open and CLOSE close.
-		if(current_state() != (int8_t)initial_direction)
-		{
-			Settable::DIRECTION_SWITCH = !Settable::DIRECTION_SWITCH;
-			// opposite_direction was actually set to desired initial; switch it too
-			opposite_direction = !opposite_direction;
-		}
+// 		// Set DIRECTION_SWITCHed from expected to actual. Expected direction can change based on default direction. EG,
+// 		//  curtain tries to move to CLOSE, but actually moves to open, so it turns on the direction switch to make OPEN
+// 		//  open and CLOSE close.
+// 		if(current_state() != (int8_t)initial_direction)
+// 		{
+// 			Settable::DIRECTION_SWITCH = !Settable::DIRECTION_SWITCH;
+// 			// opposite_direction was actually set to desired initial; switch it too
+// 			opposite_direction = !opposite_direction;
+// 		}
 
-		// move to other side, counting steps (for curtain length)
-		uint32_t curtain_length = move_and_count_until_state_reached(opposite_direction);
+// 		// move to other side, counting steps (for curtain length)
+// 		uint32_t curtain_length = move_and_count_until_state_reached(opposite_direction);
 
-		// move back to original position
-		move_steps(curtain_length - initial_steps, !opposite_direction);
+// 		// move back to original position
+// 		step(curtain_length - initial_steps, !opposite_direction);
 
-	// Rely on direction switch to be accurate
-	#elif CLOSE_ENDSTOP
-		// move completely closed, counting steps (for original position to move back to)
-		uint32_t initial_steps = move_and_count_until_state_reached(is_closed);
+// 	// Rely on direction switch to be accurate
+// 	#elif CLOSE_ENDSTOP
+// 		// move completely closed, counting steps (for original position to move back to)
+// 		uint32_t initial_steps = move_and_count_until_state_reached(is_closed);
 
-		// move back to original position
-		move_steps(initial_steps);
+// 		// move back to original position
+// 		step(initial_steps);
 
-	// Rely on direction switch to be accurate
-	#elif OPEN_ENDSTOP
-		// move completely closed, counting steps (for original position to move back to)
+// 	// Rely on direction switch to be accurate
+// 	#elif OPEN_ENDSTOP
+// 		// move completely closed, counting steps (for original position to move back to)
 
-		// move back to original position
-	#endif
+// 		// move back to original position
+// 	#endif
 
-	}
-#endif
+// 	}
+// #endif
 
 	// ————————————————————————————————————————————————————— SUGAR —————————————————————————————————————————————————————
 
@@ -489,18 +501,18 @@ namespace Movement
 
 	// ——————————————————————————————————————————————————— TRACKING ———————————————————————————————————————————————————
 
-	// Move across curtain, counting steps as it goes.
-	// Takes movement direction flag option (that is then XOR-ed).
-	// Determines the curtain state for setting direction & end stop check function.
-	// Sets direction, then call movement until state reached.
-	// Returns number of steps taken.
-	uint32_t calibrate_to_opposite(bool curtain_direction)
-	{
-		CurtainState state = current_state();
-		if(!state) /* panic */ return 0 - Config::Curtain::POSITION_TOLLERANCE - 1;  // default to theoretical max
+	// // Move across curtain, counting steps as it goes.
+	// // Takes movement direction flag option (that is then XOR-ed).
+	// // Determines the curtain state for setting direction & end stop check function.
+	// // Sets direction, then call movement until state reached.
+	// // Returns number of steps taken.
+	// uint32_t calibrate_to_opposite(bool curtain_direction)
+	// {
+	// 	CurtainState state = current_state();
+	// 	if(!state) /* panic */ return 0 - Config::Curtain::POSITION_TOLLERANCE - 1;  // default to theoretical max
 
-		set_direction(state == OPEN ? CLOSE : OPEN);
-		return move_and_count_until_state_reached(state == OPEN ? is_closed : is_open);
-	}
+	// 	set_direction(state == OPEN ? CLOSE : OPEN);
+	// 	return move_and_count_until_state_reached(state == OPEN ? is_closed : is_open);
+	// }
 
 }

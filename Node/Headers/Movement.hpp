@@ -75,14 +75,20 @@ namespace Movement
 	// ———— MOVEMENT ———— //
 	void move(Event::Event& event);
 	void reset();
+	void auto_calibrate(Event::Event& event);
+	uint32_t steps(Event::Event& event);  // Determine steps
+
+	void step(const bool direction, register uint32_t steps);
+	void step(register uint32_t steps);
+	uint32_t step_and_count_to_position_or_end(bool(*state_function)());
+	uint32_t step_down_to_position_or_end(register uint32_t steps, CurtainState direction);
+	uint32_t step_down_to_position_or_end(register uint32_t steps, bool(*state_function)());
 
 
 
 
 
 	uint32_t steps_for_direction(bool direction, uint32_t current_position, uint32_t desired_position);
-	void move_steps(const bool direction, register uint32_t steps);
-	void move_steps(register uint32_t steps);
 	void move_until_state_reached(bool(*state_function)());
 	uint32_t move_and_count_until_state_reached(bool(*state_function)()=endstop_triggered);
 	bool sensor_triggered_moving_steps(register uint32_t steps, bool(*state_function)()=endstop_triggered);
