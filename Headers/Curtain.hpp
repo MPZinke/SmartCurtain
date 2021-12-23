@@ -59,15 +59,16 @@ namespace Curtain
 			uint32_t length();
 			uint8_t percentage();
 			uint32_t position();
+			CurtainState state();
 
 			// ———— SETTERS ————
-			void auto_calibrate(bool new_auto_calibrate);
-			void auto_correct(bool new_auto_correct);
-			void direction(bool new_direction);
-			void length(uint32_t new_length);
-			void discrete_movement(bool new_discrete_movement);
-			void percentage(uint8_t new_percentage);
-			void position(uint32_t new_position);
+			void auto_calibrate(register bool new_auto_calibrate);
+			void auto_correct(register bool new_auto_correct);
+			void direction(register bool new_direction);
+			void length(register uint32_t new_length);
+			void discrete_movement(register bool new_discrete_movement);
+			void percentage(register uint8_t new_percentage);
+			void position(register uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 
 			// —————————————— SETTERS: DATA ——————————————

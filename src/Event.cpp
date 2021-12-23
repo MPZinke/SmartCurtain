@@ -4,7 +4,8 @@
 *   created by: MPZinke                                                                                                *
 *   on 2021.12.19                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: TEMPLATE                                                                                              *
+*   DESCRIPTION: Event objects are supposed to be relatively dumb—they are supposed to know where they want to go      *
+*    generally speaking and that is it. How an event acheives its movement means nothing to it.                        *
 *   BUGS:                                                                                                              *
 *   FUTURE:                                                                                                            *
 *                                                                                                                      *
@@ -132,7 +133,7 @@ namespace Event
 
 	bool Event::event_moves_to_an_end()
 	{
-		return _percentage == 0 || _percentage == Global::curtain.length();
+		return _percentage == 0 || _percentage == 100;
 	}
 
 
@@ -142,9 +143,8 @@ namespace Event
 	bool Event::moves_full_span()
 	{
 		CurtainState curtian_state = Movement::current_state();
-		CurtainState desired_state = Movement::state_of(_percentage);
 		// parens not needed (precedence) but used to remove warnings
-		return (curtian_state == CLOSED && desired_state == OPEN) || (curtian_state == OPEN && desired_state == CLOSED);
+		return (curtian_state == CLOSED && _percentage == 100) || (curtian_state == OPEN && _percentage == 0);
 	}
 
 

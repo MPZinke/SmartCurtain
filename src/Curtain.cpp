@@ -28,11 +28,12 @@ namespace Curtain
 
 	Curtain::Curtain(bool initialize)
 	{
+		using Config::Hardware::BOTH_ENDSTOPS;
 		using Config::Hardware::CLOSE_ENDSTOP;
 		using Config::Hardware::OPEN_ENDSTOP;
 		using Config::Hardware::ENCODER;
 
-		_auto_calibrate = CLOSE_ENDSTOP && OPEN_ENDSTOP;
+		_auto_calibrate = BOTH_ENDSTOPS;
 		_auto_correct = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 		_discrete_movement = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 		_direction = Config::Hardware::DIRECTION_SWITCH;
@@ -142,9 +143,9 @@ namespace Curtain
 	}
 
 
-	CurtainState state()
+	CurtainState Curtain::state()
 	{
-		register percentage = _percentage;
+		register uint8_t percentage = _percentage;
 
 		if(!percentage) return CLOSED;
 		if(percentage == 100) return OPEN;
