@@ -42,6 +42,7 @@ namespace Automation
 				// Update information about curtain
 				case Transmission::Literal::JSON::Value::UPDATE_ID:
 				{
+					case_update(json_document);
 					// Fall through to STATUS_ID
 				}
 
@@ -63,10 +64,6 @@ namespace Automation
 				case Transmission::Literal::JSON::Value::MOVE_ID:
 				{
 					case_move(json_document);
-	
-					// clean up and update curtain
-					// curtain.set_location();
-					// curtain.send_hub_serialized_info();
 					break;
 				}
 
@@ -129,5 +126,13 @@ namespace Automation
 	}
 
 
+	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
+	{
+		using namespace Transmission::Literal::JSON;
 
+		if(json_document.containsKey(Key::HUB_IP))
+		{
+			C_String::copy(json_document[Key::HUB_IP], Config::Network::HUB_HOST_STR);
+		}
+	}
 }

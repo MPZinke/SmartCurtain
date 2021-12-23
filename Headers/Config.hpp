@@ -76,7 +76,6 @@ namespace Config
 		extern uint8_t NODE_HOST[];  // node host
 
 		// HUB
-		extern uint8_t HUB_HOST[];  // hub host IP
 		extern char HUB_HOST_STR[];  // hub host cstr
 
 		// ROUTER

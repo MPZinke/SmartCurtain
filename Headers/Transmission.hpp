@@ -59,11 +59,12 @@ namespace Transmission
 				extern const char DISCRETE_MOVEMENT[];
 				extern const char LENGTH[];
 
-
 				extern const char EVENT[];
 				extern const char EVENT_ID[];
 				extern const char EVENT_FORCE[];
 				extern const char EVENT_PERCENTAGE[];
+
+				extern const char HUB_IP[];
 			}
 
 

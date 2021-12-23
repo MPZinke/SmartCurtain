@@ -55,6 +55,8 @@ namespace Transmission
 				const char EVENT_ID[] = "id";
 				const char EVENT_FORCE[] = "FORCE";
 				const char EVENT_PERCENTAGE[] = "desired position";
+
+				const char HUB_IP[] = "Hub IP";
 			}
 
 
