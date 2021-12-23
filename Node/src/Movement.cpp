@@ -155,11 +155,25 @@ namespace Movement
 
 
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
+	inline CurtainState current_hardware_state()
+	{
+		if(OPEN_ENDSTOP && is_open()) return OPEN;
+		if(CLOSE_ENDSTOP && is_closed()) return CLOSE;
+		return MIDDLE;
+	}
+
+
 	CurtainState current_state()
 	{
-		if(is_open()) return OPEN;
-		if(is_closed()) return CLOSE;
-		return MIDDLE;
+		;
+		if((register CurtainState hardware_state = current_hardware_state()) != MIDDLE)
+		{
+			return hardware_state;
+		}
+
+		else if(!Global::curtain.percentage()) return CLOSED;
+		else if(Global::curtain.percentage() == 100) return OPEN;
+		else return MIDDLE;
 	}
 
 
@@ -222,12 +236,12 @@ namespace Movement
 		{
 			auto_calibrate(event);
 		}
-		// If hardware allowed and the event moves to CLOSED (including discrete movement check)
+		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
 		else if(CLOSE_ENDSTOP && event.state() == CLOSED)
 		{
 			move_until_closed();
 		}
-		// If hardware allowed and the event moves to OPEN (including discrete movement check)
+		// If hardware allowed and the event moves to OPEN (including non-discrete only movement)
 		else if(OPEN_ENDSTOP && event.state() == OPEN)
 		{
 			move_until_open();
@@ -248,7 +262,10 @@ namespace Movement
 
 				if(remaining_steps > Config::Curtain::POSITION_TOLLERANCE && Global::curtain.auto_correct())
 				{
+					if(state)
+					// determine steps to move backwards
 
+					// move steps
 				}
 			}
 			// Shoot first, ask questions later (no hardware to prevent self-destructive behavior, so just guess)

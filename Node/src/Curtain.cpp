@@ -142,47 +142,59 @@ namespace Curtain
 	}
 
 
+	CurtainState state()
+	{
+		register percentage = _percentage;
+
+		if(!percentage) return CLOSED;
+		if(percentage == 100) return OPEN;
+		return MIDDLE;
+	}
+
+
 	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
 	
-	void Curtain::auto_calibrate(bool new_auto_calibrate)
+	void Curtain::auto_calibrate(register bool new_auto_calibrate)
 	{
 		_auto_calibrate = new_auto_calibrate;
 	}
 
 
-	void Curtain::auto_correct(bool new_auto_correct)
+	void Curtain::auto_correct(register bool new_auto_correct)
 	{
 		_auto_correct = new_auto_correct;
 	}
 
 
-	void Curtain::direction(bool new_direction)
+	void Curtain::direction(register bool new_direction)
 	{
 		_direction = new_direction;
 	}
 
 
-	void Curtain::length(uint32_t new_length)
+	void Curtain::length(register uint32_t new_length)
 	{
 		_length = new_length;
 	}
 
 
-	void Curtain::discrete_movement(bool new_discrete_movement)
+	void Curtain::discrete_movement(register bool new_discrete_movement)
 	{
 		_discrete_movement = new_discrete_movement;
 	}
 
 
-	void Curtain::percentage(uint8_t new_percentage)
+	void Curtain::percentage(register uint8_t new_percentage)
 	{
 		_percentage = new_percentage;
+		_position = ((uint32_t)new_percentage) * _length / 100;
 	}
 
 
-	void Curtain::position(uint32_t new_position)
+	void Curtain::position(register uint32_t new_position)
 	{
 		_position = new_position;
+		_percentage = new_position * 100 / _length;  // multiply by 100 first to keep as much precision
 	}
 
 
