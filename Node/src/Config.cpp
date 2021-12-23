@@ -44,9 +44,10 @@ namespace Config
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
 
 		// ———————— HARDWARE DETERMINED VALUES ————————
-		const bool CLOSE_ENDSTOP = (bool)Config::Hardware::CLOSE_PIN;
-		const bool OPEN_ENDSTOP = (bool)Config::Hardware::OPEN_PIN;
-		const bool ENCODER = (bool)(Config::Hardware::ENCODER_PINA | Config::Hardware::ENCODER_PINB);
+		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
+		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
+		const bool ENCODER = (bool)(ENCODER_PINA | ENCODER_PINB);
+		extern const bool BOTH_ENDSTOPS = CLOSE_PIN && CLOSE_PIN;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————

@@ -55,7 +55,7 @@ namespace Automation
 				// Reset curtain by moving it from alleged current position to close to actual current position.
 				case Transmission::Literal::JSON::Value::RESET_ID:
 				{
-					Movement::reset();
+					Movement::move_and_reset();
 					break;
 				}
 
@@ -125,7 +125,7 @@ namespace Automation
 		JsonObject event_object = json_document[Transmission::Literal::JSON::Key::EVENT];
 		Event::Event event(event_object);
 
-		Movement::move(event);
+		Movement::activate(event);
 	}
 
 
