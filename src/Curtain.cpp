@@ -26,7 +26,8 @@ namespace Curtain
 
 	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
-	Curtain::Curtain(bool initialize)
+	Curtain::Curtain(uint8_t id)
+	: _id{id}
 	{
 		using Config::Hardware::BOTH_ENDSTOPS;
 		using Config::Hardware::CLOSE_ENDSTOP;
@@ -50,12 +51,7 @@ namespace Curtain
 	Curtain::operator char*()
 	{
 		JsonObject curtain_object = (JsonObject)(*this);
-
-		size_t c_string_size = measureJson(curtain_object) + 1;
-		char* json_c_string = (char*)malloc(c_string_size);
-		serializeJson(curtain_object, json_c_string, c_string_size);
-
-		return json_c_string;
+		return Transmission::convert(curtain_object);
 	}
 
 

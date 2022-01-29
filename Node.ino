@@ -62,7 +62,10 @@ void setup()
 	// Task Params: Function to implement the task, Name of the task, Stack size in words, Task input parame, 
 	//  Priority of the task, Task handle to keep track of created task, Core where the task should run
 	xTaskCreatePinnedToCore(Automation::automation_loop, "Automation", 10000, NULL, 0, &automation_task, 0);
-	xTaskCreatePinnedToCore(Encoder::encoder_loop, "Encoder", 10000, NULL, 1, &encoder_task, 1);
+	if(Config::Hardware::ENCODER)
+	{
+		xTaskCreatePinnedToCore(Encoder::encoder_loop, "Encoder", 10000, NULL, 1, &encoder_task, 1);
+	}
 }
 
 

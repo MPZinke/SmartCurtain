@@ -88,6 +88,16 @@ namespace Transmission
 
 	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
 
+	char* convert(JsonObject& object)
+	{
+		size_t c_string_size = measureJson(object) + 1;
+		char* json_c_string = (char*)malloc(c_string_size);
+		serializeJson(object, json_c_string, c_string_size);
+
+		return json_c_string;
+	}
+
+
 	// Get the id for a given value from the Literal::JSON::Value::VALUE_IDS.
 	// Takes the value to match to.
 	uint8_t id_for_value(const char* value)
@@ -108,51 +118,24 @@ namespace Transmission
 
 	char* http_exception_json(uint16_t error_code, char error_message[])
 	{
-		// TODO: Use JSON library
-		// { "success" : false, "status code" : xxx, "message" : "" }
-		uint16_t malloc_length = 60 + C_String::length(error_message);
-		char* json_head = (char*)malloc(malloc_length), *json = json_head;
+		JsonObject error_object = JsonObject();
 
-		C_String::copy(json, "{\"success\": false, \"status code\": ");
-		json += C_String::length(json);
-		C_String::itoa(error_code, json);
+		error_object["success"] = false;
+		error_object["status code"] = error_code;
+		error_object["message"] = error_message;
 
-		C_String::copy(json+3, ", \"message\": \"");
-		json += C_String::length(json+3) + 3;
-		C_String::copy(json, error_message);
-		json += C_String::length(json);
-
-		C_String::copy_n(json, "\"}", 2);
-
-		return json;
+		return convert(error_object);
 	}
 
 
 	static char* status_json()
 	{
-		// TODO: Use JSON library
-		// "{ "" : 1234567890 , "" : 1234567890 }\0" plus keys
-		char* status_head = (char*)malloc(sizeof(Literal::JSON::Key::CURTAIN_ID)
-		  +sizeof(Literal::JSON::Key::CURTAIN_POSITION)+38);
-		C_String::copy_n("{\"", status_head, 2);
-		char* status = status_head+2;
+		JsonObject status_object = JsonObject();
 
-		C_String::copy(Literal::JSON::Key::CURTAIN_ID, status);
-		status += sizeof(Literal::JSON::Key::CURTAIN_ID) - 1;  // Null terminator
-		C_String::copy_n("\": ", status, 3);
-		C_String::copy(Config::Curtain::CURTAIN_ID, status+3);
-		status += C_String::length(status+3) + 3;
-		C_String::copy_n(", \"", status, 3);
+		status_object[Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
+		status_object[Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.percentage();
 
-		C_String::copy(Literal::JSON::Key::CURTAIN_POSITION, status+3);
-		status += sizeof(Literal::JSON::Key::CURTAIN_POSITION) + 2;
-		C_String::copy_n("\": ", status, 3);
-		C_String::itoa(Global::curtain.position(), status+3);
-		status += C_String::length(status+3) + 3;
-
-		C_String::copy_n("}", status, 2);
-
-		return status_head;
+		return convert(status_object);
 	}
 
 
@@ -205,16 +188,22 @@ namespace Transmission
 		if(!content || !skip_header()) return (char*)NULL;
 
 		uint16_t x;
-		for(x = 0; Global::client.available(); x++)
+		for(x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
 		{
 			content[x] = Global::client.read();
 		}
-		content[x] = 0;
-		if(JSON_BUFFER_SIZE < x)
+
+		// If client contents longer than content, handle "error" and do not proceed
+		if(JSON_BUFFER_SIZE >= x)
 		{
 			delete content;
+			for(uint32_t y = 0; y < 0xFFFFFFFF && Global::client.available(); x++)
+			{
+				Global::client.read();
+			}
 			return (char*)NULL;
 		}
+		content[x] = 0;
 
 		return content;
 	}

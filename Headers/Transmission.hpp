@@ -104,7 +104,7 @@ namespace Transmission
 		}
 	}
 
-
+	char* convert(JsonObject& object);
 	uint8_t id_for_value(const char* value);
 	char* http_exception_json(uint16_t error_code, char error_message[]);
 	static char* status_json();
