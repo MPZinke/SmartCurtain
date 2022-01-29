@@ -66,10 +66,9 @@ namespace Config
 		// NODE
 		const uint16_t PORT = 80;  // listening port
 		uint8_t MAC_ADDRESS[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
-		uint8_t NODE_HOST[] = {10,0,0,12};  // node host
 
 		// HUB
-		char HUB_HOST_STR[16] = "10.0.0.11";  // hub host cstr  //TODO: Add update function for.
+		char HUB_HOST_STR[16] = "10.0.0.11";  // hub host cstr
 
 		// ROUTER
 		uint8_t ROUTER_GATEWAY[] = {10,0,0,1};  // router gateway

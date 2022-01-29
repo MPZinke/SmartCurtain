@@ -21,6 +21,7 @@
 #define __GLOBAL__
 
 
+#include <ArduinoJson.h>
 #include <setjmp.h>
 #include <stdint.h>
 #include <WiFi.h>

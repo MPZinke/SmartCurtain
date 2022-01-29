@@ -34,6 +34,7 @@ namespace Curtain
 	class Curtain
 	{
 		private:
+			const uint8_t _id;
 			// ———— OPTIONS ———— //
 			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
 			bool _auto_correct;  // if position is unexpected, go to expected position
@@ -46,7 +47,7 @@ namespace Curtain
 			uint32_t _last_event_id = 0;  // the ID of the last event (helps determine if fresh restart)
 
 		public:
-			Curtain(bool initialize);
+			Curtain(uint8_t id);
 
 			operator char*();
 			operator JsonObject();
