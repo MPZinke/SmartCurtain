@@ -247,6 +247,9 @@ namespace Movement
 	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
+	// SUMMARY: Activates curtain for an event to move to a certain position.
+	// PARAMS:  Takes the reference to the event.
+	// DETAILS: Determines the movement time based on hardware if hardware exists.
 	void activate(register Event::Event& event)
 	{
 		if(Global::curtain.auto_calibrate() && event.moves_full_span())
@@ -348,7 +351,7 @@ namespace Movement
 
 	void move_and_reset()
 	{
-		//TODO:
+		//TODO
 	}
 
 
