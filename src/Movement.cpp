@@ -275,6 +275,12 @@ namespace Movement
 			move_discretely(event);
 		}
 		// —— No endstops below this point ——
+		// —— Position is assumed below this point (even with an encoder) ——
+		// REMINDER: For non-discrete: Percentage is converted to 0 or 100 and movement is assumed to be correct.
+		// REMINDER: For discrete: Percentage remains the same and movement is assumed to be correct.
+		// Because event percentage is automatically changed if the curtain is non-discrete and current position is
+		//  only able to be assumed, discrete and non-discrete movements work the same at this point. Curtain can just
+		//  be told to step, regardless of if it is discretely between or the full length of the curtain.
 		else
 		{
 			step(event);
