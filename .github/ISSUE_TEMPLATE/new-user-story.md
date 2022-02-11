@@ -2,7 +2,7 @@
 name: New User Story
 about: Create a new user story
 title: ''
-labels: 'IMPROVEMENT: Future Enhancement'
+labels: 'IMPROVEMENT: Future Enhancement, TYPE: User Story'
 assignees: ''
 
 ---
