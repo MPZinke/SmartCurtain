@@ -40,6 +40,7 @@ for branch in $(local_branches); do
 		echo
 		git checkout "${branch}"
 		git merge "${MAIN_BRANCH}"
+		git push
 	fi
 done
 
