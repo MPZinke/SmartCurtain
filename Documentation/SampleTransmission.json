@@ -12,12 +12,12 @@
 		"direction": false,
 		"discrete movement": false,
 		"length": 4294967295,  //OPTIONAL
-		"position": 100
+		"percentage": 100
 	},
 	"event":
 	{
 		"id": 4294967295,
-		"position": 100  // percentage
+		"percentage": 100  // percentage
 	},
 	"Hub IP": "192.168.255.255"
 }
