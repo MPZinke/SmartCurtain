@@ -30,7 +30,7 @@ namespace Event
 
 		public:
 			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t desired_percentage);
+			Event(uint32_t id, uint8_t percentage);
 
 			operator char*();
 			operator JsonObject();
