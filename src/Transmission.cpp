@@ -90,13 +90,13 @@ namespace Transmission
 
 	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
 
-	char* convert(JsonObject& object)
+	String convert(JsonObject& object)
 	{
 		size_t c_string_size = measureJson(object) + 1;
-		char* json_c_string = (char*)malloc(c_string_size);
-		serializeJson(object, json_c_string, c_string_size);
+		String json_string;
+		serializeJson(object, json_string);
 
-		return json_c_string;
+		return json_string;
 	}
 
 
@@ -106,7 +106,7 @@ namespace Transmission
 	{
 		for(uint8_t x = 0; x < sizeof(Literal::JSON::Value::VALUE_IDS) / sizeof(Literal::JSON::Value::ValueID); x++)
 		{
-			if(C_String::equal((char*)Literal::JSON::Value::VALUE_IDS[x].value, (char*)value))
+			if(C_String::equal(value, Literal::JSON::Value::VALUE_IDS[x].value))
 			{
 				return Literal::JSON::Value::VALUE_IDS[x].id;
 			}
@@ -118,7 +118,7 @@ namespace Transmission
 	
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
-	char* http_exception_json(uint16_t error_code, char error_message[])
+	String http_exception_json(uint16_t error_code, char error_message[])
 	{
 		JsonObject error_object = JsonObject();
 
@@ -130,7 +130,7 @@ namespace Transmission
 	}
 
 
-	static char* status_json()
+	String status_json()
 	{
 		JsonObject status_object = JsonObject();
 
@@ -183,29 +183,25 @@ namespace Transmission
 	// DETAILS:	Skips over the content headers. Allocates enough memory for content length and reads it in from client
 	//  into buffer.
 	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
-	char* read_transmission_data_into_buffer()
+	String read_transmission_data_into_buffer()
 	{
-		char* content = (char*)malloc(JSON_BUFFER_SIZE);
+		String content;
+		if(!skip_header()) return content;
 
-		if(!content || !skip_header()) return (char*)NULL;
-
-		uint16_t x;
-		for(x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
+		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
 		{
-			content[x] = Global::client.read();
+			content += Global::client.read();
 		}
 
 		// If client contents longer than content, handle "error" and do not proceed
-		if(JSON_BUFFER_SIZE >= x)
+		if(JSON_BUFFER_SIZE >= content.length())
 		{
-			delete content;
-			for(uint32_t y = 0; y < 0xFFFFFFFF && Global::client.available(); x++)
+			for(uint32_t x = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
 			{
 				Global::client.read();
 			}
-			return (char*)NULL;
+			content = "";
 		}
-		content[x] = 0;
 
 		return content;
 	}
@@ -239,6 +235,25 @@ namespace Transmission
 	}
 
 
+	void respond_with_json_and_stop(String& json, const char response_type[])
+	{
+		// Start line
+		Global::client.println(response_type);
+
+		// Headers
+		Global::client.println(Literal::HTTP::CONTENT_TYPE);
+
+		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
+		Global::client.println(json.length());
+
+		// Contents
+		Global::client.println();
+		Global::client.println(json);
+
+		Global::client.stop();
+	}
+
+
 	void respond_with_json_and_stop(char json[], const char response_type[])
 	{
 		// Start line
@@ -260,9 +275,8 @@ namespace Transmission
 
 	void send_status_and_stop_client()
 	{
-		char* status_string = status_json();
+		String status_string = status_json();
 		respond_with_json_and_stop(status_string);
-		delete[] status_string;
 	}
 
 

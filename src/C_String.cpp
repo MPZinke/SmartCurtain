@@ -18,9 +18,9 @@ namespace C_String
 {
 	// ———————————————————————————————————————————— C-STRING: FUNCTIONS ———————————————————————————————————————————— //
 
-	uint32_t atoi(char string[])
+	uint32_t atoi(const char string[])
 	{
-		uint16_t length = C_String::length(string);
+		uint16_t length = C_String::length((char*)string);
 		register uint32_t integer = 0;
 		for(uint8_t x = 0; x < length; x++)
 		{
@@ -43,17 +43,7 @@ namespace C_String
 	}
 
 
-	// Copies n number of character & null terminates.
-	// Takes address of place to read from, address of place to write to, number of character to write.
-	// Iterates over number of character reading then writing.  Null terminates "to" after n-chars written.
-	void copy_n(const char from[], char to[], uint16_t length)
-	{
-		for(register uint16_t x = 0; x < length; x++) to[x] = from[x];
-		to[length] = 0;
-	}
-
-
-	bool equal(const char a[], char b[])
+	bool equal(const char a[], const char b[])
 	{
 		register uint16_t x;
 		for(x = 0; x < 0xFFFF && a[x]; x++)

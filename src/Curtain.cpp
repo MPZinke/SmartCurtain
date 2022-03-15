@@ -45,7 +45,7 @@ namespace Curtain
 	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
-	Curtain::operator char*()
+	Curtain::operator String()
 	{
 		JsonObject curtain_object = (JsonObject)(*this);
 		return Transmission::convert(curtain_object);

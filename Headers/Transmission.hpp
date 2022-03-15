@@ -101,14 +101,15 @@ namespace Transmission
 	}  // end namespace Literal
 
 
-	char* convert(JsonObject& object);
+	String convert(JsonObject& object);
 	uint8_t id_for_value(const char* value);
-	char* http_exception_json(uint16_t error_code, char error_message[]);
-	static char* status_json();
+	String http_exception_json(uint16_t error_code, char error_message[]);
+	String status_json();
 	bool skip_header();
 	WiFiClient wait_for_request();
-	char* read_transmission_data_into_buffer();
+	String read_transmission_data_into_buffer();
 	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL);
+	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
