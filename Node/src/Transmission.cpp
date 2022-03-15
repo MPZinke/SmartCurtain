@@ -13,6 +13,8 @@
 
 #include "../Headers/Transmission.hpp"
 
+#include "../Headers/Curtain.hpp"
+
 
 namespace Transmission
 {	namespace Literal

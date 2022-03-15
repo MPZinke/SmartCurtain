@@ -14,6 +14,7 @@
 
 #include "../Headers/Event.hpp"
 
+#include "../Headers/Curtain.hpp"
 #include "../Headers/Movement.hpp"
 #include "../Headers/Transmission.hpp"
 

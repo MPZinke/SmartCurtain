@@ -11,10 +11,6 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __CONFIG__
-#define __CONFIG__
-
-
 #include <stdint.h>
 
 
@@ -91,6 +87,3 @@ namespace Config
 		extern const uint8_t ACTION_COMPLETE_URL[];
 	}
 }  // end namespace Configure
-
-
-#endif

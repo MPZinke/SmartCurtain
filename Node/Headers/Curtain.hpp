@@ -12,10 +12,6 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __CURTAIN__
-#define __CURTAIN__
-
-
 #include <ArduinoJson.h>
 
 
@@ -25,7 +21,7 @@
 
 namespace Curtain
 {
-	using Movement::CurtainState;
+	using Hardware::CurtainState;
 
 
 	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //
@@ -71,16 +67,5 @@ namespace Curtain
 			void percentage(register uint8_t new_percentage);
 			void position(register uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-
-			// —————————————— SETTERS: DATA ——————————————
-			// void set_position_if_does_not_match_sensors();
-			// void set_location();
-
-			// —————————————— WRITE ——————————————
-			// void send_hub_serialized_info();
 	};
-
 } // end namespace Curtain
-
-
-#endif

@@ -26,7 +26,7 @@ namespace Automation
 	{
 		while(true)
 		{
-			Movement::disable_motor();  // don't burn up the motor
+			Hardware::disable_motor();  // don't burn up the motor
 		
 			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 
@@ -56,7 +56,7 @@ namespace Automation
 				// Reset curtain by moving it from alleged current position to close to actual current position.
 				case Transmission::Literal::JSON::Value::RESET_ID:
 				{
-					Movement::move_and_reset();
+					Movement::EndstopGuarded::move_and_reset();
 					break;
 				}
 
