@@ -11,6 +11,7 @@
 ***********************************************************************************************************************/
 
 
+#include "../Headers/C_String.hpp"
 #include "../Headers/Exceptions.hpp"
 #include "../Headers/Transmission.hpp"
 

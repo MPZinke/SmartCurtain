@@ -17,10 +17,6 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __GLOBAL__
-#define __GLOBAL__
-
-
 #include <ArduinoJson.h>
 #include <setjmp.h>
 #include <stdint.h>
@@ -30,7 +26,12 @@
 
 
 #include "Config.hpp"
-#include "Curtain.hpp"
+
+
+namespace Curtain
+{
+	class Curtain;
+}
 
 
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //
@@ -44,6 +45,3 @@ namespace Global
 
 	extern jmp_buf jump_buffer;
 } // end namespace Global
-
-
-#endif

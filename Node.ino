@@ -31,6 +31,7 @@
 
 #include "Headers/Automation.hpp"
 #include "Headers/Encoder.hpp"
+#include "Headers/Hardware.hpp"
 
 
 TaskHandle_t automation_task;
@@ -47,7 +48,7 @@ void setup()
 	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
 	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
 
-	Movement::disable_motor();  // don't burn up the motor
+	Hardware::disable_motor();  // don't burn up the motor
 
 	// ———— GLOBAL VARIABLES ————
 	// wifi setup

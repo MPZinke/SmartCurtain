@@ -14,6 +14,7 @@
 #include "../Headers/Global.hpp"
 
 #include "../Headers/C_String.hpp"
+#include "../Headers/Curtain.hpp"
 
 
 namespace Global

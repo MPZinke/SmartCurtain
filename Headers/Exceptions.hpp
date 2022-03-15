@@ -11,13 +11,7 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __EXCEPTIONS__
-#define __EXCEPTIONS__
-
-
 #include "Global.hpp"
-
-#include "C_String.hpp"
 
 
 namespace Exceptions
@@ -27,6 +21,3 @@ namespace Exceptions
 	void throw_HTTP_400(const char message[]);
 	void throw_HTTP_404(const char message[]);
 }  // end namespace Exceptions
-
-
-#endif

@@ -11,11 +11,8 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __ENCODER__
-#define __ENCODER__
-
-
 #include "Arduino.h"
+
 
 #include "C_String.hpp"
 #include "Config.hpp"
@@ -30,6 +27,3 @@ namespace Encoder
 	void encoder_loop(void*);
 	bool is_positive_direction(uint8_t previous_state, uint8_t current_state);
 }
-
-
-#endif

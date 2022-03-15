@@ -11,10 +11,6 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __AUTOMATION__
-#define __AUTOMATION__
-
-
 #include <ArduinoJson.h>
 
 
@@ -29,6 +25,3 @@ namespace Automation
 	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 }
-
-
-#endif

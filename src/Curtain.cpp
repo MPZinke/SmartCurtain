@@ -29,17 +29,14 @@ namespace Curtain
 	Curtain::Curtain(uint8_t id)
 	: _id{id}
 	{
-		using Config::Hardware::BOTH_ENDSTOPS;
-		using Config::Hardware::CLOSE_ENDSTOP;
-		using Config::Hardware::OPEN_ENDSTOP;
-		using Config::Hardware::ENCODER;
+		using namespace Config::Hardware;
 
 		_auto_calibrate = BOTH_ENDSTOPS;
 		_auto_correct = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 		_discrete_movement = CLOSE_ENDSTOP || OPEN_ENDSTOP;
-		_direction = Config::Hardware::DIRECTION_SWITCH;
+		_direction = DIRECTION_SWITCH;
 
-		_length = Config::Hardware::DEFAULT_LENGTH;
+		_length = DEFAULT_LENGTH;
 		_position = Movement::current_state() == MIDDLE ? _length / 2 : Movement::current_state() * _length;
 	}
 
@@ -60,39 +57,20 @@ namespace Curtain
 	//  JsonObject and returns it.
 	Curtain::operator JsonObject()
 	{
+		using namespace Transmission::Literal;  // not entire namespace to help show where the below values are from
 		JsonObject curtain_object = JsonObject();
 
-		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
-		curtain_object[Transmission::Literal::JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
-		curtain_object[Transmission::Literal::JSON::Key::AUTO_CORRECT] = _auto_correct;
-		curtain_object[Transmission::Literal::JSON::Key::DIRECTION] = _direction;
-		curtain_object[Transmission::Literal::JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
-		curtain_object[Transmission::Literal::JSON::Key::LENGTH] = _length;
-		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
-		curtain_object[Transmission::Literal::JSON::Key::CURTAIN_POSITION] = _position;
+		curtain_object[JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
+		curtain_object[JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
+		curtain_object[JSON::Key::AUTO_CORRECT] = _auto_correct;
+		curtain_object[JSON::Key::DIRECTION] = _direction;
+		curtain_object[JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
+		curtain_object[JSON::Key::LENGTH] = _length;
+		curtain_object[JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
+		curtain_object[JSON::Key::CURTAIN_POSITION] = _position;
 
 		return curtain_object;
 	}
-
-
-	// void Curtain::move()
-	// {
-		
-	// 	if(!curtain.is_smart()) Movement::move(curtain);
-	// 	else
-	// 	{
-	// 		if(!_event.event_moves_to_an_end()) Movement::move(curtain);
-	// 		// Does not take into account if actual position does not match 'current', b/c this can be reset by fully open-
-	// 		// ing or closing curtain.
-	// 		// Also does not take into account if desire == current.  It can be 'move 0' or ignored by Master.
-	// 		else
-	// 		{
-	// 			if(should_auto_calibrate_across()) _length(Movement::auto_calibrate_to_opposite(inline direction()));
-	// 			else if(inline state_of_position() == Curtain::OPEN) Movement::move_until_open(inline direction());
-	// 			else Movement::move_until_closed(inline direction());
-	// 		}
-	// 	}
-	// }
 
 
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
@@ -201,9 +179,8 @@ namespace Curtain
 	//  value.
 	void Curtain::update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		using namespace Transmission::Literal;
-		using Config::Hardware::CLOSE_ENDSTOP;
-		using Config::Hardware::OPEN_ENDSTOP;
+		using namespace Transmission::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Config::Hardware;
 
 		JsonObject curtain_object = json_document[JSON::Key::CURTAIN];
 
@@ -239,47 +216,4 @@ namespace Curtain
 			_position = curtain_object[JSON::Key::CURTAIN_POSITION];
 		}
 	}
-
-
-	// ————————————————————————————————————————————— CLASS::SETTERS: DATA —————————————————————————————————————————————
-
-	// // Corrects position for DB unknowns relative to sensors.
-	// // Sets self::_position to match open/closed if applicable.
-	// void Curtain::set_position_if_does_not_match_sensors()
-	// {
-	// 	if(Movement::is_closed() && !is_approximate_position(_position, 0))
-	// 		_position = 0;
-	// 	else if(Movement::is_open() && !is_approximate_position(_position, _length))
-	// 		_position = _length;
-	// }
-
-
-	// // ASSUMES _desired_position WAS REACHED IF NOT AT AN END. COULD BE WRONG.
-	// // Sets the location of the curtain based on GPIO if possible, other wise desired location.
-	// void Curtain::set_location()
-	// {
-	// 	if(!_is_smart)
-	// 	{
-	// 		Global::current_position = _desired_position;
-	// 		_position = _desired_position;  // curtain isn't that smart, so guess where it is
-	// 	}
-	// 	else
-	// 	{
-	// 		if(Movement::is_open()) _position = _length;
-	// 		else if(Movement::is_closed()) _position = 0;
-	// 		else _position = _desired_position;  // curtain isn't that smart, so guess where it is
-	// 		Global::current_position = _position;
-	// 	}
-	// }
-
-
-	// ————————————————————————————————————————————————— CLASS::WRITE —————————————————————————————————————————————————
-
-	// void Curtain::send_hub_serialized_info()
-	// {
-	// 	char* serialized_data_c_str = serialized_data();
-	// 	Transmission::update_hub((byte*)serialized_data_c_str);
-	// 	delete[] serialized_data_c_str;
-	// }
-
-}
+}  // end namespace Curtain

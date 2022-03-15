@@ -11,10 +11,6 @@
 ***********************************************************************************************************************/
 
 
-#ifndef __TRANSMISSION__
-#define __TRANSMISSION__
-
-
 #include "Global.hpp"
 
 #include "C_String.hpp"
@@ -40,7 +36,7 @@ namespace Transmission
 			extern const char CONTENT_TYPE[];
 			extern const char CONTENT_LENGTH_TAG[];
 			extern const char HOST_TAG[];
-		}
+		}  // end namespace HTTP
 
 
 		namespace JSON
@@ -65,7 +61,7 @@ namespace Transmission
 				extern const char EVENT_PERCENTAGE[];
 
 				extern const char HUB_IP[];
-			}
+			}  // end namespace Key
 
 
 			namespace Value
@@ -93,16 +89,17 @@ namespace Transmission
 
 
 				extern const ValueID VALUE_IDS[];
-			}
-		}
+			}  // end namespace Value
+		}  // end namespace JSON
 
 
 		namespace Responses
 		{
 			extern const uint8_t INVALID[];
 			extern const uint8_t VALID[];
-		}
-	}
+		}  // end namespace Responses
+	}  // end namespace Literal
+
 
 	char* convert(JsonObject& object);
 	uint8_t id_for_value(const char* value);
@@ -116,6 +113,3 @@ namespace Transmission
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
 } // end namespace Transmission
-
-
-#endif
