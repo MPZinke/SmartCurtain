@@ -45,7 +45,7 @@ namespace Curtain
 		public:
 			Curtain(uint8_t id);
 
-			operator char*();
+			operator String();
 			operator JsonObject();
 
 			// ———— GETTERS ————

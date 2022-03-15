@@ -19,10 +19,9 @@
 
 namespace C_String
 {
-	uint32_t atoi(char string[]);
+	uint32_t atoi(const char string[]);
 	void copy(const char from[], char to[]);
-	void copy_n(const char from[], char to[], uint16_t length);
-	bool equal(const char a[], char b[]);
+	bool equal(const char a[], const char b[]);
 	void itoa(uint32_t integer, char to[]);
 	uint16_t length(char string[]);
 };

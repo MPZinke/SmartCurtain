@@ -87,18 +87,15 @@ namespace Automation
 		Global::client = Transmission::wait_for_request();
 
 		// bad message: retry later
-		char* json_buffer = Transmission::read_transmission_data_into_buffer();
-		if(!json_buffer)
+		String json_buffer = Transmission::read_transmission_data_into_buffer();
+		if(!json_buffer.length())
 		{
 			Exceptions::throw_HTTP_204("Could not read transmission into json_buffer");
 		}
 
 		// Decode JSON
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		bool successfully_deserialized = !deserializeJson(json_document, json_buffer);
-		delete[] json_buffer;
-
-		if(!successfully_deserialized)
+		if(!deserializeJson(json_document, json_buffer))
 		{
 			Exceptions::throw_HTTP_400("Could not decode json");
 		}
