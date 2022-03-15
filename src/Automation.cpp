@@ -14,10 +14,12 @@
 #include "../Headers/Automation.hpp"
 
 #include "../Headers/Global.hpp"
+#include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
+#include "../Headers/Exceptions.hpp"
 #include "../Headers/Movement.hpp"
-#include "../Headers/Transmission.hpp"
+#include "../Headers/Request.hpp"
 
 
 namespace Automation
@@ -31,37 +33,37 @@ namespace Automation
 			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 
 			// If curtain information, update Global::curtain information
-			if(json_document.containsKey(Transmission::Literal::JSON::Key::CURTAIN))
+			if(json_document.containsKey(Request::Literal::JSON::Key::CURTAIN))
 			{
 				Global::curtain.update(json_document);
 			}
 
 			// Call action for QUERY_TYPE
-			switch(Transmission::id_for_value(json_document[Transmission::Literal::JSON::Key::QUERY_TYPE]))
+			switch(Request::id_for_value(json_document[Request::Literal::JSON::Key::QUERY_TYPE]))
 			{
 				// Update information about curtain
-				case Transmission::Literal::JSON::Value::UPDATE_ID:
+				case Request::Literal::JSON::Value::UPDATE_ID:
 				{
 					case_update(json_document);
 					// Fall through to STATUS_ID
 				}
 
 				// Return information about Curtain
-				case Transmission::Literal::JSON::Value::STATUS_ID:
+				case Request::Literal::JSON::Value::STATUS_ID:
 				{
-					Transmission::send_status_and_stop_client();
+					Request::send_status_and_stop_client();
 					break;
 				}
 	
 				// Reset curtain by moving it from alleged current position to close to actual current position.
-				case Transmission::Literal::JSON::Value::RESET_ID:
+				case Request::Literal::JSON::Value::RESET_ID:
 				{
 					Movement::EndstopGuarded::move_and_reset();
 					break;
 				}
 
 				// Move to position
-				case Transmission::Literal::JSON::Value::MOVE_ID:
+				case Request::Literal::JSON::Value::MOVE_ID:
 				{
 					case_move(json_document);
 					break;
@@ -84,13 +86,13 @@ namespace Automation
 	// THROWS: HTTPS_Exceptions
 	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 	{
-		Global::client = Transmission::wait_for_request();
+		Global::client = Request::wait_for_request();
 
 		// bad message: retry later
-		String json_buffer = Transmission::read_transmission_data_into_buffer();
+		String json_buffer = Request::read_request_data_into_buffer();
 		if(!json_buffer.length())
 		{
-			Exceptions::throw_HTTP_204("Could not read transmission into json_buffer");
+			Exceptions::throw_HTTP_204("Could not read Request into json_buffer");
 		}
 
 		// Decode JSON
@@ -108,15 +110,15 @@ namespace Automation
 
 	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		if(!json_document.containsKey(Transmission::Literal::JSON::Key::EVENT))
+		if(!json_document.containsKey(Request::Literal::JSON::Key::EVENT))
 		{
-			String error_message = String("Missing key: \"") + Transmission::Literal::JSON::Key::EVENT
-			  + "\" for QUERY_TYPE: \"" + Transmission::Literal::JSON::Value::MOVE + "\"";
+			String error_message = String("Missing key: \"") + Request::Literal::JSON::Key::EVENT
+			  + "\" for QUERY_TYPE: \"" + Request::Literal::JSON::Value::MOVE + "\"";
 			Exceptions::throw_HTTP_404(error_message.c_str());
 		}
 
-		Transmission::respond_with_json_and_stop((char*)Transmission::Literal::Responses::VALID);
-		JsonObject event_object = json_document[Transmission::Literal::JSON::Key::EVENT];
+		Request::respond_with_json_and_stop(Request::Literal::Responses::VALID);
+		JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
 		Event::Event event(event_object);
 
 		Movement::activate(event);
@@ -125,7 +127,7 @@ namespace Automation
 
 	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		using namespace Transmission::Literal::JSON;
+		using namespace Request::Literal::JSON;
 
 		if(json_document.containsKey(Key::HUB_IP))
 		{

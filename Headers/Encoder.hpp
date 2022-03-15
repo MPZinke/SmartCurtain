@@ -11,14 +11,6 @@
 ***********************************************************************************************************************/
 
 
-#include "Arduino.h"
-
-
-#include "C_String.hpp"
-#include "Config.hpp"
-#include "Global.hpp"
-
-
 #define ENCODER_READ digitalRead(Config::Hardware::ENCODER_PINA) << 1 | digitalRead(Config::Hardware::ENCODER_PINB)
 
 

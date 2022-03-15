@@ -25,7 +25,7 @@ namespace C_String
 		for(uint8_t x = 0; x < length; x++)
 		{
 			integer *= 10;
-			integer += string[x] - 48;
+			integer += string[x] - '0';
 		}
 
 		return integer;
@@ -38,7 +38,10 @@ namespace C_String
 	void copy(const char from[], char to[])
 	{
 		register uint16_t x;
-		for(x = 0; x < JSON_BUFFER_SIZE && from[x]; x++) to[x] = from[x];
+		for(x = 0; x < JSON_BUFFER_SIZE && from[x]; x++)
+		{
+			to[x] = from[x];
+		}
 		to[x] = 0;
 	}
 
@@ -46,9 +49,12 @@ namespace C_String
 	bool equal(const char a[], const char b[])
 	{
 		register uint16_t x;
-		for(x = 0; x < 0xFFFF && a[x]; x++)
+		for(x = 0; x < 0xFFFF && a[x] && a[x] == b[x]; x++)
 		{
-			if(a[x] != b[x]) return false;
+			if(a[x] != b[x])
+			{
+				break;
+			}
 		}
 
 		return a[x] == b[x];
@@ -62,7 +68,7 @@ namespace C_String
 	{
 		if(!integer)
 		{
-			*to = 48;
+			*to = '0';
 			to[1] = 0;
 			return;
 		}
@@ -71,7 +77,7 @@ namespace C_String
 		// OxFFFE because following for loop adds 1 (this prevents overflow)
 		for(x = 0; x < 0xFFFE && integer; x++)
 		{
-			to[x] = (integer % 10) + 48;  // add character
+			to[x] = (integer % 10) + '0';  // add character
 			integer /= 10;
 		}
 		to[x--] = 0;  // null terminate and back step
@@ -95,7 +101,9 @@ namespace C_String
 	uint16_t length(char string[])
 	{
 		uint16_t length = JSON_BUFFER_SIZE;
-		while(length && string[JSON_BUFFER_SIZE-length]) length--;
+		for(length = JSON_BUFFER_SIZE; length && string[JSON_BUFFER_SIZE-length]; length--)
+		{}
+
 		return JSON_BUFFER_SIZE-length;
 	}
 }  // end namespace C_String

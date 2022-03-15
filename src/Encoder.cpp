@@ -11,7 +11,13 @@
 ***********************************************************************************************************************/
 
 
+#include "Arduino.h"
+
+
 #include "../Headers/Encoder.hpp"
+
+#include "../Headers/Config.hpp"
+#include "../Headers/Global.hpp"
 
 
 namespace Encoder

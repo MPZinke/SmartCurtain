@@ -11,12 +11,14 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/Transmission.hpp"
+#include "../Headers/Request.hpp"
 
+#include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
+#include "../Headers/Exceptions.hpp"
 
 
-namespace Transmission
+namespace Request
 {	namespace Literal
 	{
 		namespace HTTP
@@ -82,8 +84,8 @@ namespace Transmission
 
 		namespace Responses
 		{
-			const uint8_t INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
-			const uint8_t VALID[] = "{\"success\":\"Valid JSON received\"}";
+			const char INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
+			const char VALID[] = "{\"success\":\"Valid JSON received\"}";
 		}
 	}
 
@@ -183,7 +185,7 @@ namespace Transmission
 	// DETAILS:	Skips over the content headers. Allocates enough memory for content length and reads it in from client
 	//  into buffer.
 	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
-	String read_transmission_data_into_buffer()
+	String read_request_data_into_buffer()
 	{
 		String content;
 		if(!skip_header()) return content;
@@ -213,7 +215,7 @@ namespace Transmission
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
 	// void post_json(char json[])
-	void post_json(char json[], const uint8_t path[])
+	void post_json(char json[], const uint8_t path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/)
 	{
 		// Start line
 		Global::client.print(Literal::HTTP::POST_METHOD);
@@ -235,7 +237,7 @@ namespace Transmission
 	}
 
 
-	void respond_with_json_and_stop(String& json, const char response_type[])
+	void respond_with_json_and_stop(String& json, const char response_type[]/*=Literal::HTTP::VALID_REQUEST*/)
 	{
 		// Start line
 		Global::client.println(response_type);
@@ -254,7 +256,7 @@ namespace Transmission
 	}
 
 
-	void respond_with_json_and_stop(char json[], const char response_type[])
+	void respond_with_json_and_stop(const char json[], const char response_type[]/*=Literal::HTTP::VALID_REQUEST*/)
 	{
 		// Start line
 		Global::client.println(response_type);
@@ -263,7 +265,7 @@ namespace Transmission
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
-		Global::client.println(C_String::length(json));
+		Global::client.println(C_String::length((char*)json));
 
 		// Contents
 		Global::client.println();

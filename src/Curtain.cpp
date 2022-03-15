@@ -16,7 +16,7 @@
 #include "../Headers/Global.hpp"
 #include "../Headers/C_String.hpp"
 #include "../Headers/Exceptions.hpp"
-#include "../Headers/Transmission.hpp"
+#include "../Headers/Request.hpp"
 
 
 namespace Curtain
@@ -48,7 +48,7 @@ namespace Curtain
 	Curtain::operator String()
 	{
 		JsonObject curtain_object = (JsonObject)(*this);
-		return Transmission::convert(curtain_object);
+		return Request::convert(curtain_object);
 	}
 
 
@@ -57,7 +57,7 @@ namespace Curtain
 	//  JsonObject and returns it.
 	Curtain::operator JsonObject()
 	{
-		using namespace Transmission::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
 		JsonObject curtain_object = JsonObject();
 
 		curtain_object[JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
@@ -179,7 +179,7 @@ namespace Curtain
 	//  value.
 	void Curtain::update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		using namespace Transmission::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
 		using namespace Config::Hardware;
 
 		JsonObject curtain_object = json_document[JSON::Key::CURTAIN];

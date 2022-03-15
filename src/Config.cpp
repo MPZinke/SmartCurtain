@@ -80,6 +80,6 @@ namespace Config
 
 	namespace Transmission
 	{
-		const uint8_t ACTION_COMPLETE_URL[] = "/api/update/deactivateevent";
+		const char ACTION_COMPLETE_URL[] = "/api/update/deactivateevent";
 	}
 }  // end namespace Configure
