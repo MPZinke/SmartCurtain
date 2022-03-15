@@ -84,15 +84,14 @@ namespace Event
 	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
-	Event::operator char*()
+	Event::operator String()
 	{
 		JsonObject event_object = (JsonObject)(*this);
 
-		size_t c_string_size = measureJson(event_object) + 1;
-		char* json_c_string = (char*)malloc(c_string_size);
-		serializeJson(event_object, json_c_string, c_string_size);
+		String json_string;
+		serializeJson(event_object, json_string);
 
-		return json_c_string;
+		return json_string;
 	}
 
 
