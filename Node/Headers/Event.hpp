@@ -32,7 +32,7 @@ namespace Event
 			Event(JsonObject& event_object);
 			Event(uint32_t id, uint8_t percentage);
 
-			operator char*();
+			operator String();
 			operator JsonObject();
 
 			// ———— GETTERS ———— //
