@@ -84,6 +84,6 @@ namespace Config
 
 	namespace Transmission
 	{
-		extern const uint8_t ACTION_COMPLETE_URL[];
+		extern const char ACTION_COMPLETE_URL[];
 	}
 }  // end namespace Configure

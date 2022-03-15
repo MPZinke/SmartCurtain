@@ -21,7 +21,7 @@
 
 namespace Curtain
 {
-	using Hardware::CurtainState;
+	using Movement::CurtainState;
 
 
 	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //

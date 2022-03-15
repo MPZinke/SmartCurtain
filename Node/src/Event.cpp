@@ -15,8 +15,9 @@
 #include "../Headers/Event.hpp"
 
 #include "../Headers/Curtain.hpp"
+#include "../Headers/Exceptions.hpp"
 #include "../Headers/Movement.hpp"
-#include "../Headers/Transmission.hpp"
+#include "../Headers/Request.hpp"
 
 
 namespace Event
@@ -28,7 +29,7 @@ namespace Event
 
 	Event::Event(JsonObject& event_object)
 	{
-		using namespace Transmission::Literal::JSON::Key;
+		using namespace Request::Literal::JSON::Key;
 
 		if(!event_object.containsKey(EVENT_ID))
 		{
@@ -102,8 +103,8 @@ namespace Event
 	{
 		JsonObject event_object = JsonObject();
 
-		event_object[Transmission::Literal::JSON::Key::EVENT_ID] = _id;
-		event_object[Transmission::Literal::JSON::Key::EVENT_PERCENTAGE] = _percentage;
+		event_object[Request::Literal::JSON::Key::EVENT_ID] = _id;
+		event_object[Request::Literal::JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
 		return event_object;
 	}

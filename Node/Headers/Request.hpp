@@ -13,11 +13,8 @@
 
 #include "Global.hpp"
 
-#include "C_String.hpp"
-#include "Exceptions.hpp"
 
-
-namespace Transmission
+namespace Request
 {
 	namespace Literal
 	{
@@ -95,8 +92,8 @@ namespace Transmission
 
 		namespace Responses
 		{
-			extern const uint8_t INVALID[];
-			extern const uint8_t VALID[];
+			extern const char INVALID[];
+			extern const char VALID[];
 		}  // end namespace Responses
 	}  // end namespace Literal
 
@@ -107,10 +104,10 @@ namespace Transmission
 	String status_json();
 	bool skip_header();
 	WiFiClient wait_for_request();
-	String read_transmission_data_into_buffer();
-	void post_json(char json[], const uint8_t path[]=Config::Transmission::ACTION_COMPLETE_URL);
+	String read_request_data_into_buffer();
+	void post_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL);
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
-	void respond_with_json_and_stop(char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
+	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
-} // end namespace Transmission
+} // end namespace Request

@@ -13,7 +13,6 @@
 
 #include "../Headers/Movement.hpp"
 
-#include "../Headers/C_String.hpp"
 #include "../Headers/Config.hpp"
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
