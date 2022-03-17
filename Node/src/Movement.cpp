@@ -26,7 +26,6 @@ namespace Movement
 	using Config::Hardware::BOTH_ENDSTOPS;
 	using Config::Hardware::CLOSE_ENDSTOP;
 	using Config::Hardware::OPEN_ENDSTOP;
-	using Config::Hardware::ENCODER;
 	using namespace Hardware::CurtainStates;  // used CurtainStates as enum
 
 

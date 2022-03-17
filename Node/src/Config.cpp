@@ -35,25 +35,19 @@ namespace Config
 		const uint8_t PULSE_PIN = 19;
 
 		const uint8_t CLOSE_PIN = 0;
-		const uint8_t ENCODER_PINA = 0;
-		const uint8_t ENCODER_PINB = 0;
 		const uint8_t OPEN_PIN = 0;
 
 		// ———— WAIT ————
-		const uint16_t ENCODER_WAIT = 60;  // Wait between reads of the encoder.
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
 
 		// ———————— HARDWARE DETERMINED VALUES ————————
 		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
 		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
-		const bool ENCODER = (bool)(ENCODER_PINA | ENCODER_PINB);
 		extern const bool BOTH_ENDSTOPS = CLOSE_PIN && CLOSE_PIN;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
 		const uint32_t DEFAULT_LENGTH = 34000;
-		const uint16_t ENCODER_STEPS_PER_ROTATION = 800;
-		const uint16_t MOTOR_STEPS_PER_ROTATION = 3200;  // 200 st/rot * 16 microstepping
 
 		// ———— SWITCHES ————
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.

@@ -38,25 +38,19 @@ namespace Config
 		extern const uint8_t PULSE_PIN;
 
 		extern const uint8_t CLOSE_PIN;
-		extern const uint8_t ENCODER_PINA;
-		extern const uint8_t ENCODER_PINB;
 		extern const uint8_t OPEN_PIN;
 
 		// ———— WAIT ————
-		extern const uint16_t ENCODER_WAIT;  // Wait between reads of the encoder.
 		extern const uint16_t PULSE_WAIT;  // Wait between pulses for the stepper motor
 
 		// ———————— HARDWARE DETERMINED VALUES ————————
 		extern const bool CLOSE_ENDSTOP;
 		extern const bool OPEN_ENDSTOP;
-		extern const bool ENCODER;
 		extern const bool BOTH_ENDSTOPS;  // whether curtain contains both endstops
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
 		extern const uint32_t DEFAULT_LENGTH;
-		extern const uint16_t ENCODER_STEPS_PER_ROTATION;
-		extern const uint16_t MOTOR_STEPS_PER_ROTATION;  // 200 st/rot * 16 microstepping
 
 		// ———— SWITCHES ————
 		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.
