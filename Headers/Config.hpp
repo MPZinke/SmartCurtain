@@ -54,6 +54,7 @@ namespace Config
 
 		// ———— SWITCHES ————
 		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.
+		extern const bool DISCRETE_MOVEMENT_ALLOWED;
 		extern const bool SWITCH;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
 

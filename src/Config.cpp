@@ -43,13 +43,15 @@ namespace Config
 		// ———————— HARDWARE DETERMINED VALUES ————————
 		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
 		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
-		extern const bool BOTH_ENDSTOPS = CLOSE_PIN && CLOSE_PIN;
+		const bool BOTH_ENDSTOPS = CLOSE_PIN && CLOSE_PIN;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
 		const uint32_t DEFAULT_LENGTH = 34000;
 
 		// ———— SWITCHES ————
+		// I don't like discrete movement, so I am not going to allow it on my curtain.
+		const bool DISCRETE_MOVEMENT_ALLOWED = false;
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
 		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}

@@ -33,7 +33,7 @@ namespace Curtain
 
 		_auto_calibrate = BOTH_ENDSTOPS;
 		_auto_correct = CLOSE_ENDSTOP || OPEN_ENDSTOP;
-		_discrete_movement = CLOSE_ENDSTOP || OPEN_ENDSTOP;
+		_discrete_movement = (CLOSE_ENDSTOP || OPEN_ENDSTOP) && DISCRETE_MOVEMENT_ALLOWED;
 		_direction = DIRECTION_SWITCH;
 
 		_length = DEFAULT_LENGTH;
