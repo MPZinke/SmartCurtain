@@ -177,6 +177,7 @@ namespace Request
 			client = Global::server.available();
 		}
 
+		Global::client_IP = client.remoteIP();
 		return client;
 	}
 
@@ -196,7 +197,7 @@ namespace Request
 		}
 
 		// If client contents longer than content, handle "error" and do not proceed
-		if(JSON_BUFFER_SIZE >= content.length())
+		if(JSON_BUFFER_SIZE <= content.length())
 		{
 			for(uint32_t x = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
 			{
@@ -224,7 +225,7 @@ namespace Request
 
 		// Headers
 		Global::client.print(Literal::HTTP::HOST_TAG);
-		Global::client.println(Config::Network::HUB_HOST_STR);
+		Global::client.println(Global::client_IP);
 
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
@@ -291,7 +292,7 @@ namespace Request
 		// Establish connection
 		static WiFiClient client;
 		Global::client = client;
-		if(!Global::client.connect(Config::Network::HUB_HOST_STR, Config::Network::PORT)) return;
+		if(!Global::client.connect(Global::client_IP, Config::Network::PORT)) return;
 
 		// Send data if eventually connected
 		uint8_t timeout;

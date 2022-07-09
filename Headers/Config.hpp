@@ -66,9 +66,6 @@ namespace Config
 		extern uint8_t MAC_ADDRESS[];  // {'Z', 'C', 'R', 'T', 'N', '1'}
 		extern uint8_t NODE_HOST[];  // node host
 
-		// HUB
-		extern char HUB_HOST_STR[];  // hub host cstr
-
 		// ROUTER
 		extern uint8_t ROUTER_GATEWAY[];  // router gateway
 		extern uint8_t SUBNET_MASK[];  // of the router

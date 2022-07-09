@@ -171,6 +171,7 @@ void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 
 	if(json_document.containsKey(Key::HUB_IP))
 	{
-		C_String::copy(json_document[Key::HUB_IP], Config::Network::HUB_HOST_STR);
+		//TODO: get octets from JSON string
+		// C_String::copy(json_document[Key::HUB_IP], Config::Network::HUB_HOST_STR);
 	}
 }
