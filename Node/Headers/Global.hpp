@@ -44,4 +44,6 @@ namespace Global
 	extern WiFiServer server;
 
 	extern jmp_buf jump_buffer;
+
+	extern IPAddress client_IP;
 } // end namespace Global

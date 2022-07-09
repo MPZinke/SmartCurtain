@@ -25,4 +25,6 @@ namespace Global
 	WiFiServer server(Config::Network::PORT);
 
 	jmp_buf jump_buffer;
+
+	IPAddress client_IP;
 } // end namespace Global
