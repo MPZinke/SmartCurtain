@@ -47,18 +47,8 @@ namespace Curtain
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Curtain::operator String()
 	{
-		JsonObject curtain_object = (JsonObject)(*this);
-		return Request::convert(curtain_object);
-	}
-
-
-	// SUMMARY: Creates a JsonObject for partially JSONing the Curtain object.
-	// DETAILS: Called when a Curtain object is attempted to be converted to a JsonObject. Adds object attributes to
-	//  JsonObject and returns it.
-	Curtain::operator JsonObject()
-	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
-		JsonObject curtain_object = JsonObject();
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		JsonObject curtain_object = json_document.to<JsonObject>();
 
 		curtain_object[JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
 		curtain_object[JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
@@ -69,11 +59,17 @@ namespace Curtain
 		curtain_object[JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
 		curtain_object[JSON::Key::CURTAIN_POSITION] = _position;
 
-		return curtain_object;
+		return Request::convert(curtain_object);
 	}
 
 
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
+
+	uint8_t Curtain::id()
+	{
+		return _id;
+	}
+
 
 	bool Curtain::auto_calibrate()
 	{

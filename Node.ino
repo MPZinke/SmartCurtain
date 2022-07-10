@@ -162,6 +162,8 @@ void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	Event::Event event(event_object);
 
 	Movement::activate(event);
+
+	Request::update_hub();
 }
 
 

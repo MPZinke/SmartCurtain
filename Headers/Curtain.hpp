@@ -46,9 +46,10 @@ namespace Curtain
 			Curtain(uint8_t id);
 
 			operator String();
-			operator JsonObject();
 
 			// ———— GETTERS ————
+			uint8_t id();
+
 			bool auto_calibrate();
 			bool auto_correct();
 			bool direction();

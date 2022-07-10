@@ -26,6 +26,7 @@ namespace Request
 			extern const char NO_CONTENT_REQUEST[];  // start string for no content for request
 			extern const char NOT_FOUND_REQUEST[];  // start string for no content for request
 			// —— START LINE::POST —— //
+			extern const char PATCH_METHOD[];
 			extern const char POST_METHOD[];
 			extern const char HTTP_VERSION[];
 
@@ -105,9 +106,10 @@ namespace Request
 	bool skip_header();
 	WiFiClient wait_for_request();
 	String read_request_data_into_buffer();
-	void post_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL);
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
 	void update_hub(byte packet_buffer[]);
+	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
+	  const char method[]=Literal::HTTP::POST_METHOD);
 } // end namespace Request
