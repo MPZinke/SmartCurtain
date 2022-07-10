@@ -157,7 +157,7 @@ StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 
 void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 {
-	if(json_document.containsKey(Request::Literal::JSON::Key::EVENT))
+	if(!json_document.containsKey(Request::Literal::JSON::Key::EVENT))
 	{
 		String error_message = String("Missing key: '") + Request::Literal::JSON::Key::EVENT + "' for QUERY_TYPE: '"
 		  + Request::Literal::JSON::Value::MOVE + "'";
@@ -178,7 +178,7 @@ void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 {
 	using namespace Request::Literal::JSON;
 
-	if(json_document.containsKey(Key::HUB_IP))
+	if(!json_document.containsKey(Key::HUB_IP))
 	{
 		//TODO: get octets from JSON string
 		// C_String::copy(json_document[Key::HUB_IP], Config::Network::HUB_HOST_STR);
