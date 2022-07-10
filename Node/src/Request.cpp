@@ -94,7 +94,6 @@ namespace Request
 
 	String convert(JsonObject& object)
 	{
-		size_t c_string_size = measureJson(object) + 1;
 		String json_string;
 		serializeJson(object, json_string);
 
@@ -122,7 +121,8 @@ namespace Request
 
 	String http_exception_json(uint16_t error_code, char error_message[])
 	{
-		JsonObject error_object = JsonObject();
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		JsonObject status_object = json_document.to<JsonObject>();
 
 		error_object["success"] = false;
 		error_object["status code"] = error_code;
@@ -134,7 +134,8 @@ namespace Request
 
 	String status_json()
 	{
-		JsonObject status_object = JsonObject();
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		JsonObject status_object = json_document.to<JsonObject>();
 
 		status_object[Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
 		status_object[Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.percentage();
