@@ -193,7 +193,7 @@ namespace Request
 
 		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
 		{
-			content += Global::client.read();
+			content += (char)Global::client.read();
 		}
 
 		// If client contents longer than content, handle "error" and do not proceed
