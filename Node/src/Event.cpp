@@ -87,26 +87,13 @@ namespace Event
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Event::operator String()
 	{
-		JsonObject event_object = (JsonObject)(*this);
-
-		String json_string;
-		serializeJson(event_object, json_string);
-
-		return json_string;
-	}
-
-
-	// SUMMARY: Creates a JsonObject for partially JSONing the Curtain object.
-	// DETAILS: Called when a Curtain object is attempted to be converted to a JsonObject. Adds object attributes to
-	//  JsonObject and returns it.
-	Event::operator JsonObject()
-	{
-		JsonObject event_object = JsonObject();
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		JsonObject event_object = json_document.to<JsonObject>();
 
 		event_object[Request::Literal::JSON::Key::EVENT_ID] = _id;
 		event_object[Request::Literal::JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
-		return event_object;
+		return Request::convert(curtain_object);
 	}
 
 

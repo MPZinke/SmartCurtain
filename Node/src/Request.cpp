@@ -29,6 +29,7 @@ namespace Request
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
 			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
 			// —— START LINE::POST —— //
+			const char PATCH_METHOD[] = "PATCH ";
 			const char POST_METHOD[] = "POST ";
 			const char HTTP_VERSION[] = " HTTP/1.1";
 
@@ -122,7 +123,7 @@ namespace Request
 	String http_exception_json(uint16_t error_code, char error_message[])
 	{
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		JsonObject status_object = json_document.to<JsonObject>();
+		JsonObject error_object = json_document.to<JsonObject>();
 
 		error_object["success"] = false;
 		error_object["status code"] = error_code;
@@ -217,10 +218,11 @@ namespace Request
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
 	// void post_json(char json[])
-	void post_json(char json[], const uint8_t path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/)
+	void write_json(char json[], const char path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/,
+	  const char method[]/*=Literal::HTTP::POST_METHOD*/)
 	{
 		// Start line
-		Global::client.print(Literal::HTTP::POST_METHOD);
+		Global::client.print(method);
 		Global::client.print(String((const char*)path));
 		Global::client.println(Literal::HTTP::HTTP_VERSION);
 
@@ -286,7 +288,7 @@ namespace Request
 
 	// ————————————————————————————————————————— CONNECT TO & SEND HUB DATA ————————————————————————————————————————— //
 
-	void update_hub(byte packet_buffer[])
+	void update_hub()
 	{
 		if(Global::client.connected()) Global::client.stop();  // make sure I wasn't incompetent :)
 
@@ -300,7 +302,9 @@ namespace Request
 		for(timeout = 255; !Global::client.connected() && timeout; timeout--) delay(10);
 		if(timeout)
 		{
-			post_json((char*)packet_buffer, Config::Transmission::ACTION_COMPLETE_URL);
+			String path = String("/api/curtains/") + Global::curtain.id() + "/is_activated/" + false;
+			String curtain_json = Global::curtain;
+			write_json((char*)curtain_json.c_str(), path.c_str(), Literal::HTTP::PATCH_METHOD);
 			while(Global::client.available()) Global::client.read();
 			Global::client.stop();
 		}
