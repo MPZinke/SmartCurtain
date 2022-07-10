@@ -87,13 +87,14 @@ namespace Event
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Event::operator String()
 	{
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject event_object = json_document.to<JsonObject>();
 
-		event_object[Request::Literal::JSON::Key::EVENT_ID] = _id;
-		event_object[Request::Literal::JSON::Key::EVENT_PERCENTAGE] = _percentage;
+		event_object[JSON::Key::EVENT_ID] = _id;
+		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
-		return Request::convert(curtain_object);
+		return Request::convert(event_object);
 	}
 
 

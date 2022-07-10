@@ -47,10 +47,11 @@ namespace Curtain
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Curtain::operator String()
 	{
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
-		curtain_object[JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
+		curtain_object[JSON::Key::CURTAIN_ID] = id();
 		curtain_object[JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
 		curtain_object[JSON::Key::AUTO_CORRECT] = _auto_correct;
 		curtain_object[JSON::Key::DIRECTION] = _direction;
