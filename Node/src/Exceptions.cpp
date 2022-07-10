@@ -13,46 +13,77 @@
 
 #include "../Headers/C_String.hpp"
 #include "../Headers/Exceptions.hpp"
+#include "../Headers/Global.hpp"
 #include "../Headers/Request.hpp"
 
 
 namespace Exceptions
 {
-	void throw_generic(String message)
+	// ————————————————————————————————————————————————— EXCEPTION  ————————————————————————————————————————————————— //
+
+	Exception::Exception(uint32_t line, String file, String message)
 	{
-		using namespace Request;
-		respond_with_json_and_stop(message, Literal::HTTP::NO_CONTENT_REQUEST);
-		longjmp(Global::jump_buffer, 1);
+		_line = line;
+		_file = file;
+		_message = message;
 	}
 
 
-	void throw_generic(const char message[])
+	uint32_t Exception::line()
 	{
-
-		longjmp(Global::jump_buffer, 1);
+		return _line;
 	}
 
 
-	void throw_HTTP_204(const char message[])
+	String Exception::file()
 	{
-		using namespace Request;
-		respond_with_json_and_stop(Literal::Responses::INVALID, Literal::HTTP::NO_CONTENT_REQUEST);
-		longjmp(Global::jump_buffer, 1);
+		return _file;
 	}
 
 
-	void throw_HTTP_400(const char message[])
+	String Exception::message()
 	{
-		using namespace Request;
-		respond_with_json_and_stop(Literal::Responses::INVALID, Literal::HTTP::INVALID_REQUEST);
-		longjmp(Global::jump_buffer, 1);
+		return String("{\"error\": \"") + _message + "\"}";
 	}
 
 
-	void throw_HTTP_404(const char message[])
+	void Exception::send()
 	{
-		using namespace Request;
-		respond_with_json_and_stop(Literal::Responses::INVALID, Literal::HTTP::NOT_FOUND_REQUEST);
-		longjmp(Global::jump_buffer, 1);
+
 	}
+
+
+	// ——————————————————————————————————————————————— HTTP EXCEPTION ——————————————————————————————————————————————— //
+
+	HTTP_Exception::HTTP_Exception(uint32_t line, String file, String message, uint16_t status_code)
+	: Exception{Exception(line, file, message)}, _status_code{status_code}
+	{
+		Global::exception = this;
+	}
+
+
+	HTTP_Exception::~HTTP_Exception()
+	{
+		Global::exception = NULL;
+	}
+
+
+	String HTTP_Exception::message()
+	{
+		return String("{\"error\": \"") + _message + "\", \"status_code\":" + _status_code + "}";
+	}
+
+
+	BAD_REQUEST_400_Exception::BAD_REQUEST_400_Exception(uint32_t line, String file, String message)
+	: HTTP_Exception{line, file, message, 400}
+	{}
+
+	NOT_FOUND_404_Exception::NOT_FOUND_404_Exception(uint32_t line, String file, String message)
+	: HTTP_Exception{line, file, message, 404}
+	{}
+
+	INTERNAL_SERVER_ERROR_500_Exception::
+	  INTERNAL_SERVER_ERROR_500_Exception(uint32_t line, String file, String message)
+	: HTTP_Exception{line, file, message, 500}
+	{}
 }

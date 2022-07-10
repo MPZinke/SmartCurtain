@@ -34,16 +34,23 @@ namespace Curtain
 }
 
 
+namespace Exceptions
+{
+	class Exception;
+}
+
+
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //
 
 namespace Global
 {
 	extern Curtain::Curtain curtain;
 
-	extern WiFiClient client;
 	extern WiFiServer server;
 
-	extern jmp_buf jump_buffer;
-
+	extern WiFiClient client;
 	extern IPAddress client_IP;
+
+	extern Exceptions::Exception* exception;
 } // end namespace Global
+

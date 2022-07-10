@@ -21,10 +21,10 @@ namespace Global
 {
 	Curtain::Curtain curtain((uint8_t)C_String::atoi(Config::Curtain::CURTAIN_ID));
 
-	WiFiClient client;
 	WiFiServer server(Config::Network::PORT);
 
-	jmp_buf jump_buffer;
-
+	WiFiClient client;
 	IPAddress client_IP;
+
+	Exceptions::Exception* exception = NULL;
 } // end namespace Global
