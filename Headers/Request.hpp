@@ -72,6 +72,7 @@ namespace Request
 				// Used to auto increment the ID for the value
 				enum
 				{
+					UNDEFINED = 0,
 					MOVE_ID,
 					RESET_ID,
 					STATUS_ID,
@@ -99,7 +100,9 @@ namespace Request
 	}  // end namespace Literal
 
 
+	void clear_client_buffer_and_stop();
 	String convert(JsonObject& object);
+	void deactivate_curtain();
 	uint8_t id_for_value(const char* value);
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
@@ -109,7 +112,6 @@ namespace Request
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
-	void update_hub();
 	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
 	  const char method[]=Literal::HTTP::POST_METHOD);
 } // end namespace Request

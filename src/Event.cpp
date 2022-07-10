@@ -20,6 +20,9 @@
 #include "../Headers/Request.hpp"
 
 
+using namespace Exceptions;
+
+
 namespace Event
 {
 	using namespace Movement::CurtainStates;
@@ -34,12 +37,8 @@ namespace Event
 		if(!event_object.containsKey(EVENT_ID))
 		{
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			Exceptions::throw_HTTP_404(error_message.c_str());
-		}
-		if(!event_object.containsKey(EVENT_ID))
-		{
-			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_PERCENTAGE + "\"";
-			Exceptions::throw_HTTP_404(error_message.c_str());
+			NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
+			return;
 		}
 
 		_id = event_object[EVENT_ID];

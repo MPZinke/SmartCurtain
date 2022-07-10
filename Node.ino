@@ -39,6 +39,9 @@
 #include "Headers/Request.hpp"
 
 
+using namespace Exceptions;
+
+
 StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
 void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
@@ -112,11 +115,15 @@ void loop()
 
 		default:
 		{
-			Exceptions::throw_HTTP_404("Unknown query type");
+			using namespace Request::Literal;
+			Request::respond_with_json_and_stop(Responses::INVALID, HTTP::NOT_FOUND_REQUEST);
 		}
 	}
 
-	setjmp(Global::jump_buffer);
+	if(Global::exception)
+	{
+		Global::exception->send();
+	}
 
 	delay(700);
 }
@@ -129,17 +136,17 @@ StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 	Global::client = Request::wait_for_request();
 
 	// bad message: retry later
+	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 	String json_buffer = Request::read_request_data_into_buffer();
 	if(!json_buffer.length())
 	{
-		Exceptions::throw_HTTP_204("Could not read Request into json_buffer");
+		new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
 	}
 
 	// Decode JSON
-	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 	if(deserializeJson(json_document, json_buffer))
 	{
-		Exceptions::throw_HTTP_400("Could not decode json");
+		new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not decode json");
 	}
 
 	return json_document;
@@ -150,11 +157,12 @@ StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 
 void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 {
-	if(!json_document.containsKey(Request::Literal::JSON::Key::EVENT))
+	if(json_document.containsKey(Request::Literal::JSON::Key::EVENT))
 	{
-		String error_message = String("Missing key: \"") + Request::Literal::JSON::Key::EVENT
-		  + "\" for QUERY_TYPE: \"" + Request::Literal::JSON::Value::MOVE + "\"";
-		Exceptions::throw_HTTP_404(error_message.c_str());
+		String error_message = String("Missing key: '") + Request::Literal::JSON::Key::EVENT + "' for QUERY_TYPE: '"
+		  + Request::Literal::JSON::Value::MOVE + "'";
+		new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
+		return;
 	}
 
 	Request::respond_with_json_and_stop(Request::Literal::Responses::VALID);
@@ -162,8 +170,7 @@ void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	Event::Event event(event_object);
 
 	Movement::activate(event);
-
-	Request::update_hub();
+	Request::deactivate_curtain();
 }
 
 

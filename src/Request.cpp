@@ -93,6 +93,17 @@ namespace Request
 
 	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
 
+	void clear_client_buffer_and_stop()
+	{
+		while(Global::client.available())
+		{
+			Global::client.read();
+		}
+
+		Global::client.stop();
+	}
+
+
 	String convert(JsonObject& object)
 	{
 		String json_string;
@@ -114,7 +125,7 @@ namespace Request
 			}
 		}
 
-		Exceptions::throw_generic("No matching value found");
+		return Request::Literal::JSON::Value::UNDEFINED;
 	}
 
 	
@@ -288,7 +299,7 @@ namespace Request
 
 	// ————————————————————————————————————————— CONNECT TO & SEND HUB DATA ————————————————————————————————————————— //
 
-	void update_hub()
+	void deactivate_curtain()
 	{
 		if(Global::client.connected()) Global::client.stop();  // make sure I wasn't incompetent :)
 
@@ -305,8 +316,7 @@ namespace Request
 			String path = String("/api/curtains/") + Global::curtain.id() + "/is_activated/" + false;
 			String curtain_json = Global::curtain;
 			write_json((char*)curtain_json.c_str(), path.c_str(), Literal::HTTP::PATCH_METHOD);
-			while(Global::client.available()) Global::client.read();
-			Global::client.stop();
+			clear_client_buffer_and_stop();
 		}
 	}
 }
