@@ -137,7 +137,7 @@ StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 
 	// Decode JSON
 	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-	if(!deserializeJson(json_document, json_buffer))
+	if(deserializeJson(json_document, json_buffer))
 	{
 		Exceptions::throw_HTTP_400("Could not decode json");
 	}
