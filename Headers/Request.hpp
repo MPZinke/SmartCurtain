@@ -109,7 +109,7 @@ namespace Request
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
 	void send_status_and_stop_client();
-	void update_hub(byte packet_buffer[]);
+	void update_hub();
 	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
 	  const char method[]=Literal::HTTP::POST_METHOD);
 } // end namespace Request
