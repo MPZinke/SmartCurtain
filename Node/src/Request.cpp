@@ -27,8 +27,6 @@ namespace Request
 		namespace HTTP
 		{
 			// ———— START LINE ———— //
-			const char VALID_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
-			const char INVALID_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
 			const char OK_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
 			const char BAD_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device

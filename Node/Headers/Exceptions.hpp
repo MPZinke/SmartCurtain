@@ -47,7 +47,7 @@ namespace Exceptions
 			~HTTP_Exception();
 
 			String message();
-			String send();
+			void send();
 	};
 
 
