@@ -11,6 +11,9 @@
 ***********************************************************************************************************************/
 
 
+#include <ArduinoJson.h>
+
+
 #include "Global.hpp"
 
 
@@ -21,10 +24,11 @@ namespace Request
 		namespace HTTP
 		{
 			// ———— START LINE ———— //
-			extern const char VALID_REQUEST[];  // start string for valid request from device
-			extern const char INVALID_REQUEST[];  // start string for invalid request from device
+			extern const char OK_REQUEST[];  // start string for valid request from device
 			extern const char NO_CONTENT_REQUEST[];  // start string for no content for request
+			extern const char BAD_REQUEST[];  // start string for invalid request from device
 			extern const char NOT_FOUND_REQUEST[];  // start string for no content for request
+			extern const char INTERNAL_SERVER_ERROR_REQUEST[];
 			// —— START LINE::POST —— //
 			extern const char PATCH_METHOD[];
 			extern const char POST_METHOD[];
@@ -103,14 +107,14 @@ namespace Request
 	void clear_client_buffer_and_stop();
 	String convert(JsonObject& object);
 	void deactivate_curtain();
-	uint8_t id_for_value(const char* value);
+	uint8_t id_for_query_type(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
 	bool skip_header();
 	WiFiClient wait_for_request();
 	String read_request_data_into_buffer();
-	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::VALID_REQUEST);
-	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::VALID_REQUEST);
+	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
+	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void send_status_and_stop_client();
 	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
 	  const char method[]=Literal::HTTP::POST_METHOD);

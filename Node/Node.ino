@@ -76,47 +76,50 @@ void loop()
 		
 	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 
-	// If curtain information, update Global::curtain information
-	if(json_document.containsKey(Request::Literal::JSON::Key::CURTAIN))
+	if(!Global::exception)
 	{
-		Global::curtain.update(json_document);
-	}
-
-	// Call action for QUERY_TYPE
-	switch(Request::id_for_value(json_document[Request::Literal::JSON::Key::QUERY_TYPE]))
-	{
-		// Update information about curtain
-		case Request::Literal::JSON::Value::UPDATE_ID:
+		// If curtain information, update Global::curtain information
+		if(json_document.containsKey(Request::Literal::JSON::Key::CURTAIN))
 		{
-			case_update(json_document);
-			// Fall through to STATUS_ID
+			Global::curtain.update(json_document);
 		}
 
-		// Return information about Curtain
-		case Request::Literal::JSON::Value::STATUS_ID:
+		// Call action for QUERY_TYPE
+		switch(Request::id_for_query_type(json_document[Request::Literal::JSON::Key::QUERY_TYPE]))
 		{
-			Request::send_status_and_stop_client();
-			break;
-		}
+			// Update information about curtain
+			case Request::Literal::JSON::Value::UPDATE_ID:
+			{
+				case_update(json_document);
+				// Fall through to STATUS_ID
+			}
 
-		// Reset curtain by moving it from alleged current position to close to actual current position.
-		case Request::Literal::JSON::Value::RESET_ID:
-		{
-			Movement::EndstopGuarded::move_and_reset();
-			break;
-		}
+			// Return information about Curtain
+			case Request::Literal::JSON::Value::STATUS_ID:
+			{
+				Request::send_status_and_stop_client();
+				break;
+			}
 
-		// Move to position
-		case Request::Literal::JSON::Value::MOVE_ID:
-		{
-			case_move(json_document);
-			break;
-		}
+			// Reset curtain by moving it from alleged current position to close to actual current position.
+			case Request::Literal::JSON::Value::RESET_ID:
+			{
+				Movement::EndstopGuarded::move_and_reset();
+				break;
+			}
 
-		default:
-		{
-			using namespace Request::Literal;
-			Request::respond_with_json_and_stop(Responses::INVALID, HTTP::NOT_FOUND_REQUEST);
+			// Move to position
+			case Request::Literal::JSON::Value::MOVE_ID:
+			{
+				case_move(json_document);
+				break;
+			}
+
+			default:
+			{
+				using namespace Request::Literal;
+				Request::respond_with_json_and_stop(Responses::INVALID, HTTP::NOT_FOUND_REQUEST);
+			}
 		}
 	}
 
