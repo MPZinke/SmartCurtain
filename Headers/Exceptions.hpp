@@ -11,6 +11,10 @@
 ***********************************************************************************************************************/
 
 
+#include <stdint.h>
+#include <Arduino.h>
+
+
 namespace Exceptions
 {
 	class Exception
@@ -27,21 +31,23 @@ namespace Exceptions
 			String file();
 			String message();
 
-			void send();
+			virtual void send();
 	};
 
 
 	class HTTP_Exception: public Exception
 	{
 		protected:
+			const char* _request_header = NULL;
 			uint16_t _status_code;
 
 		public:
-			HTTP_Exception(uint32_t line, String file, String message, uint16_t status_code);
+			HTTP_Exception(uint32_t line, String file, String message, uint16_t status_code,
+			  const char* request_header);
 			~HTTP_Exception();
 
 			String message();
-			String send_message();
+			String send();
 	};
 
 
