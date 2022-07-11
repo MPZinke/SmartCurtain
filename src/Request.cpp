@@ -18,6 +18,9 @@
 #include "../Headers/Exceptions.hpp"
 
 
+using namespace Exceptions;
+
+
 namespace Request
 {	namespace Literal
 	{
@@ -26,8 +29,11 @@ namespace Request
 			// ———— START LINE ———— //
 			const char VALID_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
 			const char INVALID_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
+			const char OK_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
+			const char BAD_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
 			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
+			const char INTERNAL_SERVER_ERROR_REQUEST[] = "HTTP/1.1 500 Internal Server Error";
 			// —— START LINE::POST —— //
 			const char PATCH_METHOD[] = "PATCH ";
 			const char POST_METHOD[] = "POST ";
@@ -115,8 +121,16 @@ namespace Request
 
 	// Get the id for a given value from the Literal::JSON::Value::VALUE_IDS.
 	// Takes the value to match to.
-	uint8_t id_for_value(const char* value)
+	uint8_t id_for_query_type(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
+		if(!json_document.containsKey(Request::Literal::JSON::Key::QUERY_TYPE))
+		{
+			String message = String("JSON is mssing values '") + Request::Literal::JSON::Key::QUERY_TYPE + "'";
+			new NOT_FOUND_404_Exception(__LINE__-2, __FILE__, message);
+			return Request::Literal::JSON::Value::UNDEFINED;
+		}
+
+		const char* value = json_document[Request::Literal::JSON::Key::QUERY_TYPE];
 		for(uint8_t x = 0; x < sizeof(Literal::JSON::Value::VALUE_IDS) / sizeof(Literal::JSON::Value::ValueID); x++)
 		{
 			if(C_String::equal(value, Literal::JSON::Value::VALUE_IDS[x].value))
@@ -228,7 +242,6 @@ namespace Request
 	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
-	// void post_json(char json[])
 	void write_json(char json[], const char path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/,
 	  const char method[]/*=Literal::HTTP::POST_METHOD*/)
 	{
@@ -252,7 +265,7 @@ namespace Request
 	}
 
 
-	void respond_with_json_and_stop(String& json, const char response_type[]/*=Literal::HTTP::VALID_REQUEST*/)
+	void respond_with_json_and_stop(String& json, const char response_type[]/*=Literal::HTTP::OK_REQUEST*/)
 	{
 		// Start line
 		Global::client.println(response_type);
@@ -271,7 +284,7 @@ namespace Request
 	}
 
 
-	void respond_with_json_and_stop(const char json[], const char response_type[]/*=Literal::HTTP::VALID_REQUEST*/)
+	void respond_with_json_and_stop(const char json[], const char response_type[]/*=Literal::HTTP::OK_REQUEST*/)
 	{
 		// Start line
 		Global::client.println(response_type);

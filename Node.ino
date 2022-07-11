@@ -75,7 +75,6 @@ void loop()
 	Hardware::disable_motor();  // don't burn up the motor
 		
 	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
-
 	if(!Global::exception)
 	{
 		// If curtain information, update Global::curtain information
@@ -85,7 +84,7 @@ void loop()
 		}
 
 		// Call action for QUERY_TYPE
-		switch(Request::id_for_query_type(json_document[Request::Literal::JSON::Key::QUERY_TYPE]))
+		switch(Request::id_for_query_type(json_document))
 		{
 			// Update information about curtain
 			case Request::Literal::JSON::Value::UPDATE_ID:
@@ -117,8 +116,9 @@ void loop()
 
 			default:
 			{
-				using namespace Request::Literal;
-				Request::respond_with_json_and_stop(Responses::INVALID, HTTP::NOT_FOUND_REQUEST);
+				String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
+				  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
+				new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
 			}
 		}
 	}
