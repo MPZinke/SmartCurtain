@@ -72,7 +72,10 @@ void setup()
 
 void loop()
 {
-	Hardware::disable_motor();  // don't burn up the motor
+	if(!Global::event)
+	{
+		Hardware::disable_motor();  // don't burn up the motor
+	}
 		
 	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
 	if(!Global::exception)
