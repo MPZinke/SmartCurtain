@@ -183,7 +183,8 @@ void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 
 	if(!json_document.containsKey(Key::HUB_IP))
 	{
-		//TODO: get octets from JSON string
-		// C_String::copy(json_document[Key::HUB_IP], Config::Network::HUB_HOST_STR);
+		uint8_t octets[4];
+		C_String::IP_address_octets(json_document[Key::HUB_IP]);
+		Global::client_IP = IPAddress(octets[0], octets[1], octets[2], octets[3]);
 	}
 }

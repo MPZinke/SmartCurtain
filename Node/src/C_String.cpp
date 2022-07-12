@@ -61,6 +61,23 @@ namespace C_String
 	}
 
 
+	void IP_address_octets(const char* source, uint8_t octets[4])
+	{
+		uint16_t source_length = length((char*)source);
+		for(uint8_t octet_index = 0, source_index = 0; octet_index < 4 && source_index < source_length;
+		  octet_index++, source_index++)
+		{
+			char octet_string[4] = {'\0', '\0', '\0', '\0'};
+			for(uint8_t string_index = 0; string_index < 3 && source[source_index] != '.'
+			  && source[source_index] != '\0'; string_index++, source_index++)
+			{
+				octet_string[string_index] = source[source_index];
+			}
+			octets[octet_index] = (uint8_t)atoi(octet_string);
+		}
+	}
+
+
 	// Converts an int to a c-string.
 	// Takes the integer to be converted, the address of the location to convert it to.
 	// Converts from least signicicant bit first, then reverses chars.
