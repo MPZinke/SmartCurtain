@@ -68,8 +68,8 @@ namespace C_String
 		  octet_index++, source_index++)
 		{
 			char octet_string[4] = {'\0', '\0', '\0', '\0'};
-			for(uint8_t string_index = 0; string_index < 3 && source[source_index] != '.'
-			  && source[source_index] != '\0'; string_index++, source_index++)
+			for(uint8_t string_index = 0; string_index < 3 && '0' <= source[source_index]
+			  && source[source_index] <= '9'; string_index++, source_index++)
 			{
 				octet_string[string_index] = source[source_index];
 			}
