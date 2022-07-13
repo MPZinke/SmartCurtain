@@ -104,18 +104,25 @@ namespace Request
 	}  // end namespace Literal
 
 
-	void clear_client_buffer_and_stop();
-	String convert(JsonObject& object);
+	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
+	String convert_JsonObject_to_String(JsonObject& object);
 	void deactivate_curtain();
 	uint8_t id_for_query_type(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
+	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
+	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+	String read_request_data_into_buffer();
 	bool skip_header();
 	WiFiClient wait_for_request();
-	String read_request_data_into_buffer();
+	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void send_status_and_stop_client();
 	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
 	  const char method[]=Literal::HTTP::POST_METHOD);
+  	// ————————————————————————————————————————————— CONNECT CONNECTION ————————————————————————————————————————————— //
+	void clear_buffer_and_stop_client();
+	bool new_global_client_connection();
 } // end namespace Request

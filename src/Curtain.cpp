@@ -60,7 +60,7 @@ namespace Curtain
 		curtain_object[JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
 		curtain_object[JSON::Key::CURTAIN_POSITION] = _position;
 
-		return Request::convert(curtain_object);
+		return Request::convert_JsonObject_to_String(curtain_object);
 	}
 
 

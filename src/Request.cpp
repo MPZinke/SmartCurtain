@@ -97,23 +97,24 @@ namespace Request
 
 	// ——————————————————————————————————————————————— UTILITY ——————————————————————————————————————————————— //
 
-	void clear_client_buffer_and_stop()
-	{
-		while(Global::client.available())
-		{
-			Global::client.read();
-		}
-
-		Global::client.stop();
-	}
-
-
-	String convert(JsonObject& object)
+	String convert_JsonObject_to_String(JsonObject& object)
 	{
 		String json_string;
 		serializeJson(object, json_string);
 
 		return json_string;
+	}
+
+
+	void deactivate_curtain()
+	{
+		if(new_global_client_connection())
+		{
+			String path = String("/api/curtains/") + Global::curtain.id() + "/is_activated/" + false;
+			String curtain_json = Global::curtain;
+			write_json((char*)curtain_json.c_str(), path.c_str(), Literal::HTTP::PATCH_METHOD);
+			clear_buffer_and_stop_client();
+		}
 	}
 
 
@@ -152,7 +153,7 @@ namespace Request
 		error_object["status code"] = error_code;
 		error_object["message"] = error_message;
 
-		return convert(error_object);
+		return convert_JsonObject_to_String(error_object);
 	}
 
 
@@ -164,11 +165,63 @@ namespace Request
 		status_object[Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
 		status_object[Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.percentage();
 
-		return convert(status_object);
+		return convert_JsonObject_to_String(status_object);
 	}
 
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
+
+	// RETURN: The JSON Document object.
+	// THROWS: HTTPS_Exceptions
+	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
+	{
+		Global::client = Request::wait_for_request();
+
+		// bad message: retry later
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		String json_buffer = Request::read_request_data_into_buffer();
+		if(!json_buffer.length())
+		{
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
+		}
+
+		// Decode JSON
+		if(deserializeJson(json_document, json_buffer))
+		{
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not decode json");
+		}
+
+		return json_document;
+	}
+
+
+	// SUMMARY:	Reads the client request into a dynamically allocated buffer.
+	// DETAILS:	Skips over the content headers. Allocates enough memory for content length and reads it in from client
+	//  into buffer.
+	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
+	String read_request_data_into_buffer()
+	{
+		String content;
+		if(!skip_header()) return content;
+
+		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
+		{
+			content += (char)Global::client.read();
+		}
+
+		// If client contents longer than content, handle "error" and do not proceed
+		if(JSON_BUFFER_SIZE <= content.length())
+		{
+			for(uint32_t x = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
+			{
+				Global::client.read();
+			}
+			content = "";
+		}
+
+		return content;
+	}
+
 
 	// Skips the header read in from the client.
 	// Reads through each character from client matching the character to the state machine to match to a double 
@@ -207,61 +260,7 @@ namespace Request
 	}
 
 
-	// SUMMARY:	Reads the client request into a dynamically allocated buffer.
-	// DETAILS:	Skips over the content headers. Allocates enough memory for content length and reads it in from client
-	//  into buffer.
-	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
-	String read_request_data_into_buffer()
-	{
-		String content;
-		if(!skip_header()) return content;
-
-		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
-		{
-			content += (char)Global::client.read();
-		}
-
-		// If client contents longer than content, handle "error" and do not proceed
-		if(JSON_BUFFER_SIZE <= content.length())
-		{
-			for(uint32_t x = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
-			{
-				Global::client.read();
-			}
-			content = "";
-		}
-
-		return content;
-	}
-
-
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
-
-	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
-	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
-	// DETAILS:	
-	void write_json(char json[], const char path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/,
-	  const char method[]/*=Literal::HTTP::POST_METHOD*/)
-	{
-		// Start line
-		Global::client.print(method);
-		Global::client.print(String((const char*)path));
-		Global::client.println(Literal::HTTP::HTTP_VERSION);
-
-		// Headers
-		Global::client.print(Literal::HTTP::HOST_TAG);
-		Global::client.println(Global::client_IP);
-
-		Global::client.println(Literal::HTTP::CONTENT_TYPE);
-
-		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
-		Global::client.println(C_String::length(json));
-
-		// Contents
-		Global::client.println();
-		Global::client.println(json);
-	}
-
 
 	void respond_with_json_and_stop(String& json, const char response_type[]/*=Literal::HTTP::OK_REQUEST*/)
 	{
@@ -308,26 +307,68 @@ namespace Request
 	}
 
 
-	// ————————————————————————————————————————— CONNECT TO & SEND HUB DATA ————————————————————————————————————————— //
-
-	void deactivate_curtain()
+	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
+	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
+	// DETAILS:	
+	void write_json(char json[], const char path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/,
+	  const char method[]/*=Literal::HTTP::POST_METHOD*/)
 	{
-		if(Global::client.connected()) Global::client.stop();  // make sure I wasn't incompetent :)
+		// Start line
+		Global::client.print(method);
+		Global::client.print(String((const char*)path));
+		Global::client.println(Literal::HTTP::HTTP_VERSION);
+
+		// Headers
+		Global::client.print(Literal::HTTP::HOST_TAG);
+		Global::client.println(Global::client_IP);
+
+		Global::client.println(Literal::HTTP::CONTENT_TYPE);
+
+		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
+		Global::client.println(C_String::length(json));
+
+		// Contents
+		Global::client.println();
+		Global::client.println(json);
+	}
+
+
+	// ————————————————————————————————————————————— CONNECT CONNECTION ————————————————————————————————————————————— //
+
+	void clear_buffer_and_stop_client()
+	{
+		while(Global::client.available())
+		{
+			Global::client.read();
+		}
+
+		Global::client.stop();
+	}
+
+
+	bool new_global_client_connection()
+	{
+		if(Global::client.connected())
+		{
+			clear_buffer_and_stop_client();
+		}
 
 		// Establish connection
 		static WiFiClient client;
 		Global::client = client;
-		if(!Global::client.connect(Global::client_IP, Config::Network::PORT)) return;
+
+		if(!Global::client.connect(Global::client_IP, Config::Network::PORT))
+		{
+			return false;
+		}
 
 		// Send data if eventually connected
 		uint8_t timeout;
-		for(timeout = 255; !Global::client.connected() && timeout; timeout--) delay(10);
-		if(timeout)
+		for(timeout = 255; !Global::client.connected() && timeout; timeout--)
 		{
-			String path = String("/api/curtains/") + Global::curtain.id() + "/is_activated/" + false;
-			String curtain_json = Global::curtain;
-			write_json((char*)curtain_json.c_str(), path.c_str(), Literal::HTTP::PATCH_METHOD);
-			clear_client_buffer_and_stop();
+			delay(10);
 		}
+
+		return Global::client.connected();
 	}
 }
