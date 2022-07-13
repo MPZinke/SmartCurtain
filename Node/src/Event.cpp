@@ -37,7 +37,7 @@ namespace Event
 		if(!event_object.containsKey(EVENT_ID))
 		{
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
+			new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
 			return;
 		}
 

@@ -117,4 +117,3 @@ void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 		Global::client_IP = IPAddress(octets[0], octets[1], octets[2], octets[3]);
 	}
 }
-
