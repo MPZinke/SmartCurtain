@@ -44,14 +44,14 @@ namespace Movement
 	bool (*function_for_side(CurtainState state))();
 	bool return_false();
 	bool return_true();
-	uint32_t steps(Event::Event& event);
-	void activate(register Event::Event& event);
+	uint32_t steps();
+	void activate();
 
 	namespace EndstopGuarded
 	{
-		void move_and_calibrate(Event::Event& event);
+		void move_and_calibrate();
 		void move_and_reset();
-		inline void move_discretely(Event::Event& event);
+		inline void move_discretely();
 		inline void move_until_closed();
 		inline void move_until_open();
 		inline void move_until_state_reached(bool(*state_function)());
@@ -62,8 +62,6 @@ namespace Movement
 
 	namespace Endstopless
 	{
-		inline void step(Event::Event& event);
-		inline void step(register uint32_t steps);
-		inline void step(register uint32_t steps, const bool direction);
+		inline void step();
 	}  // end namespace Endstopless
 }  // end namespace GPIO
