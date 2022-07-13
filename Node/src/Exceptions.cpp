@@ -49,7 +49,7 @@ namespace Exceptions
 		error_object["line"] = _line;
 		error_object["file"] = _file;
 
-		return Request::convert(error_object);
+		return Request::convert_JsonObject_to_String(error_object);
 	}
 
 
@@ -88,7 +88,7 @@ namespace Exceptions
 		error_object["line"] = _line;
 		error_object["file"] = _file;
 		
-		return Request::convert(error_object);
+		return Request::convert_JsonObject_to_String(error_object);
 	}
 		
 		

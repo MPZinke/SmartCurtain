@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.12.19                                                                                                      *
+*   on 2022.07.12                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -11,22 +11,14 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/Global.hpp"
-
-#include "../Headers/C_String.hpp"
-#include "../Headers/Curtain.hpp"
-#include "../Headers/Event.hpp"
+#include <ArduinoJson.h>
 
 
-namespace Global
-{
-	Curtain::Curtain curtain((uint8_t)C_String::atoi(Config::Curtain::CURTAIN_ID));
-	Event::Event event(0, Config::Hardware::OPEN_ENDSTOP * 100);
+#include "Config.hpp"
 
-	WiFiServer server(Config::Network::PORT);
 
-	WiFiClient client;
-	IPAddress client_IP;
+void server_loop();
 
-	Exceptions::Exception* exception = NULL;
-} // end namespace Global
+StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);

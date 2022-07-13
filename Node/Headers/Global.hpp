@@ -34,6 +34,12 @@ namespace Curtain
 }
 
 
+namespace Event
+{
+	class Event;
+}
+
+
 namespace Exceptions
 {
 	class Exception;
@@ -45,6 +51,7 @@ namespace Exceptions
 namespace Global
 {
 	extern Curtain::Curtain curtain;
+	extern Event::Event event;
 
 	extern WiFiServer server;
 
