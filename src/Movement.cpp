@@ -32,7 +32,7 @@ namespace Movement
 	void movement_loop()
 	{
 		while(true){
-			disable_motor();
+			Hardware::disable_motor();
 
 			if(!Global::event.is_activated())
 			{
