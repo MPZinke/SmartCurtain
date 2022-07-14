@@ -354,8 +354,8 @@ namespace Request
 		}
 
 		// Establish connection
-		static WiFiClient client;
-		Global::client = client;
+		// static WiFiClient client;
+		Global::client = WiFiClient();
 
 		if(!Global::client.connect(Global::client_IP, Config::Network::PORT))
 		{

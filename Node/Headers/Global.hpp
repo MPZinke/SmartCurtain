@@ -54,7 +54,6 @@ namespace Global
 	extern Event::Event event;
 
 	extern WiFiServer server;
-
 	extern WiFiClient client;
 	extern IPAddress client_IP;
 

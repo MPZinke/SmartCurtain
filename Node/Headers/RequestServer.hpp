@@ -17,8 +17,11 @@
 #include "Config.hpp"
 
 
-void server_loop();
+namespace RequestServer
+{
+	void server_loop();
 
-StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
-void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+}

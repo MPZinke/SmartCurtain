@@ -32,6 +32,8 @@ namespace Movement
 	namespace CurtainStates = Hardware::CurtainStates;  // Alias so that other parts can use it as conceptually movement
 
 
+	void movement_loop();
+
 	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2,
 	  register uint32_t allowable_difference);
 	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2);

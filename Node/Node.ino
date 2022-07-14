@@ -37,6 +37,7 @@
 #include "Headers/Hardware.hpp"
 #include "Headers/Movement.hpp"
 #include "Headers/Request.hpp"
+#include "Headers/RequestServer.hpp"
 
 
 void setup()
@@ -59,6 +60,9 @@ void setup()
 	while(WiFi.status() != WL_CONNECTED) delay(500);
 
 	Global::server.begin();
+
+	xTaskCreate((TaskFunction_t)RequestServer::server_loop, "Server", 10000, NULL, 1, NULL); 
+	// xTaskCreate(Movement::movement_loop, "Movement", 10000, NULL, 1, NULL); 
 }
 
 
