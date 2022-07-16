@@ -61,8 +61,8 @@ void setup()
 
 	Global::server.begin();
 
-	xTaskCreate((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 1, NULL); 
-	xTaskCreate((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 0, NULL);
+	xTaskCreatePinnedToCore((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 1, NULL, 1);
+	xTaskCreatePinnedToCore((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 0, NULL, 0);
 }
 
 
