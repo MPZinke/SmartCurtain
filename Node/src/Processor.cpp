@@ -11,7 +11,7 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/RequestServer.hpp"
+#include "../Headers/Processor.hpp"
 #include "../Headers/Global.hpp"
 
 #include "../Headers/C_String.hpp"
@@ -24,7 +24,7 @@
 using namespace Exceptions;
 
 
-namespace RequestServer
+namespace Processor
 {
 	void server_loop()
 	{
@@ -56,13 +56,6 @@ namespace RequestServer
 						break;
 					}
 
-					// Reset curtain by moving it from alleged current position to close to actual current position.
-					case Request::Literal::JSON::Value::RESET_ID:
-					{
-						Movement::EndstopGuarded::move_and_reset();
-						break;
-					}
-
 					// Move to position
 					case Request::Literal::JSON::Value::MOVE_ID:
 					{
@@ -72,9 +65,7 @@ namespace RequestServer
 
 					default:
 					{
-						String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
-						  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
-						new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
+						case_default(json_document);
 					}
 				}
 			}
@@ -87,7 +78,14 @@ namespace RequestServer
 	}
 
 
-	// ————————————————————————————————————————————————————— CASES  ————————————————————————————————————————————————————— //
+	// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
+
+	void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
+	{
+		String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
+		  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
+		new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
+	}
 
 	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{

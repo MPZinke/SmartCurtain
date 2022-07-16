@@ -17,7 +17,7 @@
 #include "Config.hpp"
 
 
-namespace RequestServer
+namespace Processor
 {
 	void server_loop();
 

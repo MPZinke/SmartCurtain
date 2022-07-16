@@ -39,7 +39,7 @@ namespace Movement
 				Movement::activate();
 			}
 
-			delay(500);  // Wait half a second before proceeding
+			delay(250);  // Wait half a second before proceeding
 		}
 	}
 
@@ -176,17 +176,17 @@ namespace Movement
 	{
 		if(Global::curtain.auto_calibrate() && Global::event.moves_full_span())
 		{
-			EndstopGuarded::move_and_calibrate();
+			Secure::move_and_calibrate();
 		}
 		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
 		else if(CLOSE_ENDSTOP && Global::event.state() == CLOSED)
 		{
-			EndstopGuarded::move_until_closed();
+			Secure::move_until_closed();
 		}
 		// If hardware allowed and the event moves to OPEN (including non-discrete only movement)
 		else if(OPEN_ENDSTOP && Global::event.state() == OPEN)
 		{
-			EndstopGuarded::move_until_open();
+			Secure::move_until_open();
 		}
 		// Non-discrete, movement is covered by Event object. If the movement is discrete, it will automatically go to
 		//  the else of the below if, since it is automatically converted to OPEN/CLOSED. If it had an endstop and were
@@ -195,7 +195,7 @@ namespace Movement
 		else if((OPEN_ENDSTOP && Global::event.direction() == OPEN)
 		  || (CLOSE_ENDSTOP && Global::event.direction() == CLOSE))
 		{
-			EndstopGuarded::move_discretely();
+			Secure::move_discretely();
 		}
 		// —— No endstops below this point ——
 		// —— Position is assumed below this point (even with an encoder) ——
@@ -206,12 +206,14 @@ namespace Movement
 		//  be told to step, regardless of if it is discretely between or the full length of the curtain.
 		else
 		{
-			Endstopless::step();
+			Unsecure::step();
 		}
+
+		Global::event.is_activated(true);
 	}
 
 
-	namespace EndstopGuarded
+	namespace Secure
 	{
 
 		// ——————————————————————————————————————————————— MOVEMENT::MOVE ——————————————————————————————————————————————— //
@@ -304,7 +306,7 @@ namespace Movement
 				Global::curtain.position(Global::curtain.length() * Hardware::is_open() * OPEN_ENDSTOP);
 				if(Global::curtain.auto_correct())
 				{
-					::Movement::Endstopless::step();  //TODO: Make a move_ function
+					::Movement::Unsecure::step();  //TODO: Make a move_ function
 					Global::curtain.percentage(Global::event.percentage());  // call it good enough
 				}
 			}
@@ -351,7 +353,7 @@ namespace Movement
 	}  // end namespace Movement::StateGuarded
 
 
-	namespace Endstopless
+	namespace Unsecure
 	{
 
 		// ——————————————————————————————————————————————— MOVEMENT::STEP ——————————————————————————————————————————————— //
@@ -372,5 +374,5 @@ namespace Movement
 
 			Hardware::disable_motor();
 		}
-	}  // end namespace Movement::Endstopless
+	}  // end namespace Movement::Unsecure
 }  // end namespace Movement

@@ -37,7 +37,7 @@
 #include "Headers/Hardware.hpp"
 #include "Headers/Movement.hpp"
 #include "Headers/Request.hpp"
-#include "Headers/RequestServer.hpp"
+#include "Headers/Processor.hpp"
 
 
 void setup()
@@ -61,7 +61,7 @@ void setup()
 
 	Global::server.begin();
 
-	xTaskCreate((TaskFunction_t)RequestServer::server_loop, "Server", 10000, NULL, 1, NULL); 
+	xTaskCreate((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 1, NULL); 
 	// xTaskCreate(Movement::movement_loop, "Movement", 10000, NULL, 1, NULL); 
 }
 
