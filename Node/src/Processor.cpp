@@ -97,11 +97,11 @@ namespace Processor
 			return;
 		}
 
+		// TODO: If !event.is_activated(): Exception
 		Request::respond_with_json_and_stop(Request::Literal::Responses::VALID);
 		JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
 		Global::event = Event::Event(event_object);
 
-		Movement::activate();
 		Request::deactivate_curtain();
 	}
 
