@@ -42,7 +42,7 @@
 using namespace Exceptions;
 
 
-StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 
@@ -74,7 +74,7 @@ void loop()
 {
 	Hardware::disable_motor();  // don't burn up the motor
 		
-	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = decode_json();
+	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = Request::decode_json();
 	if(!Global::exception)
 	{
 		// If curtain information, update Global::curtain information
@@ -100,13 +100,6 @@ void loop()
 				break;
 			}
 
-			// Reset curtain by moving it from alleged current position to close to actual current position.
-			case Request::Literal::JSON::Value::RESET_ID:
-			{
-				Movement::EndstopGuarded::move_and_reset();
-				break;
-			}
-
 			// Move to position
 			case Request::Literal::JSON::Value::MOVE_ID:
 			{
@@ -116,9 +109,7 @@ void loop()
 
 			default:
 			{
-				String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
-				  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
-				new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
+				case_default(json_document);
 			}
 		}
 	}
@@ -128,35 +119,18 @@ void loop()
 		Global::exception->send();
 	}
 
-	delay(700);
-}
-
-
-// RETURN: The JSON Document object.
-// THROWS: HTTPS_Exceptions
-StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
-{
-	Global::client = Request::wait_for_request();
-
-	// bad message: retry later
-	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-	String json_buffer = Request::read_request_data_into_buffer();
-	if(!json_buffer.length())
-	{
-		new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
-	}
-
-	// Decode JSON
-	if(deserializeJson(json_document, json_buffer))
-	{
-		new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not decode json");
-	}
-
-	return json_document;
+	delay(250);
 }
 
 
 // ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
+
+void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
+{
+	String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
+	  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
+	new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
+}
 
 void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 {
@@ -168,11 +142,11 @@ void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 		return;
 	}
 
+	// TODO: If !event.is_activated(): Exception
 	Request::respond_with_json_and_stop(Request::Literal::Responses::VALID);
 	JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
-	Event::Event event(event_object);
+	Global::event = Event::Event(event_object);
 
-	Movement::activate(event);
 	Request::deactivate_curtain();
 }
 
@@ -184,7 +158,7 @@ void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	if(!json_document.containsKey(Key::HUB_IP))
 	{
 		uint8_t octets[4];
-		C_String::IP_address_octets(json_document[Key::HUB_IP]);
+		C_String::IP_address_octets(json_document[Key::HUB_IP], octets);
 		Global::client_IP = IPAddress(octets[0], octets[1], octets[2], octets[3]);
 	}
 }
