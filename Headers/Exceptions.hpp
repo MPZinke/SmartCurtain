@@ -26,6 +26,7 @@ namespace Exceptions
 
 		public:
 			Exception(uint32_t line, String file, String message);
+			virtual ~Exception();
 
 			uint32_t line();
 			String file();
