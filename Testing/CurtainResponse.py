@@ -36,6 +36,7 @@ def request(data: dict) -> None:
 
 request({"query type": "status"})
 request({"query type": "move", "event": {"id": 4294967295, "percentage": 100}})
+request({"query type": "move", "event": {"id": 4294967295, "percentage": 0}})
 request({"query type": "move"})
 request({"query type": "reset", "event": {"id": 4294967295, "percentage": 100}})
 request({"query type": "reset"})
