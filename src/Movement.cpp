@@ -279,7 +279,7 @@ namespace Movement
 		uint32_t move_and_count_down_or_until_end(register uint32_t steps, CurtainState direction)
 		{
 			bool (*state_function)() = function_for_side(direction);
-			move_and_count_down_or_until_end(steps, state_function);
+			return move_and_count_down_or_until_end(steps, state_function);
 		}
 
 

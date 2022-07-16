@@ -49,7 +49,7 @@ namespace Movement
 	uint32_t steps();
 	void activate();
 
-	namespace EndstopGuarded
+	namespace Secure
 	{
 		void move_and_calibrate();
 		void move_and_reset();
@@ -60,10 +60,10 @@ namespace Movement
 		uint32_t move_and_count_to_position_or_end(bool(*state_function)());
 		uint32_t move_and_count_down_or_until_end(register uint32_t steps, bool (*state_function)());
 		uint32_t move_and_count_down_or_until_end(register uint32_t steps, CurtainState direction);
-	}  // end namespace EndstopGuarded
+	}  // end namespace Secure
 
-	namespace Endstopless
+	namespace Unsecure
 	{
 		inline void step();
-	}  // end namespace Endstopless
+	}  // end namespace Unsecure
 }  // end namespace GPIO
