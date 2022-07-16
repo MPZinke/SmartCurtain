@@ -37,7 +37,7 @@ namespace Event
 		if(!event_object.containsKey(EVENT_ID))
 		{
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
+			new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
 			return;
 		}
 
@@ -93,7 +93,7 @@ namespace Event
 		event_object[JSON::Key::EVENT_ID] = _id;
 		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
-		return Request::convert(event_object);
+		return Request::convert_JsonObject_to_String(event_object);
 	}
 
 
@@ -105,11 +105,19 @@ namespace Event
 	}
 
 
+	bool Event::is_activated()
+	{
+		return _is_activated;
+	}
+
+
 	uint8_t Event::percentage()
 	{
 		return _percentage;
 	}
 
+
+	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
 
 	CurtainState Event::direction()
 	{
@@ -140,5 +148,13 @@ namespace Event
 	CurtainState Event::state()
 	{
 		return Movement::state_of(_percentage);
+	}
+
+
+	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
+
+	void Event::is_activated(bool _is_activated)
+	{
+		this->_is_activated = _is_activated;
 	}
 }  // end namespace Event

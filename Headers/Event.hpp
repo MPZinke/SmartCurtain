@@ -26,6 +26,7 @@ namespace Event
 	{
 		private:
 			uint32_t _id;
+			bool _is_activated = false;
 			uint8_t _percentage;
 
 		public:
@@ -36,6 +37,7 @@ namespace Event
 
 			// ———— GETTERS ———— //
 			uint32_t id();
+			bool is_activated();
 			uint8_t percentage();
 
 			// ———— MOVEMENT ———— //
@@ -43,5 +45,7 @@ namespace Event
 			bool event_moves_to_an_end();
 			bool moves_full_span();  // Whether the event causes the curtain to move full span
 			CurtainState state();  // The final state of the curtain
+
+			void is_activated(bool _is_activated);
 	};
 }

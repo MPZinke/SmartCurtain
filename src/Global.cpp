@@ -15,14 +15,15 @@
 
 #include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
+#include "../Headers/Event.hpp"
 
 
 namespace Global
 {
 	Curtain::Curtain curtain((uint8_t)C_String::atoi(Config::Curtain::CURTAIN_ID));
+	Event::Event event(0, Config::Hardware::OPEN_ENDSTOP * 100);
 
 	WiFiServer server(Config::Network::PORT);
-
 	WiFiClient client;
 	IPAddress client_IP;
 
