@@ -159,9 +159,9 @@ namespace Movement
 	// DETAILS: Determines the movement time based on hardware if hardware exists.
 	void activate()
 	{
-		if(Global::curtain.auto_calibrate() && event.moves_full_span())
+		if(Global::curtain.auto_calibrate() && Global::event.moves_full_span())
 		{
-			Secure::move_and_calibrate(event);
+			Secure::move_and_calibrate();
 		}
 		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
 		else if(CLOSE_ENDSTOP && Global::event.state() == CLOSED)
@@ -193,6 +193,8 @@ namespace Movement
 		{
 			Unsecure::step();
 		}
+
+		Global::event.is_activated(true);
 	}
 
 
@@ -205,9 +207,9 @@ namespace Movement
 		//  1) You are using it wrong
 		//  2) You are going grind your belt (amongst other things)
 
-		void move_and_calibrate(Event::Event& event)
+		void move_and_calibrate()
 		{
-			bool (*function)() = function_for_side(!event.state());
+			bool (*function)() = function_for_side(!Global::event.state());
 			uint32_t steps = move_and_count_to_position_or_end(function);
 			Global::curtain.length(steps);
 		}
@@ -262,7 +264,7 @@ namespace Movement
 		uint32_t move_and_count_down_or_until_end(register uint32_t steps, CurtainState direction)
 		{
 			bool (*state_function)() = function_for_side(direction);
-			move_and_count_down_or_until_end(steps, state_function);
+			return move_and_count_down_or_until_end(steps, state_function);
 		}
 
 
@@ -289,7 +291,7 @@ namespace Movement
 				Global::curtain.position(Global::curtain.length() * Hardware::is_open() * OPEN_ENDSTOP);
 				if(Global::curtain.auto_correct())
 				{
-					::Movement::Unsecure::step();
+					::Movement::Unsecure::step();  //TODO: Make a move_ function
 					Global::curtain.percentage(Global::event.percentage());  // call it good enough
 				}
 			}
@@ -346,6 +348,7 @@ namespace Movement
 		{
 			Hardware::set_direction(Global::event.direction());
 			Hardware::enable_motor();
+
 			// make number of steps an even amount to match movement loop (prevent overflow)
 			register uint32_t remaining_steps = steps() & 0xFFFFFFFE;
 			while(remaining_steps)
@@ -353,6 +356,7 @@ namespace Movement
 				Hardware::pulse_twice();
 				remaining_steps -= 2;
 			}
+
 			Hardware::disable_motor();
 		}
 	}  // end namespace Movement::Unsecure
