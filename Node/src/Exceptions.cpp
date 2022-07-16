@@ -28,6 +28,10 @@ namespace Exceptions
 	}
 
 
+	Exception::~Exception()
+	{}
+
+
 	uint32_t Exception::line()
 	{
 		return _line;
@@ -107,9 +111,11 @@ namespace Exceptions
 	: HTTP_Exception{line, file, message, 400, Request::Literal::HTTP::BAD_REQUEST}
 	{}
 
+
 	NOT_FOUND_404_Exception::NOT_FOUND_404_Exception(uint32_t line, String file, String message)
 	: HTTP_Exception{line, file, message, 404, Request::Literal::HTTP::NOT_FOUND_REQUEST}
 	{}
+
 
 	INTERNAL_SERVER_ERROR_500_Exception::
 	  INTERNAL_SERVER_ERROR_500_Exception(uint32_t line, String file, String message)
