@@ -34,10 +34,10 @@ def request(data: dict) -> None:
 	print()
 
 
-# request({"query type": "status"})
+request({"query type": "status"})
 # request({"query type": "move", "event": {"id": 4294967295, "percentage": 100}})
 # request({"query type": "move", "event": {"id": 4294967295, "percentage": 0}})
 # request({"query type": "move"})
 # request({"query type": "reset"})
-request({"wrong": "wrong"})
-request({})
+# request({"wrong": "wrong"})
+# request({})
