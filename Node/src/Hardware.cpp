@@ -18,6 +18,7 @@
 
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
+
 #include "../Headers/Curtain.hpp"
 
 
@@ -47,6 +48,10 @@ namespace Hardware
 	}
 
 
+	// Mask used to make pulsing smooth (no int overflow, timeout, etc)
+	const uint32_t STEP_MASK = 0x7FFFE;  // 0x7FFFE (524286) [steps] @ 60 [µS/step] = 31.45716 [S].
+
+
 	using namespace CurtainStates;  // used CurtainStates as enum
 
 
@@ -63,13 +68,8 @@ namespace Hardware
 
 
 	// Pulse motor (HIGH->LOW) twice.
-	void pulse_twice()
+	void pulse()
 	{
-		digitalWrite(PULSE_PIN, HIGH);
-		delayMicroseconds(PULSE_WAIT);
-		digitalWrite(PULSE_PIN, LOW);
-		delayMicroseconds(PULSE_WAIT);
-
 		digitalWrite(PULSE_PIN, HIGH);
 		delayMicroseconds(PULSE_WAIT);
 		digitalWrite(PULSE_PIN, LOW);

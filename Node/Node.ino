@@ -26,6 +26,7 @@
 #include <esp_wifi.h>
 #include <soc/rtc_wdt.h>
 #include <SPI.h>
+#include <WiFi.h>
 
 
 #include "Headers/Config.hpp"

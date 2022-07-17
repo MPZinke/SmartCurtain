@@ -13,8 +13,6 @@
 
 #include "../Headers/Curtain.hpp"
 
-#include "../Headers/Global.hpp"
-#include "../Headers/C_String.hpp"
 #include "../Headers/Exceptions.hpp"
 #include "../Headers/Hardware.hpp"
 #include "../Headers/Request.hpp"

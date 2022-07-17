@@ -40,9 +40,12 @@ namespace Hardware
 	}
 
 
+	extern const uint32_t STEP_MASK;
+
+
 	void disable_motor();
 	void enable_motor();
-	void pulse_twice();
+	void pulse();
 	void set_direction(CurtainState direction);
 	bool endstop_triggered();
 	bool is_closed();

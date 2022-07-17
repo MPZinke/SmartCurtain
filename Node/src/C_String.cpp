@@ -13,6 +13,8 @@
 
 #include "../Headers/C_String.hpp"
 
+#include "../Headers/Config.hpp"
+
 
 namespace C_String
 {

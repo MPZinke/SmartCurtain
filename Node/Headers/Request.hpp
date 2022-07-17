@@ -12,9 +12,10 @@
 
 
 #include <ArduinoJson.h>
+#include <WiFiClient.h>
 
 
-#include "Global.hpp"
+#include "Config.hpp"
 
 
 namespace Request
@@ -99,6 +100,7 @@ namespace Request
 		namespace Responses
 		{
 			extern const char INVALID[];
+			extern const char MOVING[];
 			extern const char VALID[];
 		}  // end namespace Responses
 	}  // end namespace Literal
