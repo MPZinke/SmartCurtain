@@ -128,26 +128,6 @@ namespace Movement
 	}
 
 
-	// SUMMARY: Gets the precises state of the hardware or the approximate state of the curtain.
-	// DETAILS: Checks available hardware for their state. If the hardware is unable to precisely determine state, it
-	//  gets the state based on Global::Curtain details.
-	// RETURNS: The CurtainState value of the state.
-	CurtainState current_state()
-	{
-		// Attempt to get state through hardware.
-		register CurtainState curtain_state;
-		if((curtain_state = Hardware::current_hardware_state()) != UNKNOWN)
-		{
-			return curtain_state;
-		}
-
-		// Hardware does not clearly show current state, so rely on curtain.
-		else if(!(curtain_state = Global::curtain.percentage())) return CLOSED;
-		else if(curtain_state == 100) return OPEN;
-		else return MIDDLE;
-	}
-
-
 	// Determines the position and then returns an enum value.
 	// Takes a position to check, the length of the curtain to compare it to.
 	// Returns the enum value of the current state for position.
@@ -231,7 +211,9 @@ namespace Movement
 		{
 			bool (*function)() = function_for_side(!Global::event.state());
 			uint32_t steps = move_and_count_to_position_or_end(function);
+
 			Global::curtain.length(steps);
+			Global::curtain.percentage(100 * Hardware::is_open() * OPEN_ENDSTOP);
 		}
 
 
@@ -286,12 +268,6 @@ namespace Movement
 		}
 
 
-		void move_and_reset()
-		{
-			//TODO
-		}
-
-
 		inline void move_discretely()
 		{
 			CurtainState direction = Global::event.direction();
@@ -302,6 +278,7 @@ namespace Movement
 			// The only way there are any steps remaining is if an endstop is triggered.
 			if(remaining_steps > Config::Curtain::POSITION_TOLLERANCE)
 			{
+				//TODO: Create a new event
 				// Because curtain open position is at the length of the curtain, the position will be 1 * length * the
 				//  existance of OPEN_ENDSTOP (to take into account even if the pin mistakenly reads high). If the
 				//  curtain is not open, then it is closed, because a endstop would have to be triggered to be here (or
@@ -326,6 +303,7 @@ namespace Movement
 		{
 			Hardware::set_direction(CLOSE);
 			move_until_state_reached(Hardware::is_closed);
+			Global::curtain.percentage(0);
 		}
 
 
@@ -335,6 +313,7 @@ namespace Movement
 		{
 			Hardware::set_direction(OPEN);
 			move_until_state_reached(Hardware::is_open);
+			Global::curtain.percentage(100);
 		}
 
 		// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
@@ -373,6 +352,7 @@ namespace Movement
 				Hardware::pulse();
 			}
 
+			Global::curtain.percentage(Global::event.percentage());
 			Hardware::disable_motor();
 		}
 	}  // end namespace Movement::Unsecure

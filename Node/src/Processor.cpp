@@ -98,8 +98,7 @@ namespace Processor
 		{
 			String error_message = String("Missing key: '") + Request::Literal::JSON::Key::EVENT + "' for QUERY_TYPE: '"
 			  + Request::Literal::JSON::Value::MOVE + "'";
-			new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
-			return;
+			return (void)new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
 		}
 
 		JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
