@@ -16,6 +16,7 @@
 #include "../Headers/Global.hpp"
 #include "../Headers/C_String.hpp"
 #include "../Headers/Exceptions.hpp"
+#include "../Headers/Hardware.hpp"
 #include "../Headers/Request.hpp"
 
 
@@ -37,7 +38,25 @@ namespace Curtain
 		_direction = DIRECTION_SWITCH;
 
 		_length = DEFAULT_LENGTH;
-		_position = Movement::current_state() == MIDDLE ? _length / 2 : Movement::current_state() * _length;
+
+		register CurtainState curtain_state = Hardware::current_hardware_state();
+		// If known open or unknown the curtain can detect when it closes
+		if(curtain_state == OPEN || (curtain_state == UNKNOWN && CLOSE_ENDSTOP))
+		{
+			_position = _length;
+		}
+		else if(curtain_state == MIDDLE)
+		{
+			_position = _length / 2;
+		}
+		// If known closed or unknown the curtain can detect when it open
+		// else if(curtain_state == CLOSED || (curtain_state == UNKNOWN && OPEN_ENDSTOP) || curtain_state != MIDDLE)
+		else
+		{
+			_position = 0;
+		}
+
+		_percentage = _length ? _position * 100 / _length : 0;
 	}
 
 
@@ -116,8 +135,13 @@ namespace Curtain
 
 	CurtainState Curtain::state()
 	{
-		register uint8_t percentage = _percentage;
+		register CurtainState curtain_state;
+		if((curtain_state = Hardware::current_hardware_state()) != UNKNOWN)
+		{
+			return curtain_state;
+		}
 
+		register uint8_t percentage = _percentage;
 		if(!percentage) return CLOSED;
 		if(percentage == 100) return OPEN;
 		return MIDDLE;

@@ -37,7 +37,7 @@ namespace Event
 		if(!event_object.containsKey(EVENT_ID))
 		{
 			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, error_message);
 			return;
 		}
 
@@ -49,7 +49,7 @@ namespace Event
 		{
 			_percentage = 0;
 		}
-		else if(!Global::curtain.discrete_movement())
+		else if(!Global::curtain.discrete_movement() || event_percentage > 100)
 		{
 			_percentage = 100;
 		}
@@ -60,7 +60,7 @@ namespace Event
 	}
 
 
-	Event::Event(register uint32_t id, register uint8_t percentage)
+	Event::Event(register uint32_t id, register uint8_t percentage, bool is_activated/*=false*/)
 	{
 		_id = id;
 
@@ -138,7 +138,7 @@ namespace Event
 	// Returns true if curtain moves all the way across rod, false otherwise.
 	bool Event::moves_full_span()
 	{
-		CurtainState curtian_state = Movement::current_state();
+		CurtainState curtian_state = Global::curtain.state();
 		// parens not needed (precedence) but used to remove warnings
 		return (curtian_state == CLOSED && _percentage == 100) || (curtian_state == OPEN && _percentage == 0);
 	}

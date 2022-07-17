@@ -24,6 +24,7 @@
 
 #include <ArduinoJson.h>
 #include <esp_wifi.h>
+#include <soc/rtc_wdt.h>
 #include <SPI.h>
 
 
@@ -61,8 +62,13 @@ void setup()
 
 	Global::server.begin();
 
-	xTaskCreatePinnedToCore((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 1, NULL, 1);
-	xTaskCreatePinnedToCore((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 0, NULL, 0);
+	xTaskCreatePinnedToCore((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 2, NULL, 0);
+	xTaskCreatePinnedToCore((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 1, NULL, 1);
+
+	rtc_wdt_protect_off();
+	rtc_wdt_disable();
+	disableCore0WDT();
+	disableLoopWDT();
 }
 
 
