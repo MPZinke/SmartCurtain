@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2021.12.19                                                                                                      *
+*   on 2022.07.12                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -14,38 +14,15 @@
 #include <ArduinoJson.h>
 
 
-#include "Movement.hpp"
+#include "Config.hpp"
 
 
-namespace Event
+namespace Processor
 {
-	using Movement::CurtainState;
+	void server_loop();
 
-
-	class Event
-	{
-		private:
-			uint32_t _id;
-			bool _is_activated = false;
-			uint8_t _percentage;
-
-		public:
-			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t percentage, bool is_activated=false);
-
-			operator String();
-
-			// ———— GETTERS ———— //
-			uint32_t id();
-			bool is_activated();
-			uint8_t percentage();
-
-			// ———— MOVEMENT ———— //
-			CurtainState direction();  // The direction the curtain will move towards
-			bool event_moves_to_an_end();
-			bool moves_full_span();  // Whether the event causes the curtain to move full span
-			CurtainState state();  // The final state of the curtain
-
-			void is_activated(bool _is_activated);
-	};
+	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
+	void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
 }

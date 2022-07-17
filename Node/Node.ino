@@ -24,7 +24,9 @@
 
 #include <ArduinoJson.h>
 #include <esp_wifi.h>
+#include <soc/rtc_wdt.h>
 #include <SPI.h>
+#include <WiFi.h>
 
 
 #include "Headers/Config.hpp"
@@ -37,14 +39,7 @@
 #include "Headers/Hardware.hpp"
 #include "Headers/Movement.hpp"
 #include "Headers/Request.hpp"
-
-
-using namespace Exceptions;
-
-
-void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+#include "Headers/Processor.hpp"
 
 
 void setup()
@@ -67,98 +62,16 @@ void setup()
 	while(WiFi.status() != WL_CONNECTED) delay(500);
 
 	Global::server.begin();
+
+	xTaskCreatePinnedToCore((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 2, NULL, 0);
+	xTaskCreatePinnedToCore((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 1, NULL, 1);
+
+	rtc_wdt_protect_off();
+	rtc_wdt_disable();
+	disableCore0WDT();
+	disableLoopWDT();
 }
 
 
 void loop()
-{
-	Hardware::disable_motor();  // don't burn up the motor
-		
-	StaticJsonDocument<JSON_BUFFER_SIZE> json_document = Request::decode_json();
-	if(!Global::exception)
-	{
-		// If curtain information, update Global::curtain information
-		if(json_document.containsKey(Request::Literal::JSON::Key::CURTAIN))
-		{
-			Global::curtain.update(json_document);
-		}
-
-		// Call action for QUERY_TYPE
-		switch(Request::id_for_query_type(json_document))
-		{
-			// Update information about curtain
-			case Request::Literal::JSON::Value::UPDATE_ID:
-			{
-				case_update(json_document);
-				// Fall through to STATUS_ID
-			}
-
-			// Return information about Curtain
-			case Request::Literal::JSON::Value::STATUS_ID:
-			{
-				Request::send_status_and_stop_client();
-				break;
-			}
-
-			// Move to position
-			case Request::Literal::JSON::Value::MOVE_ID:
-			{
-				case_move(json_document);
-				break;
-			}
-
-			default:
-			{
-				case_default(json_document);
-			}
-		}
-	}
-
-	if(Global::exception)
-	{
-		Global::exception->send();
-	}
-
-	delay(250);
-}
-
-
-// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
-
-void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
-{
-	String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
-	  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
-	new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
-}
-
-void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
-{
-	if(!json_document.containsKey(Request::Literal::JSON::Key::EVENT))
-	{
-		String error_message = String("Missing key: '") + Request::Literal::JSON::Key::EVENT + "' for QUERY_TYPE: '"
-		  + Request::Literal::JSON::Value::MOVE + "'";
-		new NOT_FOUND_404_Exception(__LINE__, __FILE__, error_message);
-		return;
-	}
-
-	// TODO: If !event.is_activated(): Exception
-	Request::respond_with_json_and_stop(Request::Literal::Responses::VALID);
-	JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
-	Global::event = Event::Event(event_object);
-
-	Request::deactivate_curtain();
-}
-
-
-void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
-{
-	using namespace Request::Literal::JSON;
-
-	if(!json_document.containsKey(Key::HUB_IP))
-	{
-		uint8_t octets[4];
-		C_String::IP_address_octets(json_document[Key::HUB_IP], octets);
-		Global::client_IP = IPAddress(octets[0], octets[1], octets[2], octets[3]);
-	}
-}
+{}

@@ -34,7 +34,7 @@ namespace Config
 		const uint8_t ENABLE_PIN = 18;
 		const uint8_t PULSE_PIN = 19;
 
-		const uint8_t CLOSE_PIN = 0;
+		const uint8_t CLOSE_PIN = 21;
 		const uint8_t OPEN_PIN = 0;
 
 		// ———— WAIT ————
@@ -43,7 +43,7 @@ namespace Config
 		// ———————— HARDWARE DETERMINED VALUES ————————
 		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
 		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
-		const bool BOTH_ENDSTOPS = CLOSE_PIN && CLOSE_PIN;
+		const bool BOTH_ENDSTOPS = CLOSE_PIN && OPEN_PIN;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
