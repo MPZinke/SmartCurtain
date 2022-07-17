@@ -14,10 +14,11 @@
 #include "../Headers/Movement.hpp"
 
 #include "../Headers/Config.hpp"
+#include "../Headers/Global.hpp"
+
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
-#include "../Headers/Global.hpp"
-#include "../Headers/Hardware.hpp"
+#include "../Headers/Request.hpp"
 
 
 namespace Movement
@@ -37,6 +38,7 @@ namespace Movement
 			if(!Global::event.is_activated())
 			{
 				Movement::activate();
+				Request::deactivate_curtain();
 			}
 
 			delay(250);  // Wait half a second before proceeding
@@ -239,11 +241,10 @@ namespace Movement
 		{
 			Hardware::enable_motor();
 
-			register uint32_t steps = 0;
-			while(!state_function())
+			register uint32_t steps;
+			for(steps = 0; !state_function() && steps < Hardware::STEP_MASK; steps++)
 			{
-				Hardware::pulse_twice();
-				steps += 2;
+				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
@@ -256,19 +257,18 @@ namespace Movement
 		// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 		// Does two pulses every iteration until all steps take or sensor is tripped.
 		// Returns remaining steps.
-		uint32_t move_and_count_down_or_until_end(register uint32_t steps, bool (*state_function)())
+		uint32_t move_and_count_down_or_until_end(register uint32_t remaining_steps, bool (*state_function)())
 		{
 			Hardware::enable_motor();
 
-			steps = steps & 0xFFFFFFFE;  // make number of steps an even amount to match movement loop (prevent overflow)
-			while(steps && !state_function())
+			// Make number of steps an even amount to match movement loop (prevent overflow)
+			for(remaining_steps = steps()&Hardware::STEP_MASK; !state_function() && remaining_steps; remaining_steps--)
 			{
-				Hardware::pulse_twice();
-				steps -= 2;
+				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
-			return steps;
+			return remaining_steps;
 		}
 
 
@@ -344,7 +344,7 @@ namespace Movement
 
 			while(!state_function())
 			{
-				Hardware::pulse_twice();
+				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
@@ -365,11 +365,9 @@ namespace Movement
 			Hardware::enable_motor();
 
 			// make number of steps an even amount to match movement loop (prevent overflow)
-			register uint32_t remaining_steps = steps() & 0xFFFFFFFE;
-			while(remaining_steps)
+			for(register uint32_t remaining_steps = steps() & Hardware::STEP_MASK; remaining_steps; remaining_steps--)
 			{
-				Hardware::pulse_twice();
-				remaining_steps -= 2;
+				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();

@@ -17,10 +17,6 @@
 ***********************************************************************************************************************/
 
 
-#include <ArduinoJson.h>
-#include <setjmp.h>
-#include <stdint.h>
-#include <WiFi.h>
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 
