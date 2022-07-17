@@ -14,9 +14,6 @@
 #include <stdint.h>
 
 
-#include "Global.hpp"
-
-
 namespace C_String
 {
 	uint32_t atoi(const char string[]);

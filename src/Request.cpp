@@ -13,6 +13,8 @@
 
 #include "../Headers/Request.hpp"
 
+#include "../Headers/Global.hpp"
+
 #include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Exceptions.hpp"
@@ -63,7 +65,7 @@ namespace Request
 				const char EVENT[] = "event";
 				const char EVENT_ID[] = "id";
 				const char EVENT_FORCE[] = "FORCE";
-				const char EVENT_PERCENTAGE[] = "desired position";
+				const char EVENT_PERCENTAGE[] = "percentage";
 
 				const char HUB_IP[] = "Hub IP";
 			}
@@ -90,6 +92,7 @@ namespace Request
 		namespace Responses
 		{
 			const char INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
+			const char MOVING[] = "{\"success\":\"Moving to position\"}";
 			const char VALID[] = "{\"success\":\"Valid JSON received\"}";
 		}
 	}

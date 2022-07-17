@@ -21,7 +21,8 @@
 namespace Global
 {
 	Curtain::Curtain curtain((uint8_t)C_String::atoi(Config::Curtain::CURTAIN_ID));
-	Event::Event event(0, Config::Hardware::OPEN_ENDSTOP * 100);
+	Event::Event event(0, Config::Hardware::OPEN_ENDSTOP * 100,
+	  !(Config::Hardware::OPEN_ENDSTOP || Config::Hardware::CLOSE_ENDSTOP));
 
 	WiFiServer server(Config::Network::PORT);
 	WiFiClient client;
