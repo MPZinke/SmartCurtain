@@ -89,6 +89,11 @@ namespace Processor
 
 	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
+		if(!Global::event.is_activated())
+		{
+			return (void)new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Event already exists");
+		}
+
 		if(!json_document.containsKey(Request::Literal::JSON::Key::EVENT))
 		{
 			String error_message = String("Missing key: '") + Request::Literal::JSON::Key::EVENT + "' for QUERY_TYPE: '"
@@ -97,12 +102,12 @@ namespace Processor
 			return;
 		}
 
-		// TODO: If !event.is_activated(): Exception
-		if(!Global::event.is_activated())
+		JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
+		Global::event = Event::Event(event_object);
+
+		if(!Global::exception)
 		{
 			Request::respond_with_json_and_stop(Request::Literal::Responses::MOVING);
-			JsonObject event_object = json_document[Request::Literal::JSON::Key::EVENT];
-			Global::event = Event::Event(event_object);
 		}
 	}
 

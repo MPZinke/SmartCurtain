@@ -32,17 +32,64 @@ namespace Movement
 
 	void movement_loop()
 	{
-		while(true){
+		while(true)
+		{
 			Hardware::disable_motor();
 
 			if(!Global::event.is_activated())
 			{
 				Movement::activate();
-				Request::deactivate_curtain();
+				if(Global::client_IP[0])
+				{
+					Request::deactivate_curtain();
+				}
 			}
 
 			delay(250);  // Wait half a second before proceeding
 		}
+	}
+
+	// SUMMARY: Activates curtain for an event to move to a certain position.
+	// PARAMS:  Takes the reference to the event.
+	// DETAILS: Determines the movement time based on hardware if hardware exists.
+	void activate()
+	{
+		if(Global::curtain.auto_calibrate() && Global::event.moves_full_span())
+		{
+			Secure::move_and_calibrate();
+		}
+		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
+		else if(CLOSE_ENDSTOP && Global::event.state() == CLOSED)
+		{
+			Secure::move_until_closed();
+		}
+		// If hardware allowed and the event moves to OPEN (including non-discrete only movement)
+		else if(OPEN_ENDSTOP && Global::event.state() == OPEN)
+		{
+			Secure::move_until_open();
+		}
+		// Non-discrete, movement is covered by Event object. If the movement is discrete, it will automatically go to
+		//  the else of the below if, since it is automatically converted to OPEN/CLOSED. If it had an endstop and were
+		//  supposed to move to an end, the event would be caught above.
+		// if statement: has ability to prevent self-destructive behavior
+		else if((OPEN_ENDSTOP && Global::event.direction() == OPEN)
+		  || (CLOSE_ENDSTOP && Global::event.direction() == CLOSE))
+		{
+			Secure::move_discretely();
+		}
+		// —— No endstops below this point ——
+		// —— Position is assumed below this point (even with an encoder) ——
+		// REMINDER: For non-discrete: Percentage is converted to 0 or 100 and movement is assumed to be correct.
+		// REMINDER: For discrete: Percentage remains the same and movement is assumed to be correct.
+		// Because event percentage is automatically changed if the curtain is non-discrete and current position is
+		//  only able to be assumed, discrete and non-discrete movements work the same at this point. Curtain can just
+		//  be told to step, regardless of if it is discretely between or the full length of the curtain.
+		else
+		{
+			Unsecure::step();
+		}
+
+		Global::event.is_activated(true);
 	}
 
 
@@ -170,50 +217,6 @@ namespace Movement
 
 	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-	// SUMMARY: Activates curtain for an event to move to a certain position.
-	// PARAMS:  Takes the reference to the event.
-	// DETAILS: Determines the movement time based on hardware if hardware exists.
-	void activate()
-	{
-		if(Global::curtain.auto_calibrate() && Global::event.moves_full_span())
-		{
-			Secure::move_and_calibrate();
-		}
-		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
-		else if(CLOSE_ENDSTOP && Global::event.state() == CLOSED)
-		{
-			Secure::move_until_closed();
-		}
-		// If hardware allowed and the event moves to OPEN (including non-discrete only movement)
-		else if(OPEN_ENDSTOP && Global::event.state() == OPEN)
-		{
-			Secure::move_until_open();
-		}
-		// Non-discrete, movement is covered by Event object. If the movement is discrete, it will automatically go to
-		//  the else of the below if, since it is automatically converted to OPEN/CLOSED. If it had an endstop and were
-		//  supposed to move to an end, the event would be caught above.
-		// if statement: has ability to prevent self-destructive behavior
-		else if((OPEN_ENDSTOP && Global::event.direction() == OPEN)
-		  || (CLOSE_ENDSTOP && Global::event.direction() == CLOSE))
-		{
-			Secure::move_discretely();
-		}
-		// —— No endstops below this point ——
-		// —— Position is assumed below this point (even with an encoder) ——
-		// REMINDER: For non-discrete: Percentage is converted to 0 or 100 and movement is assumed to be correct.
-		// REMINDER: For discrete: Percentage remains the same and movement is assumed to be correct.
-		// Because event percentage is automatically changed if the curtain is non-discrete and current position is
-		//  only able to be assumed, discrete and non-discrete movements work the same at this point. Curtain can just
-		//  be told to step, regardless of if it is discretely between or the full length of the curtain.
-		else
-		{
-			Unsecure::step();
-		}
-
-		Global::event.is_activated(true);
-	}
-
 
 	namespace Secure
 	{
