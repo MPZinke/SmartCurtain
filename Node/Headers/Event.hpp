@@ -31,7 +31,7 @@ namespace Event
 
 		public:
 			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t percentage);
+			Event(uint32_t id, uint8_t percentage, bool is_activated=false);
 
 			operator String();
 

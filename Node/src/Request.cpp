@@ -63,7 +63,7 @@ namespace Request
 				const char EVENT[] = "event";
 				const char EVENT_ID[] = "id";
 				const char EVENT_FORCE[] = "FORCE";
-				const char EVENT_PERCENTAGE[] = "desired position";
+				const char EVENT_PERCENTAGE[] = "percentage";
 
 				const char HUB_IP[] = "Hub IP";
 			}

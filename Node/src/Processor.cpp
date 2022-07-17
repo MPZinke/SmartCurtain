@@ -82,7 +82,7 @@ namespace Processor
 
 	void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + "'"
+		String message = String("Unknown ") + Request::Literal::JSON::Key::QUERY_TYPE + " '"
 		  + (const char*)json_document[Request::Literal::JSON::Key::QUERY_TYPE] + "'";
 		new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
 	}
