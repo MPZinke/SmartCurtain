@@ -26,19 +26,22 @@ namespace Event
 	{
 		private:
 			uint32_t _id;
-			bool _is_activated = false;
+			bool _is_finished = false;
 			uint8_t _percentage;
 
 		public:
 			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t percentage, bool is_activated=false);
+			Event(uint32_t id, uint8_t percentage, bool is_finished=false);
 
 			operator String();
 
 			// ———— GETTERS ———— //
 			uint32_t id();
-			bool is_activated();
+			bool is_finished();
 			uint8_t percentage();
+
+			// ———— SETTERS ———— //
+			void is_finished(bool new_is_finished);
 
 			// ———— MOVEMENT ———— //
 			CurtainState direction();  // The direction the curtain will move towards
@@ -46,6 +49,7 @@ namespace Event
 			bool moves_full_span();  // Whether the event causes the curtain to move full span
 			CurtainState state();  // The final state of the curtain
 
-			void is_activated(bool _is_activated);
+			// ———— OTHER ———— //
+			void append_to(JsonObject& json_object);
 	};
 }

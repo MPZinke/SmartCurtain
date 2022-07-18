@@ -61,6 +61,7 @@ namespace Request
 				extern const char EVENT[];
 				extern const char EVENT_ID[];
 				extern const char EVENT_FORCE[];
+				extern const char EVENT_IS_FINISHED[]
 				extern const char EVENT_PERCENTAGE[];
 
 				extern const char HUB_IP[];

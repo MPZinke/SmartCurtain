@@ -47,6 +47,7 @@ namespace Config
 		extern const bool CLOSE_ENDSTOP;
 		extern const bool OPEN_ENDSTOP;
 		extern const bool BOTH_ENDSTOPS;  // whether curtain contains both endstops
+		extern const bool EITHER_ENDSTOP;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————

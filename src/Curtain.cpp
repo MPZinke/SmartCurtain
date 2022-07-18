@@ -31,8 +31,8 @@ namespace Curtain
 		using namespace Config::Hardware;
 
 		_auto_calibrate = BOTH_ENDSTOPS;
-		_auto_correct = CLOSE_ENDSTOP || OPEN_ENDSTOP;
-		_discrete_movement = (CLOSE_ENDSTOP || OPEN_ENDSTOP) && DISCRETE_MOVEMENT_ALLOWED;
+		_auto_correct = EITHER_ENDSTOP;
+		_discrete_movement = EITHER_ENDSTOP && DISCRETE_MOVEMENT_ALLOWED;
 		_direction = DIRECTION_SWITCH;
 
 		_length = DEFAULT_LENGTH;
@@ -68,7 +68,7 @@ namespace Curtain
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
-		curtain_object[JSON::Key::CURTAIN_ID] = id();
+		curtain_object[JSON::Key::CURTAIN_ID] = _id;
 		curtain_object[JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
 		curtain_object[JSON::Key::AUTO_CORRECT] = _auto_correct;
 		curtain_object[JSON::Key::DIRECTION] = _direction;
@@ -150,12 +150,22 @@ namespace Curtain
 	
 	void Curtain::auto_calibrate(register bool new_auto_calibrate)
 	{
+		if(new_auto_calibrate && !BOTH_ENDSTOPS)
+		{
+			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
+			  "Cannot enable auto calibration when an endstop is not configured");
+		}
 		_auto_calibrate = new_auto_calibrate;
 	}
 
 
 	void Curtain::auto_correct(register bool new_auto_correct)
 	{
+		if(new_auto_correct && !EITHER_ENDSTOP)
+		{
+			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
+			  "Cannot enable auto correcting when no endstop is not configured");
+		}
 		_auto_correct = new_auto_correct;
 	}
 
@@ -174,6 +184,11 @@ namespace Curtain
 
 	void Curtain::discrete_movement(register bool new_discrete_movement)
 	{
+		if(new_discrete_movement && !(EITHER_ENDSTOP || DISCRETE_MOVEMENT_ALLOWED))
+		{
+			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
+			  "Cannot enable auto correcting when no endstop is not configured");
+		}
 		_discrete_movement = new_discrete_movement;
 	}
 
@@ -204,35 +219,51 @@ namespace Curtain
 		JsonObject curtain_object = json_document[JSON::Key::CURTAIN];
 
 		// Restrict auto_calibrate to hardware
-		if(curtain_object.containsKey(JSON::Key::AUTO_CALIBRATE) && OPEN_ENDSTOP && CLOSE_ENDSTOP)
+		if(curtain_object.containsKey(JSON::Key::AUTO_CALIBRATE))
 		{
-			_auto_calibrate = curtain_object[JSON::Key::AUTO_CALIBRATE];
+			auto_calibrate(curtain_object[JSON::Key::AUTO_CALIBRATE]);
 		}
 
 		// Restrict auto_correct to hardware
-		if(curtain_object.containsKey(JSON::Key::AUTO_CORRECT) && (OPEN_ENDSTOP || CLOSE_ENDSTOP))
+		if(curtain_object.containsKey(JSON::Key::AUTO_CORRECT) && EITHER_ENDSTOP)
 		{
-			_auto_correct = curtain_object[JSON::Key::AUTO_CORRECT];
+			auto_correct(curtain_object[JSON::Key::AUTO_CORRECT]);
 		}
 
 		if(curtain_object.containsKey(JSON::Key::DIRECTION))
 		{
-			_direction = curtain_object[JSON::Key::DIRECTION];
+			direction(curtain_object[JSON::Key::DIRECTION]);
 		}
 
 		if(curtain_object.containsKey(JSON::Key::DISCRETE_MOVEMENT))
 		{
-			_discrete_movement = curtain_object[JSON::Key::DISCRETE_MOVEMENT];
+			discrete_movement(curtain_object[JSON::Key::DISCRETE_MOVEMENT]);
 		}
 
 		if(curtain_object.containsKey(JSON::Key::LENGTH))
 		{
-			_length = curtain_object[JSON::Key::LENGTH];
+			length(curtain_object[JSON::Key::LENGTH]);
 		}
 
 		if(curtain_object.containsKey(JSON::Key::CURTAIN_POSITION))
 		{
-			_position = curtain_object[JSON::Key::CURTAIN_POSITION];
+			position(curtain_object[JSON::Key::CURTAIN_POSITION]);
 		}
 	}
+
+
+	// ——————————————————————————————————————————————————— OTHER ——————————————————————————————————————————————————— //
+
+	void Curtain::append_to(JsonObject& json_object)
+	{
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_ID] = _id;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::AUTO_CORRECT] = _auto_correct;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::DIRECTION] = _direction;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::LENGTH] = _length;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
+		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_POSITION] = _position;
+	}
+
 }  // end namespace Curtain

@@ -36,7 +36,7 @@ namespace Movement
 		{
 			Hardware::disable_motor();
 
-			if(!Global::event.is_activated())
+			if(!Global::event.is_finished())
 			{
 				Movement::activate();
 				if(Global::client_IP[0])
@@ -89,7 +89,7 @@ namespace Movement
 			Unsecure::step();
 		}
 
-		Global::event.is_activated(true);
+		Global::event.is_finished(true);
 	}
 
 
