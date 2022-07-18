@@ -47,7 +47,7 @@ namespace Curtain
 
 			operator String();
 
-			// ———— GETTERS ————
+			// ———— GETTERS ———— //
 			uint8_t id();
 
 			bool auto_calibrate();
@@ -59,7 +59,7 @@ namespace Curtain
 			uint32_t position();
 			CurtainState state();
 
-			// ———— SETTERS ————
+			// ———— SETTERS ———— //
 			void auto_calibrate(register bool new_auto_calibrate);
 			void auto_correct(register bool new_auto_correct);
 			void direction(register bool new_direction);
@@ -68,5 +68,8 @@ namespace Curtain
 			void percentage(register uint8_t new_percentage);
 			void position(register uint32_t new_position);
 			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+
+			// ———— OTHER ———— //
+			void append_to(JsonObject& json_object);
 	};
 } // end namespace Curtain

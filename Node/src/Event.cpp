@@ -62,7 +62,7 @@ namespace Event
 	}
 
 
-	Event::Event(register uint32_t id, register uint8_t percentage, bool is_activated/*=false*/)
+	Event::Event(register uint32_t id, register uint8_t percentage, bool is_finished/*=false*/)
 	{
 		_id = id;
 
@@ -93,6 +93,7 @@ namespace Event
 		JsonObject event_object = json_document.to<JsonObject>();
 
 		event_object[JSON::Key::EVENT_ID] = _id;
+		event_object[JSON::Key::EVENT_IS_FINISHED] = _is_finished;
 		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
 		return Request::convert_JsonObject_to_String(event_object);
@@ -107,9 +108,9 @@ namespace Event
 	}
 
 
-	bool Event::is_activated()
+	bool Event::is_finished()
 	{
-		return _is_activated;
+		return _is_finished;
 	}
 
 
@@ -155,8 +156,18 @@ namespace Event
 
 	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
 
-	void Event::is_activated(bool _is_activated)
+	void Event::is_finished(bool new_is_finished)
 	{
-		this->_is_activated = _is_activated;
+		_is_finished = new_is_finished;
+	}
+
+
+	// ——————————————————————————————————————————————————— OTHER ——————————————————————————————————————————————————— //
+
+	void Event::append_to(JsonObject& json_object)
+	{
+		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
+		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
+		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_PERCENTAGE] = _percentage;
 	}
 }  // end namespace Event

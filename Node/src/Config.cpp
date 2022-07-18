@@ -43,7 +43,8 @@ namespace Config
 		// ———————— HARDWARE DETERMINED VALUES ————————
 		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
 		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
-		const bool BOTH_ENDSTOPS = CLOSE_PIN && OPEN_PIN;
+		const bool BOTH_ENDSTOPS = CLOSE_ENDSTOP && OPEN_ENDSTOP;
+		const bool EITHER_ENDSTOP = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
