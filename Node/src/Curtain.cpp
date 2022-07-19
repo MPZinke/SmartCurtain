@@ -150,6 +150,8 @@ namespace Curtain
 	
 	void Curtain::auto_calibrate(register bool new_auto_calibrate)
 	{
+		using namespace Config::Hardware;
+
 		if(new_auto_calibrate && !BOTH_ENDSTOPS)
 		{
 			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
@@ -161,6 +163,8 @@ namespace Curtain
 
 	void Curtain::auto_correct(register bool new_auto_correct)
 	{
+		using namespace Config::Hardware;
+
 		if(new_auto_correct && !EITHER_ENDSTOP)
 		{
 			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
@@ -184,6 +188,8 @@ namespace Curtain
 
 	void Curtain::discrete_movement(register bool new_discrete_movement)
 	{
+		using namespace Config::Hardware;
+
 		if(new_discrete_movement && !(EITHER_ENDSTOP || DISCRETE_MOVEMENT_ALLOWED))
 		{
 			return (void)new Exceptions::INTERNAL_SERVER_ERROR_500_Exception(__LINE__, __FILE__,
@@ -256,14 +262,16 @@ namespace Curtain
 
 	void Curtain::append_to(JsonObject& json_object)
 	{
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_ID] = _id;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::AUTO_CORRECT] = _auto_correct;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::DIRECTION] = _direction;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::LENGTH] = _length;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
-		json_object[Request::Literal::JSON::Key::CURTAIN][JSON::Key::CURTAIN_POSITION] = _position;
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+
+		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_ID] = _id;
+		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
+		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CORRECT] = _auto_correct;
+		json_object[JSON::Key::CURTAIN][JSON::Key::DIRECTION] = _direction;
+		json_object[JSON::Key::CURTAIN][JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
+		json_object[JSON::Key::CURTAIN][JSON::Key::LENGTH] = _length;
+		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
+		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_POSITION] = _position;
 	}
 
 }  // end namespace Curtain

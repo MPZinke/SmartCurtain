@@ -52,7 +52,7 @@ namespace Processor
 					// Return information about Curtain
 					case Request::Literal::JSON::Value::STATUS_ID:
 					{
-						Request::send_status_and_stop_client();
+						case_status();
 						break;
 					}
 
@@ -87,9 +87,10 @@ namespace Processor
 		new NOT_FOUND_404_Exception(__LINE__, __FILE__, message);
 	}
 
+
 	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		if(!Global::event.is_activated())
+		if(!Global::event.is_finished())
 		{
 			return (void)new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Event already exists");
 		}
@@ -108,6 +109,13 @@ namespace Processor
 		{
 			Request::respond_with_json_and_stop(Request::Literal::Responses::MOVING);
 		}
+	}
+
+
+	void case_status()
+	{
+		String status_string = Request::status_json();
+		Request::respond_with_json_and_stop(status_string);
 	}
 
 

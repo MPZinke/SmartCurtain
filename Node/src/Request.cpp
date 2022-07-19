@@ -17,6 +17,7 @@
 
 #include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
+#include "../Headers/Event.hpp"
 #include "../Headers/Exceptions.hpp"
 
 
@@ -166,8 +167,8 @@ namespace Request
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject status_object = json_document.to<JsonObject>();
 
-		status_object[Literal::JSON::Key::CURTAIN_ID] = Config::Curtain::CURTAIN_ID;
-		status_object[Literal::JSON::Key::CURTAIN_POSITION] = Global::curtain.percentage();
+		Global::curtain.append_to(status_object);
+		Global::event.append_to(status_object);
 
 		return convert_JsonObject_to_String(status_object);
 	}
@@ -301,13 +302,6 @@ namespace Request
 		Global::client.println(json);
 
 		Global::client.stop();
-	}
-
-
-	void send_status_and_stop_client()
-	{
-		String status_string = status_json();
-		respond_with_json_and_stop(status_string);
 	}
 
 
