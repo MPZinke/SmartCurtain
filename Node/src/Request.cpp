@@ -308,8 +308,7 @@ namespace Request
 	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
 	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
 	// DETAILS:	
-	void write_json(char json[], const char path[]/*=Config::Transmission::ACTION_COMPLETE_URL*/,
-	  const char method[]/*=Literal::HTTP::POST_METHOD*/)
+	void write_json(char json[], const char path[], const char method[]/*=Literal::HTTP::POST_METHOD*/)
 	{
 		// Start line
 		Global::client.print(method);

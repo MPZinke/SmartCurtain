@@ -73,10 +73,4 @@ namespace Config
 		extern const char PASSWORD[];  // WiFi password
 		extern const char SSID[];  // WiFi name
 	}  // end namespace Config::Network
-
-
-	namespace Transmission
-	{
-		extern const char ACTION_COMPLETE_URL[];
-	}
 }  // end namespace Configure
