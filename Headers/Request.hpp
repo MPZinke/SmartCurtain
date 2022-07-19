@@ -61,7 +61,7 @@ namespace Request
 				extern const char EVENT[];
 				extern const char EVENT_ID[];
 				extern const char EVENT_FORCE[];
-				extern const char EVENT_IS_FINISHED[]
+				extern const char EVENT_IS_FINISHED[];
 				extern const char EVENT_PERCENTAGE[];
 
 				extern const char HUB_IP[];
@@ -122,7 +122,6 @@ namespace Request
 	// ———— RESPONDING ———— //
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
-	void send_status_and_stop_client();
 	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
 	  const char method[]=Literal::HTTP::POST_METHOD);
   	// ———— CONNECT CONNECTION ———— //

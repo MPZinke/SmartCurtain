@@ -166,8 +166,10 @@ namespace Event
 
 	void Event::append_to(JsonObject& json_object)
 	{
-		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
-		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
-		json_object[Request::Literal::JSON::Key::EVENT][JSON::Key::EVENT_PERCENTAGE] = _percentage;
+		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+
+		json_object[JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
+		json_object[JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
+		json_object[JSON::Key::EVENT][JSON::Key::EVENT_PERCENTAGE] = _percentage;
 	}
 }  // end namespace Event
