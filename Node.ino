@@ -44,6 +44,7 @@
 
 void setup()
 {
+Serial.begin(9600);
 	// ———— GPIO SETUP ————
 	pinMode(Config::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
 	pinMode(Config::Hardware::OPEN_PIN, INPUT);  // now analog, technically do not need
