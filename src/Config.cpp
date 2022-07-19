@@ -70,10 +70,4 @@ namespace Config
 		const char PASSWORD[] = "";  // WiFi password
 		const char SSID[] = "";  // WiFi name
 	}  // end namespace Config::Network
-
-
-	namespace Transmission
-	{
-		const char ACTION_COMPLETE_URL[] = "/api/update/deactivateevent";
-	}
 }  // end namespace Configure

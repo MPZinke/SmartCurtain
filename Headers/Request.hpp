@@ -122,8 +122,7 @@ namespace Request
 	// ———— RESPONDING ———— //
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
-	void write_json(char json[], const char path[]=Config::Transmission::ACTION_COMPLETE_URL,
-	  const char method[]=Literal::HTTP::POST_METHOD);
+	void write_json(char json[], const char path[], const char method[]=Literal::HTTP::POST_METHOD);
   	// ———— CONNECT CONNECTION ———— //
 	void clear_buffer_and_stop_client();
 	bool new_global_client_connection();
