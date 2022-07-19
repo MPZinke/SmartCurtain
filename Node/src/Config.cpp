@@ -54,7 +54,7 @@ namespace Config
 		// I don't like discrete movement, so I am not going to allow it on my curtain.
 		const bool DISCRETE_MOVEMENT_ALLOWED = false;
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
-		const bool SWITCH = false;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
+		const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
 
 

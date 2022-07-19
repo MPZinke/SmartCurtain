@@ -90,19 +90,19 @@ namespace Hardware
 
 	bool endstop_triggered()
 	{
-		return is_closed() || is_open();
+		return is_closed() == CurrentPull::ON || is_open() == CurrentPull::ON;
 	}
 
 
 	bool is_closed()
 	{
-		return digitalRead(CLOSE_PIN);
+		return digitalRead(CLOSE_PIN) == CurrentPull::ON;
 	}
 
 
 	bool is_open()
 	{
-		return digitalRead(OPEN_PIN);
+		return digitalRead(OPEN_PIN) == CurrentPull::ON;
 	}
 
 

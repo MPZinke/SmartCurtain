@@ -23,7 +23,6 @@ namespace Curtain
 {
 	using Movement::CurtainState;
 
-
 	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //
 
 	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
@@ -32,13 +31,16 @@ namespace Curtain
 		private:
 			const uint8_t _id;
 			// ———— OPTIONS ———— //
-			bool _auto_calibrate;  // if the curtain has opportunity to move full span, count steps & return value
-			bool _auto_correct;  // if position is unexpected, go to expected position
-			bool _direction;
-			bool _discrete_movement;  // if the curtain can move to a discrete location (not just open or closed)
-			uint32_t _length;  // overall length of the curtain [steps]
-			uint8_t _percentage;  // the percentage amount open of the curtain
-			uint32_t _position;  // the current length according to the RPi
+			// if the curtain has opportunity to move full span, count steps & return value
+			bool _auto_calibrate = Config::Hardware::BOTH_ENDSTOPS;
+			// if position is unexpected, go to expected position
+			bool _auto_correct = Config::Hardware::EITHER_ENDSTOP;
+			bool _direction = Config::Hardware::DIRECTION_SWITCH;
+			// if the curtain can move to a discrete location (not just open or closed)
+			bool _discrete_movement = Config::Hardware::EITHER_ENDSTOP && Config::Hardware::DISCRETE_MOVEMENT_ALLOWED;
+			uint32_t _length = Config::Hardware::DEFAULT_LENGTH;  // overall length of the curtain [steps]
+			uint8_t _percentage = 0;  // the percentage amount open of the curtain
+			uint32_t _position = 0;  // the current length according to the RPi
 
 			uint32_t _last_event_id = 0;  // the ID of the last event (helps determine if fresh restart)
 
@@ -71,5 +73,8 @@ namespace Curtain
 
 			// ———— OTHER ———— //
 			void append_to(JsonObject& json_object);
+
+		private:
+			void update_from_state();
 	};
 } // end namespace Curtain

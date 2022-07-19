@@ -28,33 +28,7 @@ namespace Curtain
 	Curtain::Curtain(uint8_t id)
 	: _id{id}
 	{
-		using namespace Config::Hardware;
-
-		_auto_calibrate = BOTH_ENDSTOPS;
-		_auto_correct = EITHER_ENDSTOP;
-		_discrete_movement = EITHER_ENDSTOP && DISCRETE_MOVEMENT_ALLOWED;
-		_direction = DIRECTION_SWITCH;
-
-		_length = DEFAULT_LENGTH;
-
-		register CurtainState curtain_state = Hardware::current_hardware_state();
-		// If known open or unknown the curtain can detect when it closes
-		if(curtain_state == OPEN || (curtain_state == UNKNOWN && CLOSE_ENDSTOP))
-		{
-			_position = _length;
-		}
-		else if(curtain_state == MIDDLE)
-		{
-			_position = _length / 2;
-		}
-		// If known closed or unknown the curtain can detect when it open
-		// else if(curtain_state == CLOSED || (curtain_state == UNKNOWN && OPEN_ENDSTOP) || curtain_state != MIDDLE)
-		else
-		{
-			_position = 0;
-		}
-
-		_percentage = _length ? _position * 100 / _length : 0;
+		update_from_state();
 	}
 
 
@@ -65,6 +39,9 @@ namespace Curtain
 	Curtain::operator String()
 	{
 		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+
+		update_from_state();
+
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
@@ -121,12 +98,14 @@ namespace Curtain
 
 	uint8_t Curtain::percentage()
 	{
+		update_from_state();
 		return _percentage;
 	}
 
 
 	uint32_t Curtain::position()
 	{
+		update_from_state();
 		return _position;
 	}
 
@@ -264,6 +243,8 @@ namespace Curtain
 	{
 		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
 
+		update_from_state();
+
 		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_ID] = _id;
 		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
 		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CORRECT] = _auto_correct;
@@ -272,6 +253,42 @@ namespace Curtain
 		json_object[JSON::Key::CURTAIN][JSON::Key::LENGTH] = _length;
 		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
 		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_POSITION] = _position;
+	}
+
+
+	void Curtain::update_from_state()
+	{
+		using namespace Config::Hardware;
+
+		register CurtainState curtain_state = Hardware::current_hardware_state();
+		if(curtain_state == MIDDLE)
+		{
+			if(_percentage == 0 || _percentage == 100)
+			{
+				percentage(50);
+			}
+			else
+			{
+				percentage(_percentage);  // Set _position to match _percentage
+			}
+		}
+		// If known open or unknown the curtain can detect when it is closed and not known to not be open.
+		// Implicite && !OPEN_ENDSTOP because otherwise the state would be middle.
+		else if(curtain_state == OPEN || (curtain_state == UNKNOWN && CLOSE_ENDSTOP/* && !OPEN_ENDSTOP*/))
+		{
+			percentage(100);
+		}
+		// If known open or unknown the curtain can detect when it is open and not known to not be closed.
+		// Implicite && !CLOSE_ENDSTOP because otherwise the state would be middle.
+		else if(curtain_state == CLOSED || (curtain_state == UNKNOWN && OPEN_ENDSTOP/* && !CLOSE_ENDSTOP*/))
+		{
+			percentage(0);
+		}
+		// Not known and cannot be inferred
+		else
+		{
+			percentage(0);
+		}
 	}
 
 }  // end namespace Curtain
