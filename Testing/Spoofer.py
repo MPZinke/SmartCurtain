@@ -116,7 +116,6 @@ def index() -> str:
 		};
 
 	if(body.get("query type") == "move"):
-		print("here")
 		return {"success":"Moving to position"}
 
 	print(body)
