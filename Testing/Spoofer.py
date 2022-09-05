@@ -16,9 +16,16 @@ __author__ = "MPZinke"
 
 from flask import Flask, request
 import json
+import sys
 
 
 app = Flask(__name__);
+
+
+PORT = int(sys.argv[1]) if(len(sys.argv) > 1) else 8081;
+
+CURTAIN_POSITION = 0;
+CURTAIN_LENGTH = 32000;
 
 
 @app.route("/api/v1.0/network/label/Home/device/label/Livingroom-Curtain")
@@ -95,8 +102,80 @@ def all_curtains() -> str:
 		])
 
 
-CURTAIN_POSITION = 0;
-CURTAIN_LENGTH = 32000;
+
+@app.route("/api/v1.0/network/label/Home/services/label/SmartCurtain")
+def curtain_services():
+	return json.dumps(
+	[
+	    {
+	        "id": 1,
+	        "label": "SmartCurtain",
+	        "port": 8081,
+	        "device": {
+	            "id": 5,
+	            "address": "localhost",
+	            "label": "Livingroom-Curtain",
+	            "is_reservation": False,
+	            "is_static": True,
+	            "mac": "00:00:00:00:00:01",
+	            "groups": [
+	                {
+	                    "id": 2,
+	                    "label": "Livingroom"
+	                },
+	                {
+	                    "id": 10,
+	                    "label": "Smart"
+	                },
+	                {
+	                    "id": 11,
+	                    "label": "Curtain"
+	                }
+	            ],
+	            "Network": {
+	                "id": 1,
+	                "auth_value": "",
+	                "label": "Home",
+	                "gateway": "192.168.1.1",
+	                "netmask": "255.255.255.0"
+	            }
+	        }
+	    },
+	    {
+	        "id": 2,
+	        "label": "SmartCurtain",
+	        "port": 8082,
+	        "device": {
+	            "id": 9,
+	            "address": "localhost",
+	            "label": "Bedroom-Curtain",
+	            "is_reservation": False,
+	            "is_static": True,
+	            "mac": "00:00:00:00:00:02",
+	            "groups": [
+	                {
+	                    "id": 3,
+	                    "label": "Bedroom"
+	                },
+	                {
+	                    "id": 10,
+	                    "label": "Smart"
+	                },
+	                {
+	                    "id": 11,
+	                    "label": "Curtain"
+	                }
+	            ],
+	            "Network": {
+	                "id": 1,
+	                "auth_value": "",
+	                "label": "Home",
+	                "gateway": "192.168.1.1",
+	                "netmask": "255.255.255.0"
+	            }
+	        }
+	    }
+	])
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -122,4 +201,4 @@ def index() -> str:
 	return {"error": "Your Test Failed"}
 
 
-app.run(host="0.0.0.0", port=8081)
+app.run(host="0.0.0.0", port=PORT)
