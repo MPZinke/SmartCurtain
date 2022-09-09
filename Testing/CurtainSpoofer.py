@@ -7,6 +7,9 @@ from threading import Thread
 from time import sleep
 
 
+
+
+
 class Curtain:
 	def __init__(self, *, id: int=1, auto_calibrate: bool=False, auto_correct: bool=True, direction: bool=False,
 	  discrete_movement: bool=False, length=32000, percentage: int=0, position: int=0):
@@ -47,7 +50,7 @@ class App(Flask):
 		Flask.__init__(self, name)
 		self._port = int(sys.argv[1]) if(len(sys.argv) > 1) else 8081
 
-		self.add_url_rule("/", "/", self.index, ["GET", "POST"])
+		self.add_url_rule("/", "/", self.index, methods=["GET", "POST"])
 
 
 	def serve(self):
@@ -56,40 +59,50 @@ class App(Flask):
 
 
 	def index(self):
-		global CURTAIN, FLAG;
+		global CURTAIN, ACTION;
 		body = request.json;
-		FLAG = True;
 
 		if(body.get("query type") == "status"):
 			return dict(CURTAIN);
 
 		if(body.get("query type") == "move"):
-			CURTAIN.percentage(body.get("event", {}).get("percentage", 0))
+			CURTAIN.percentage(body.get("event", {}).get("percentage", 0));
+			ACTION = move
 			return {"success":"Moving to position"};
 
 		print(body);
 		return {"error": "Your Test Failed"};
 
 
-def receive_flag():
-	global CURTAIN, FLAG;
+def move():
+	global CURTAIN;
+
+	sleep(CURTAIN._length / 8000);
+	requests.patch(f"http://localhost/api/v1.0/curtains/{CURTAIN._id}", json={"is_activated": False});
+
+
+def execute_action():
+	global CURTAIN, ACTION;
 
 	while(True):
-		if(FLAG):
-			sleep(4);
-			FLAG = False;
-
-			requests.get("http://google.com")  #TODO
 		sleep(1)
+		if(ACTION is None):
+			continue;
+
+		try:
+			ACTION();
+		except Exception as error:
+			print(error);
+		ACTION = None;
 
 
 def main():
-	global CURTAIN, FLAG
-	CURTAIN = Curtain()
-	FLAG = False
+	global CURTAIN, ACTION
+	CURTAIN = Curtain();
+	ACTION = None;
 
 	app = App()
-	curtain_thread = Thread(name="receive_flag", target=receive_flag)
+	curtain_thread = Thread(name="execute_action", target=execute_action)
 	app_thread = Thread(name="App", target=app.serve)
 	app_thread.start()
 	curtain_thread.start()

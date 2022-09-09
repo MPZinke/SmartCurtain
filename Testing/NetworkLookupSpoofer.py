@@ -1,10 +1,31 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+__author__ = "MPZinke"
+
+########################################################################################################################
+#                                                                                                                      #
+#   created by: MPZinke                                                                                                #
+#   on 2022.09.04                                                                                                      #
+#                                                                                                                      #
+#   DESCRIPTION:                                                                                                       #
+#   BUGS:                                                                                                              #
+#   FUTURE:                                                                                                            #
+#                                                                                                                      #
+########################################################################################################################
 
 
-from flask import Flask
+from flask import Flask, request
 import json
+import sys
 
 
 app = Flask(__name__);
+
+
+PORT = int(sys.argv[1]) if(len(sys.argv) > 1) else 8081;
+
+CURTAIN_POSITION = 0;
+CURTAIN_LENGTH = 32000;
 
 
 @app.route("/api/v1.0/network/label/Home/device/label/Livingroom-Curtain")
@@ -23,7 +44,7 @@ def bedroom_curtain() -> str:
 def all_curtains() -> str:
 	return json.dumps([
 		    {
-		        "address": "localhost:8082",
+		        "address": "localhost",
 		        "label": "Livingroom-Curtain",
 		        "is_reservation": False,
 		        "is_static": True,
@@ -50,35 +71,111 @@ def all_curtains() -> str:
 		            "netmask": "255.255.255.0"
 		        }
 		    },
-		    # {
-		    #     "address": "localhost:8083",
-		    #     "label": "Bedroom-Curtain",
-		    #     "is_reservation": False,
-		    #     "is_static": True,
-		    #     "mac": "00:00:00:00:00:02",
-		    #     "groups": [
-		    #         {
-		    #             "id": 3,
-		    #             "label": "Bedroom"
-		    #         },
-		    #         {
-		    #             "id": 10,
-		    #             "label": "Smart"
-		    #         },
-		    #         {
-		    #             "id": 11,
-		    #             "label": "Curtain"
-		    #         }
-		    #     ],
-		    #     "Network": {
-		    #         "id": 1,
-		    #         "auth_value": "",
-		    #         "label": "Home",
-		    #         "gateway": "",
-		    #         "netmask": "255.255.255.0"
-		    #     }
-		    # }
+		    {
+		        "address": "localhost",
+		        "label": "Bedroom-Curtain",
+		        "is_reservation": False,
+		        "is_static": True,
+		        "mac": "00:00:00:00:00:02",
+		        "groups": [
+		            {
+		                "id": 3,
+		                "label": "Bedroom"
+		            },
+		            {
+		                "id": 10,
+		                "label": "Smart"
+		            },
+		            {
+		                "id": 11,
+		                "label": "Curtain"
+		            }
+		        ],
+		        "Network": {
+		            "id": 1,
+		            "auth_value": "",
+		            "label": "Home",
+		            "gateway": "",
+		            "netmask": "255.255.255.0"
+		        }
+		    }
 		])
 
 
-app.run(host="0.0.0.0", port=8081)
+
+@app.route("/api/v1.0/network/label/Home/services/label/SmartCurtain")
+def curtain_services():
+	return json.dumps(
+	[
+	    {
+	        "id": 1,
+	        "label": "SmartCurtain",
+	        "port": 8082,
+	        "device": {
+	            "id": 5,
+	            "address": "localhost",
+	            "label": "Livingroom-Curtain",
+	            "is_reservation": False,
+	            "is_static": True,
+	            "mac": "00:00:00:00:00:01",
+	            "groups": [
+	                {
+	                    "id": 2,
+	                    "label": "Livingroom"
+	                },
+	                {
+	                    "id": 10,
+	                    "label": "Smart"
+	                },
+	                {
+	                    "id": 11,
+	                    "label": "Curtain"
+	                }
+	            ],
+	            "Network": {
+	                "id": 1,
+	                "auth_value": "",
+	                "label": "Home",
+	                "gateway": "192.168.1.1",
+	                "netmask": "255.255.255.0"
+	            }
+	        }
+	    },
+	    {
+	        "id": 2,
+	        "label": "SmartCurtain",
+	        "port": 8083,
+	        "device": {
+	            "id": 9,
+	            "address": "localhost",
+	            "label": "Bedroom-Curtain",
+	            "is_reservation": False,
+	            "is_static": True,
+	            "mac": "00:00:00:00:00:02",
+	            "groups": [
+	                {
+	                    "id": 3,
+	                    "label": "Bedroom"
+	                },
+	                {
+	                    "id": 10,
+	                    "label": "Smart"
+	                },
+	                {
+	                    "id": 11,
+	                    "label": "Curtain"
+	                }
+	            ],
+	            "Network": {
+	                "id": 1,
+	                "auth_value": "",
+	                "label": "Home",
+	                "gateway": "192.168.1.1",
+	                "netmask": "255.255.255.0"
+	            }
+	        }
+	    }
+	])
+
+
+app.run(host="0.0.0.0", port=PORT)
