@@ -1,3 +1,17 @@
+#!/opt/homebrew/bin/python3
+# -*- coding: utf-8 -*-
+__author__ = "MPZinke"
+
+########################################################################################################################
+#                                                                                                                      #
+#   created by: MPZinke                                                                                                #
+#   on 2022.09.18                                                                                                      #
+#                                                                                                                      #
+#   DESCRIPTION:                                                                                                       #
+#   BUGS:                                                                                                              #
+#   FUTURE:                                                                                                            #
+#                                                                                                                      #
+########################################################################################################################
 
 
 from flask import Flask, request
@@ -5,8 +19,6 @@ import requests
 import sys
 from threading import Thread
 from time import sleep
-
-
 
 
 
@@ -78,7 +90,7 @@ def move():
 	global CURTAIN;
 
 	sleep(CURTAIN._length / 8000);
-	requests.patch(f"http://localhost/api/v1.0/curtains/{CURTAIN._id}", json={"is_activated": False});
+	requests.patch(f"http://localhost:8080/api/v1.0/curtains/{CURTAIN._id}", json={"is_activated": False});
 
 
 def execute_action():

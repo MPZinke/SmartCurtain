@@ -44,7 +44,7 @@ def bedroom_curtain() -> str:
 def all_curtains() -> str:
 	return json.dumps([
 		    {
-		        "address": "localhost:8081",
+		        "address": "localhost",
 		        "label": "Livingroom-Curtain",
 		        "is_reservation": False,
 		        "is_static": True,
@@ -71,34 +71,34 @@ def all_curtains() -> str:
 		            "netmask": "255.255.255.0"
 		        }
 		    },
-		    # {
-		    #     "address": "localhost:8083",
-		    #     "label": "Bedroom-Curtain",
-		    #     "is_reservation": False,
-		    #     "is_static": True,
-		    #     "mac": "00:00:00:00:00:02",
-		    #     "groups": [
-		    #         {
-		    #             "id": 3,
-		    #             "label": "Bedroom"
-		    #         },
-		    #         {
-		    #             "id": 10,
-		    #             "label": "Smart"
-		    #         },
-		    #         {
-		    #             "id": 11,
-		    #             "label": "Curtain"
-		    #         }
-		    #     ],
-		    #     "Network": {
-		    #         "id": 1,
-		    #         "auth_value": "",
-		    #         "label": "Home",
-		    #         "gateway": "",
-		    #         "netmask": "255.255.255.0"
-		    #     }
-		    # }
+		    {
+		        "address": "localhost",
+		        "label": "Bedroom-Curtain",
+		        "is_reservation": False,
+		        "is_static": True,
+		        "mac": "00:00:00:00:00:02",
+		        "groups": [
+		            {
+		                "id": 3,
+		                "label": "Bedroom"
+		            },
+		            {
+		                "id": 10,
+		                "label": "Smart"
+		            },
+		            {
+		                "id": 11,
+		                "label": "Curtain"
+		            }
+		        ],
+		        "Network": {
+		            "id": 1,
+		            "auth_value": "",
+		            "label": "Home",
+		            "gateway": "",
+		            "netmask": "255.255.255.0"
+		        }
+		    }
 		])
 
 
@@ -109,8 +109,9 @@ def curtain_services():
 	[
 	    {
 	        "id": 1,
+	        "auth_value": "Hello World",
 	        "label": "SmartCurtain",
-	        "port": 8081,
+	        "port": 8082,
 	        "device": {
 	            "id": 5,
 	            "address": "localhost",
@@ -143,8 +144,9 @@ def curtain_services():
 	    },
 	    {
 	        "id": 2,
+	        "auth_value": "Hello World",
 	        "label": "SmartCurtain",
-	        "port": 8082,
+	        "port": 8083,
 	        "device": {
 	            "id": 9,
 	            "address": "localhost",
@@ -176,29 +178,6 @@ def curtain_services():
 	        }
 	    }
 	])
-
-
-@app.route("/", methods=["GET", "POST"])
-def index() -> str:
-	body = request.json;
-
-	if(body.get("query type") == "status"):
-		return {
-			"id": 1,
-			"auto calibrate": False,
-			"auto correct": True,
-			"percentage": int(CURTAIN_POSITION / CURTAIN_LENGTH),
-			"position": CURTAIN_POSITION,
-			"direction": False,
-			"discrete movement": False,
-			"length": CURTAIN_LENGTH
-		};
-
-	if(body.get("query type") == "move"):
-		return {"success":"Moving to position"}
-
-	print(body)
-	return {"error": "Your Test Failed"}
 
 
 app.run(host="0.0.0.0", port=PORT)
