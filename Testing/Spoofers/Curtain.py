@@ -90,7 +90,9 @@ def move():
 	global CURTAIN;
 
 	sleep(CURTAIN._length / 8000);
-	requests.patch(f"http://localhost:8080/api/v1.0/curtains/{CURTAIN._id}", json={"is_activated": False});
+	auth_headers = {"Authorization": f"Bearer HelloWorld{CURTAIN._id}"};
+	requests.patch(f"http://localhost:8080/api/v1.0/curtains/{CURTAIN._id}", json={"is_activated": False},
+	  headers=auth_headers);
 
 
 def execute_action():

@@ -109,12 +109,12 @@ def curtain_services():
 	[
 	    {
 	        "id": 1,
-	        "auth_value": "Hello World",
+	        "auth_value": "Hello World1",
 	        "label": "SmartCurtain",
 	        "port": 8082,
 	        "device": {
 	            "id": 5,
-	            "address": "localhost",
+	            "address": "127.0.0.1",
 	            "label": "Livingroom-Curtain",
 	            "is_reservation": False,
 	            "is_static": True,
@@ -144,12 +144,12 @@ def curtain_services():
 	    },
 	    {
 	        "id": 2,
-	        "auth_value": "Hello World",
+	        "auth_value": "Hello World2",
 	        "label": "SmartCurtain",
 	        "port": 8083,
 	        "device": {
 	            "id": 9,
-	            "address": "localhost",
+	            "address": "127.0.0.1",
 	            "label": "Bedroom-Curtain",
 	            "is_reservation": False,
 	            "is_static": True,
