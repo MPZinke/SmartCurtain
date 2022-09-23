@@ -121,6 +121,7 @@ namespace Message
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
 	// ———— RECEIVE DATA ———— //
+	void clear_buffer(uint32_t offset=0);
 	StaticJsonDocument<JSON_BUFFER_SIZE> read_message();
 	void read_headers(register uint32_t& read_count);
 	String read_body(register uint32_t& read_count);
@@ -134,6 +135,5 @@ namespace Message
 	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
 	void write_json(char json[], const char path[], const char method[]=Literal::HTTP::POST_METHOD);
   	// ———— CONNECT CONNECTION ———— //
-	void clear_buffer(uint32_t offset=0);
 	bool new_global_client_connection();
 } // end namespace Message
