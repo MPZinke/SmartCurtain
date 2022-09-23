@@ -185,6 +185,15 @@ namespace Message
 
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
+	
+	void clear_buffer(uint32_t offset/*=0*/)
+	{
+		for(uint32_t x = offset; x < 0xFFFFFFFF && Global::client.available(); x++)
+		{
+			Global::client.read();
+		}
+	}
+
 
 	StaticJsonDocument<JSON_BUFFER_SIZE> read_message()
 	{
@@ -370,6 +379,9 @@ namespace Message
 		// Headers
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
+		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
+		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
+
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(json.length());
 
@@ -388,6 +400,9 @@ namespace Message
 
 		// Headers
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
+
+		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
+		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
 
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length((char*)json));
@@ -418,6 +433,9 @@ namespace Message
 
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
+		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
+		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
+
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length(json));
 
@@ -428,15 +446,6 @@ namespace Message
 
 
 	// ————————————————————————————————————————————— CONNECT CONNECTION ————————————————————————————————————————————— //
-
-	void clear_buffer(uint32_t offset/*=0*/)
-	{
-		for(uint32_t x = offset; x < 0xFFFFFFFF && Global::client.available(); x++)
-		{
-			Global::client.read();
-		}
-	}
-
 
 	bool new_global_client_connection()
 	{
