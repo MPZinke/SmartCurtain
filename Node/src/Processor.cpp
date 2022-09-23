@@ -30,7 +30,7 @@ namespace Processor
 	{
 		while(true)
 		{
-			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = Message::decode_json();
+			StaticJsonDocument<JSON_BUFFER_SIZE> json_document = Message::read_message();
 			if(!Global::exception)
 			{
 				// If curtain information, update Global::curtain information

@@ -109,7 +109,7 @@ def curtain_services():
 	[
 	    {
 	        "id": 1,
-	        "auth_value": "Hello World1",
+	        "auth_value": "HelloWorld",
 	        "label": "SmartCurtain",
 	        "port": 8082,
 	        "device": {
