@@ -11,8 +11,9 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/Request.hpp"
+#include "../Headers/Message.hpp"
 
+#include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
 
 #include "../Headers/C_String.hpp"
@@ -24,15 +25,18 @@
 using namespace Exceptions;
 
 
-namespace Request
-{	namespace Literal
+namespace Message
+{
+	namespace Literal
 	{
 		namespace HTTP
 		{
 			// ———— START LINE ———— //
 			const char OK_REQUEST[] = "HTTP/1.1 200 OK";  // start string for valid request from device
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
-			const char BAD_REQUEST[] = "HTTP/1.1 400 Bad Request";  // start string for invalid request from device
+			const char BAD_REQUEST[] = "HTTP/1.1 400 Bad Message";  // start string for invalid request from device
+			const char UNAUTHORIZED[] = "HTTP/1.1 401 UNAUTHORIZED";  // start string for invalid request from device
+			const char FORBIDDEN[] = "HTTP/1.1 401 FORBIDDEN";  // start string for invalid request from device
 			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
 			const char INTERNAL_SERVER_ERROR_REQUEST[] = "HTTP/1.1 500 Internal Server Error";
 			// —— START LINE::POST —— //
@@ -41,9 +45,14 @@ namespace Request
 			const char HTTP_VERSION[] = " HTTP/1.1";
 
 			// ———— HEADERS ———— //
+			const char AUTHORIZATION_HEADER[] = "Authorization: ";
 			const char CONTENT_TYPE[] = "Content-Type: application/json";
 			const char CONTENT_LENGTH_TAG[] = "Content-Length: ";
 			const char HOST_TAG[] = "Host: ";
+
+			// ———— OTHER ———— //
+			// minus 1 for \0
+			const uint32_t AUTH_HEADER_LENGTH = (sizeof(Literal::HTTP::AUTHORIZATION_HEADER) / sizeof(char) - 1);
 		}
 
 
@@ -127,14 +136,14 @@ namespace Request
 	// Takes the value to match to.
 	uint8_t id_for_query_type(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		if(!json_document.containsKey(Request::Literal::JSON::Key::QUERY_TYPE))
+		if(!json_document.containsKey(Literal::JSON::Key::QUERY_TYPE))
 		{
-			String message = String("JSON is mssing values '") + Request::Literal::JSON::Key::QUERY_TYPE + "'";
+			String message = String("JSON is mssing values '") + Literal::JSON::Key::QUERY_TYPE + "'";
 			new NOT_FOUND_404_Exception(__LINE__-2, __FILE__, message);
-			return Request::Literal::JSON::Value::UNDEFINED;
+			return Literal::JSON::Value::UNDEFINED;
 		}
 
-		const char* value = json_document[Request::Literal::JSON::Key::QUERY_TYPE];
+		const char* value = json_document[Literal::JSON::Key::QUERY_TYPE];
 		for(uint8_t x = 0; x < sizeof(Literal::JSON::Value::VALUE_IDS) / sizeof(Literal::JSON::Value::ValueID); x++)
 		{
 			if(C_String::equal(value, Literal::JSON::Value::VALUE_IDS[x].value))
@@ -143,7 +152,7 @@ namespace Request
 			}
 		}
 
-		return Request::Literal::JSON::Value::UNDEFINED;
+		return Literal::JSON::Value::UNDEFINED;
 	}
 
 	
@@ -180,34 +189,45 @@ namespace Request
 	// THROWS: HTTPS_Exceptions
 	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
 	{
-		Global::client = Request::wait_for_request();
+		Global::client = wait_for_request();
 
-		// bad message: retry later
+		String json_buffer = read_request_data_into_buffer();
+
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		String json_buffer = Request::read_request_data_into_buffer();
-		if(!json_buffer.length())
+		if(!Global::exception && deserializeJson(json_document, json_buffer))
 		{
 			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
-		}
-
-		// Decode JSON
-		if(deserializeJson(json_document, json_buffer))
-		{
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not decode json");
 		}
 
 		return json_document;
 	}
 
 
-	// SUMMARY:	Reads the client request into a dynamically allocated buffer.
-	// DETAILS:	Skips over the content headers. Allocates enough memory for content length and reads it in from client
-	//  into buffer.
-	// RETURN:	Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
+	/*
+	SUMMARY: Reads the client request into a dynamically allocated buffer.
+	DETAILS: Skips over the content headers. Allocates enough memory for content length and reads it in from client
+	         into buffer.
+	RETURNS: Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
+	*/
 	String read_request_data_into_buffer()
 	{
 		String content;
-		if(!skip_header()) return content;
+		if(unauthenticated())
+		{
+			new UNAUTHORIZED_401_Exception(__LINE__, __FILE__, "No Authorization header found");
+			return content;
+		}
+		else if(unauthorized())
+		{
+			new FORBIDDEN_403_Exception(__LINE__, __FILE__, "Not Authorized");
+			return content;
+		}
+
+		if(!skip_header())
+		{
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
+			return content;
+		}
 
 		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
 		{
@@ -228,13 +248,31 @@ namespace Request
 	}
 
 
-	// Skips the header read in from the client.
-	// Reads through each character from client matching the character to the state machine to match to a double 
-	//  carriage return-newline combo.
-	// Return whether the body of the client is found.
+	uint32_t read_to_next_line(register uint32_t x)
+	{
+		for(; x < 0xFFFFFFFF && Global::client.available() >= 2; x++)
+		{
+			if(Global::client.read() == '\r' && Global::client.read() == '\n')
+			{
+				x += 2;
+				break;
+			}
+		}
+
+		return x;
+	}
+
+
+	/*
+	SUMMARY: Skips the header read in from the client.
+	DETAILS: Reads through each character from client matching the character to the state machine to match to a double 
+	         carriage return-newline combo.
+	RETURNS: Return whether the body of the client is found.
+	*/
 	bool skip_header()
 	{
 		WiFiClient* client = &Global::client;  //SUGAR
+		
 		for(uint32_t x = 0; x < 0xFFFFFFFF && client->available() >= 4; x++)
 		{
 			// State machine
@@ -247,10 +285,66 @@ namespace Request
 	}
 
 
-	// SUMMARY:	Waits until client request received by the server, then converts and returns an HttpClient.
-	// DETAILS:	Creates static variable to stay alive for reference by returned HttpClient. Stays in loop until a client
-	//  is successfully returned by the server. Converts client to HttpClient.
-	// RETURN:	HttpClient referncing client.
+	bool unauthenticated()
+	{
+		// Match "Authorization: " tag
+		for(register uint32_t x = 0, header_index = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
+		{
+			char next = Global::client.read();
+			// If starting a newline and another is found, data section reached; no auth header has been found
+			if(next == '\r' && Global::client.available() && (next = Global::client.read()) == '\n')
+			{
+				return false;
+			}
+
+			// If the tag does not match...
+			if(next != Literal::HTTP::AUTHORIZATION_HEADER[header_index])
+			{
+				x = read_to_next_line(x);
+				header_index = 0;
+			}
+			// Tag matches Auth tag
+			else if(header_index == Literal::HTTP::AUTH_HEADER_LENGTH-1)  // minus 1 for indexing
+			{
+				return true;
+			}
+			// Keep trying
+			else
+			{
+				header_index++;
+			}
+		}
+
+		return false;  // should never happen
+	}
+
+
+	/*
+	SUMMARY: Determines whether the auth value is correct.
+	DETAILS: Reads through each character from client matching the character to the state machine to match to a double 
+	         carriage return-newline combo.
+	RETURNS: Return whether the body of the client is found.
+	*/
+	bool unauthorized()
+	{
+		for(register uint32_t index = 0; index < Config::AUTH_VALUE_LENGTH && Global::client.available(); index++)
+		{
+			if(Global::client.read() != Config::AUTHORIZATION_VALUE[index])
+			{
+				return false;
+			}
+		}
+
+		return Global::client.available() && Global::client.peek() == '\r';
+	}
+
+
+	/*
+	SUMMARY: Waits until client request received by the server, then converts and returns an HttpClient.
+	DETAILS: Creates static variable to stay alive for reference by returned HttpClient. Stays in loop until a client
+	         is successfully returned by the server. Converts client to HttpClient.
+	RETURNS: HttpClient referncing client.
+	*/
 	WiFiClient wait_for_request()
 	{
 		WiFiClient client = Global::server.available();
@@ -305,9 +399,11 @@ namespace Request
 	}
 
 
-	// SUMMARY:	Writes the post request to the client adding headers to imply JSON.
-	// PARAMS:	Takes the JSON string to write to send, the client's path to send to.
-	// DETAILS:	
+	/*
+	SUMMARY: Writes the post request to the client adding headers to imply JSON.
+	PARAMS:	 Takes the JSON string to write to send, the client's path to send to.
+	DETAILS: 
+	*/
 	void write_json(char json[], const char path[], const char method[]/*=Literal::HTTP::POST_METHOD*/)
 	{
 		// Start line

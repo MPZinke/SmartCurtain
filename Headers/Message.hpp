@@ -18,7 +18,7 @@
 #include "Config.hpp"
 
 
-namespace Request
+namespace Message
 {
 	namespace Literal
 	{
@@ -28,6 +28,8 @@ namespace Request
 			extern const char OK_REQUEST[];  // start string for valid request from device
 			extern const char NO_CONTENT_REQUEST[];  // start string for no content for request
 			extern const char BAD_REQUEST[];  // start string for invalid request from device
+			extern const char UNAUTHORIZED[];  // start string for invalid request from device
+			extern const char FORBIDDEN[];  // start string for invalid request from device
 			extern const char NOT_FOUND_REQUEST[];  // start string for no content for request
 			extern const char INTERNAL_SERVER_ERROR_REQUEST[];
 			// —— START LINE::POST —— //
@@ -36,9 +38,13 @@ namespace Request
 			extern const char HTTP_VERSION[];
 
 			// ———— HEADERS ———— //
+			extern const char AUTHORIZATION_HEADER[];
 			extern const char CONTENT_TYPE[];
 			extern const char CONTENT_LENGTH_TAG[];
 			extern const char HOST_TAG[];
+
+			// ———— OTHER ———— //
+			extern const uint32_t AUTH_TAG_SIZE;
 		}  // end namespace HTTP
 
 
@@ -117,7 +123,10 @@ namespace Request
 	// ———— RECEIVE DATA ———— //
 	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
 	String read_request_data_into_buffer();
+	void read_to_next_line();
 	bool skip_header();
+	bool unauthenticated();
+	bool unauthorized();
 	WiFiClient wait_for_request();
 	// ———— RESPONDING ———— //
 	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
@@ -126,4 +135,4 @@ namespace Request
   	// ———— CONNECT CONNECTION ———— //
 	void clear_buffer_and_stop_client();
 	bool new_global_client_connection();
-} // end namespace Request
+} // end namespace Message

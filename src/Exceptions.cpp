@@ -15,7 +15,7 @@
 
 #include "../Headers/Global.hpp"
 
-#include "../Headers/Request.hpp"
+#include "../Headers/Message.hpp"
 
 
 namespace Exceptions
@@ -55,14 +55,14 @@ namespace Exceptions
 		error_object["line"] = _line;
 		error_object["file"] = _file;
 
-		return Request::convert_JsonObject_to_String(error_object);
+		return Message::convert_JsonObject_to_String(error_object);
 	}
 
 
 	void Exception::send()
 	{
 		String message = this->message();
-		Request::respond_with_json_and_stop(message);
+		Message::respond_with_json_and_stop(message);
 		Serial.println(message);
 		delete this;
 	}
@@ -94,7 +94,7 @@ namespace Exceptions
 		error_object["line"] = _line;
 		error_object["file"] = _file;
 		
-		return Request::convert_JsonObject_to_String(error_object);
+		return Message::convert_JsonObject_to_String(error_object);
 	}
 		
 		
@@ -103,24 +103,34 @@ namespace Exceptions
 		String message = this->message();
 		Serial.print("_request_header: ");
 		Serial.println(this->_request_header);
-		Request::respond_with_json_and_stop(message, this->_request_header);
+		Message::respond_with_json_and_stop(message, this->_request_header);
 		Serial.println(message);
 		delete this;
 	}
 
 
 	BAD_REQUEST_400_Exception::BAD_REQUEST_400_Exception(uint32_t line, String file, String message)
-	: HTTP_Exception{line, file, message, 400, Request::Literal::HTTP::BAD_REQUEST}
+	: HTTP_Exception{line, file, message, 400, Message::Literal::HTTP::BAD_REQUEST}
+	{}
+
+
+	UNAUTHORIZED_401_Exception::UNAUTHORIZED_401_Exception(uint32_t line, String file, String message)
+	: HTTP_Exception{line, file, message, 401, Message::Literal::HTTP::UNAUTHORIZED}
+	{}
+
+
+	FORBIDDEN_403_Exception::FORBIDDEN_403_Exception(uint32_t line, String file, String message)
+	: HTTP_Exception{line, file, message, 403, Message::Literal::HTTP::UNAUTHORIZED}
 	{}
 
 
 	NOT_FOUND_404_Exception::NOT_FOUND_404_Exception(uint32_t line, String file, String message)
-	: HTTP_Exception{line, file, message, 404, Request::Literal::HTTP::NOT_FOUND_REQUEST}
+	: HTTP_Exception{line, file, message, 404, Message::Literal::HTTP::NOT_FOUND_REQUEST}
 	{}
 
 
 	INTERNAL_SERVER_ERROR_500_Exception::
 	  INTERNAL_SERVER_ERROR_500_Exception(uint32_t line, String file, String message)
-	: HTTP_Exception{line, file, message, 500, Request::Literal::HTTP::INTERNAL_SERVER_ERROR_REQUEST}
+	: HTTP_Exception{line, file, message, 500, Message::Literal::HTTP::INTERNAL_SERVER_ERROR_REQUEST}
 	{}
 }

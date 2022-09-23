@@ -54,19 +54,27 @@ namespace Exceptions
 
 	class BAD_REQUEST_400_Exception: public HTTP_Exception
 	{
-		private:
-			uint16_t _status_code = 400;
-
 		public:
 			BAD_REQUEST_400_Exception(uint32_t line, String file, String message);
 	};
 
 
+	class UNAUTHORIZED_401_Exception: public HTTP_Exception
+	{
+		public:
+			UNAUTHORIZED_401_Exception(uint32_t line, String file, String message);
+	};
+
+
+	class FORBIDDEN_403_Exception: public HTTP_Exception
+	{
+		public:
+			FORBIDDEN_403_Exception(uint32_t line, String file, String message);
+	};
+
+
 	class NOT_FOUND_404_Exception: public HTTP_Exception
 	{
-		private:
-			uint16_t _status_code = 404;
-
 		public:
 			NOT_FOUND_404_Exception(uint32_t line, String file, String message);
 	};
@@ -74,9 +82,6 @@ namespace Exceptions
 
 	class INTERNAL_SERVER_ERROR_500_Exception: public HTTP_Exception
 	{
-		private:
-			uint16_t _status_code = 500;
-
 		public:
 			INTERNAL_SERVER_ERROR_500_Exception(uint32_t line, String file, String message);
 	};

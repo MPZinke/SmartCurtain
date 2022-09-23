@@ -16,6 +16,9 @@
 
 namespace Config
 {
+	const char AUTHORIZATION_VALUE[] = "HelloWorld";
+	const uint32_t AUTH_VALUE_LENGTH = sizeof(AUTHORIZATION_VALUE) - 1;
+
 	namespace Curtain
 	{
 		const char CURTAIN_ID[] = "1";

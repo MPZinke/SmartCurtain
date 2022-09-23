@@ -18,7 +18,7 @@
 
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
-#include "../Headers/Request.hpp"
+#include "../Headers/Message.hpp"
 
 
 namespace Movement
@@ -41,7 +41,7 @@ namespace Movement
 				Movement::activate();
 				if(Global::client_IP[0])
 				{
-					Request::deactivate_curtain();
+					Message::deactivate_curtain();
 				}
 			}
 

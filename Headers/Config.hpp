@@ -19,6 +19,9 @@
 
 namespace Config
 {
+	extern const char AUTHORIZATION_VALUE[];
+	extern const uint32_t AUTH_VALUE_LENGTH;
+
 	namespace Curtain
 	{
 		extern const char CURTAIN_ID[];

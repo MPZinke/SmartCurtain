@@ -15,7 +15,7 @@
 
 #include "../Headers/Exceptions.hpp"
 #include "../Headers/Hardware.hpp"
-#include "../Headers/Request.hpp"
+#include "../Headers/Message.hpp"
 
 
 namespace Curtain
@@ -38,7 +38,7 @@ namespace Curtain
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Curtain::operator String()
 	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
 
 		update_from_state();
 
@@ -54,7 +54,7 @@ namespace Curtain
 		curtain_object[JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
 		curtain_object[JSON::Key::CURTAIN_POSITION] = _position;
 
-		return Request::convert_JsonObject_to_String(curtain_object);
+		return Message::convert_JsonObject_to_String(curtain_object);
 	}
 
 
@@ -198,7 +198,7 @@ namespace Curtain
 	//  value.
 	void Curtain::update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
 	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
 		using namespace Config::Hardware;
 
 		JsonObject curtain_object = json_document[JSON::Key::CURTAIN];
@@ -241,7 +241,7 @@ namespace Curtain
 
 	void Curtain::append_to(JsonObject& json_object)
 	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
 
 		update_from_state();
 
