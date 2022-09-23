@@ -19,7 +19,7 @@
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Exceptions.hpp"
 #include "../Headers/Movement.hpp"
-#include "../Headers/Request.hpp"
+#include "../Headers/Message.hpp"
 
 
 using namespace Exceptions;
@@ -34,7 +34,7 @@ namespace Event
 
 	Event::Event(JsonObject& event_object)
 	{
-		using namespace Request::Literal::JSON::Key;
+		using namespace Message::Literal::JSON::Key;
 
 		if(!event_object.containsKey(EVENT_ID))
 		{
@@ -88,7 +88,7 @@ namespace Event
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Event::operator String()
 	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject event_object = json_document.to<JsonObject>();
 
@@ -96,7 +96,7 @@ namespace Event
 		event_object[JSON::Key::EVENT_IS_FINISHED] = _is_finished;
 		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
-		return Request::convert_JsonObject_to_String(event_object);
+		return Message::convert_JsonObject_to_String(event_object);
 	}
 
 
@@ -166,7 +166,7 @@ namespace Event
 
 	void Event::append_to(JsonObject& json_object)
 	{
-		using namespace Request::Literal;  // not entire namespace to help show where the below values are from
+		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
 
 		json_object[JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
 		json_object[JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
