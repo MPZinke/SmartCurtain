@@ -63,7 +63,7 @@ namespace Exceptions
 	{
 		String message = this->message();
 		Message::respond_with_json_and_stop(message);
-		Serial.println(message);
+		Serial.println(message);  //TESTING
 		delete this;
 	}
 

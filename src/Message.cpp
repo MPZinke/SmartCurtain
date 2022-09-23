@@ -127,7 +127,8 @@ namespace Message
 			String path = String("/api/curtains/") + Global::curtain.id() + "/is_activated/" + false;
 			String curtain_json = Global::curtain;
 			write_json((char*)curtain_json.c_str(), path.c_str(), Literal::HTTP::PATCH_METHOD);
-			clear_buffer_and_stop_client();
+			clear_buffer();
+			Global::client.stop();
 		}
 	}
 
@@ -185,15 +186,21 @@ namespace Message
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
-	// RETURN: The JSON Document object.
-	// THROWS: HTTPS_Exceptions
-	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json()
+	StaticJsonDocument<JSON_BUFFER_SIZE> read_message()
 	{
 		Global::client = wait_for_request();
 
-		String json_buffer = read_request_data_into_buffer();
-
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		uint32_t read_count = 0;
+
+		read_headers(read_count);
+		if(Global::exception)
+		{
+			return json_document;
+		}
+
+		String json_buffer = read_body(read_count);
+		// ≈ if(Global::exception) return json; else if(deserializeJson(...)) new BAD_REQUEST_400_Exception(...);
 		if(!Global::exception && deserializeJson(json_document, json_buffer))
 		{
 			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
@@ -203,63 +210,58 @@ namespace Message
 	}
 
 
+	void read_headers(register uint32_t& read_count)
+	{
+		if(unauthenticated(read_count))
+		{
+			new UNAUTHORIZED_401_Exception(__LINE__, __FILE__, "No Authorization header found");
+		}
+		else if(unauthorized(read_count))
+		{
+			new FORBIDDEN_403_Exception(__LINE__, __FILE__, "Not Authorized");
+		}
+
+		if(!skip_header(read_count))
+		{
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
+		}
+	}
+
 	/*
 	SUMMARY: Reads the client request into a dynamically allocated buffer.
 	DETAILS: Skips over the content headers. Allocates enough memory for content length and reads it in from client
 	         into buffer.
 	RETURNS: Populated buffer if successfully read, otherwise NULL pointer to indicate error occuring.
 	*/
-	String read_request_data_into_buffer()
+	String read_body(register uint32_t& read_count)
 	{
 		String content;
-		if(unauthenticated())
-		{
-			new UNAUTHORIZED_401_Exception(__LINE__, __FILE__, "No Authorization header found");
-			return content;
-		}
-		else if(unauthorized())
-		{
-			new FORBIDDEN_403_Exception(__LINE__, __FILE__, "Not Authorized");
-			return content;
-		}
-
-		if(!skip_header())
-		{
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
-			return content;
-		}
-
-		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++)
+		for(uint16_t x = 0; Global::client.available() && x < JSON_BUFFER_SIZE; x++, read_count++)
 		{
 			content += (char)Global::client.read();
 		}
 
-		// If client contents longer than content, handle "error" and do not proceed
-		if(JSON_BUFFER_SIZE <= content.length())
+		if(JSON_BUFFER_SIZE > content.length())
 		{
-			for(uint32_t x = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
-			{
-				Global::client.read();
-			}
-			content = "";
+			return content;
 		}
 
-		return content;
+		// If client contents longer than content, handle "error" and do not proceed
+		new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
+		clear_buffer(read_count);
+		return String();
 	}
 
 
-	uint32_t read_to_next_line(register uint32_t x)
+	void read_to_next_line(register uint32_t& read_count)
 	{
-		for(; x < 0xFFFFFFFF && Global::client.available() >= 2; x++)
+		for(; read_count < 0xFFFFFFFF && Global::client.available() >= 2; read_count++)
 		{
 			if(Global::client.read() == '\r' && Global::client.read() == '\n')
 			{
-				x += 2;
-				break;
+				return;
 			}
 		}
-
-		return x;
 	}
 
 
@@ -269,14 +271,13 @@ namespace Message
 	         carriage return-newline combo.
 	RETURNS: Return whether the body of the client is found.
 	*/
-	bool skip_header()
+	bool skip_header(register uint32_t& read_count)
 	{
-		WiFiClient* client = &Global::client;  //SUGAR
-		
-		for(uint32_t x = 0; x < 0xFFFFFFFF && client->available() >= 4; x++)
+		for(; read_count < 0xFFFFFFFF && Global::client.available() >= 4; read_count++)
 		{
 			// State machine
-			if(client->read() == '\r' && client->read() == '\n' && client->read() == '\r' && client->read() == '\n')
+			if(Global::client.read() == '\r' && Global::client.read() == '\n'
+			  && Global::client.read() == '\r' && Global::client.read() == '\n')
 			{
 				return true;
 			}
@@ -285,28 +286,28 @@ namespace Message
 	}
 
 
-	bool unauthenticated()
+	bool unauthenticated(register uint32_t& read_count)
 	{
 		// Match "Authorization: " tag
-		for(register uint32_t x = 0, header_index = 0; x < 0xFFFFFFFF && Global::client.available(); x++)
+		for(register uint32_t header_index = 0; read_count < 0xFFFFFFFF && Global::client.available(); read_count++)
 		{
 			char next = Global::client.read();
 			// If starting a newline and another is found, data section reached; no auth header has been found
 			if(next == '\r' && Global::client.available() && (next = Global::client.read()) == '\n')
 			{
-				return false;
+				return true;
 			}
 
 			// If the tag does not match...
 			if(next != Literal::HTTP::AUTHORIZATION_HEADER[header_index])
 			{
-				x = read_to_next_line(x);
+				read_to_next_line(read_count);
 				header_index = 0;
 			}
 			// Tag matches Auth tag
 			else if(header_index == Literal::HTTP::AUTH_HEADER_LENGTH-1)  // minus 1 for indexing
 			{
-				return true;
+				return false;
 			}
 			// Keep trying
 			else
@@ -315,7 +316,7 @@ namespace Message
 			}
 		}
 
-		return false;  // should never happen
+		return true;  // should never happen
 	}
 
 
@@ -325,13 +326,13 @@ namespace Message
 	         carriage return-newline combo.
 	RETURNS: Return whether the body of the client is found.
 	*/
-	bool unauthorized()
+	bool unauthorized(register uint32_t& read_count)
 	{
-		for(register uint32_t index = 0; index < Config::AUTH_VALUE_LENGTH && Global::client.available(); index++)
+		for(register uint32_t x = 0; x < Config::AUTH_VALUE_LENGTH && Global::client.available(); x++, read_count++)
 		{
-			if(Global::client.read() != Config::AUTHORIZATION_VALUE[index])
+			if(Global::client.read() != Config::AUTHORIZATION_VALUE[x])
 			{
-				return false;
+				return true;
 			}
 		}
 
@@ -428,14 +429,12 @@ namespace Message
 
 	// ————————————————————————————————————————————— CONNECT CONNECTION ————————————————————————————————————————————— //
 
-	void clear_buffer_and_stop_client()
+	void clear_buffer(uint32_t offset/*=0*/)
 	{
-		while(Global::client.available())
+		for(uint32_t x = offset; x < 0xFFFFFFFF && Global::client.available(); x++)
 		{
 			Global::client.read();
 		}
-
-		Global::client.stop();
 	}
 
 
@@ -443,7 +442,8 @@ namespace Message
 	{
 		if(Global::client.connected())
 		{
-			clear_buffer_and_stop_client();
+			clear_buffer();
+			Global::client.stop();
 		}
 
 		// Establish connection
