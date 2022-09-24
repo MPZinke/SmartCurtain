@@ -45,7 +45,6 @@ namespace Processor
 					// Update information about curtain
 					case Message::Literal::JSON::Value::UPDATE_ID:
 					{
-Serial.println(String("Line: ") + __LINE__);
 						case_update(json_document);
 						// Fall through to STATUS_ID
 					}
@@ -53,7 +52,6 @@ Serial.println(String("Line: ") + __LINE__);
 					// Return information about Curtain
 					case Message::Literal::JSON::Value::STATUS_ID:
 					{
-Serial.println(String("Line: ") + __LINE__);
 						case_status();
 						break;
 					}
@@ -61,23 +59,19 @@ Serial.println(String("Line: ") + __LINE__);
 					// Move to position
 					case Message::Literal::JSON::Value::MOVE_ID:
 					{
-Serial.println(String("Line: ") + __LINE__);
 						case_move(json_document);
 						break;
 					}
 
 					default:
 					{
-Serial.println(String("Line: ") + __LINE__);
 						case_default(json_document);
 					}
 				}
 			}
-Serial.println(String("Line: ") + __LINE__);
 
 			if(Global::exception)
 			{
-Serial.println(String("Line: ") + __LINE__);
 				Global::exception->send();
 			}
 		}

@@ -36,7 +36,7 @@ namespace Message
 			const char NO_CONTENT_REQUEST[] = "HTTP/1.1 204 No Content";  // start string for no content for request
 			const char BAD_REQUEST[] = "HTTP/1.1 400 Bad Message";  // start string for invalid request from device
 			const char UNAUTHORIZED[] = "HTTP/1.1 401 UNAUTHORIZED";  // start string for invalid request from device
-			const char FORBIDDEN[] = "HTTP/1.1 401 FORBIDDEN";  // start string for invalid request from device
+			const char FORBIDDEN[] = "HTTP/1.1 403 FORBIDDEN";  // start string for invalid request from device
 			const char NOT_FOUND_REQUEST[] = "HTTP/1.1 404 Not Found";  // start string for no content for request
 			const char INTERNAL_SERVER_ERROR_REQUEST[] = "HTTP/1.1 500 Internal Server Error";
 			// —— START LINE::POST —— //
@@ -229,8 +229,7 @@ namespace Message
 		{
 			new FORBIDDEN_403_Exception(__LINE__, __FILE__, "Not Authorized");
 		}
-
-		if(!skip_header(read_count))
+		else if(!skip_header(read_count))
 		{
 			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
 		}
@@ -298,7 +297,9 @@ namespace Message
 	bool unauthenticated(register uint32_t& read_count)
 	{
 		// Match "Authorization: " tag
-		for(register uint32_t header_index = 0; read_count < 0xFFFFFFFF && Global::client.available(); read_count++)
+		using namespace Literal::HTTP;
+		for(register uint32_t header_index = 0; header_index < AUTH_HEADER_LENGTH && read_count < 0xFFFFFFFF
+		  && Global::client.available(); read_count++)
 		{
 			char next = Global::client.read();
 			// If starting a newline and another is found, data section reached; no auth header has been found
@@ -308,13 +309,13 @@ namespace Message
 			}
 
 			// If the tag does not match...
-			if(next != Literal::HTTP::AUTHORIZATION_HEADER[header_index])
+			if(next != AUTHORIZATION_HEADER[header_index])
 			{
 				read_to_next_line(read_count);
 				header_index = 0;
 			}
 			// Tag matches Auth tag
-			else if(header_index == Literal::HTTP::AUTH_HEADER_LENGTH-1)  // minus 1 for indexing
+			else if(header_index == AUTH_HEADER_LENGTH-1)  // minus 1 for indexing
 			{
 				return false;
 			}
@@ -337,15 +338,17 @@ namespace Message
 	*/
 	bool unauthorized(register uint32_t& read_count)
 	{
-		for(register uint32_t x = 0; x < Config::AUTH_VALUE_LENGTH && Global::client.available(); x++, read_count++)
+		using namespace Config;
+		for(register uint32_t x = 0; x < HTTP::AUTH_VALUE_LENGTH && Global::client.available(); x++, read_count++)
 		{
-			if(Global::client.read() != Config::AUTHORIZATION_VALUE[x])
+			char next = Global::client.read();
+			if(next != HTTP::AUTHORIZATION_VALUE[x])
 			{
 				return true;
 			}
 		}
 
-		return Global::client.available() && Global::client.peek() == '\r';
+		return !(Global::client.available() && Global::client.peek() == '\r');
 	}
 
 
@@ -365,6 +368,7 @@ namespace Message
 		}
 
 		Global::client_IP = client.remoteIP();
+		Global::client_port = client.remotePort();
 		return client;
 	}
 
@@ -378,9 +382,6 @@ namespace Message
 
 		// Headers
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
-
-		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
-		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
 
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(json.length());
@@ -400,9 +401,6 @@ namespace Message
 
 		// Headers
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
-
-		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
-		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
 
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length((char*)json));
@@ -433,9 +431,6 @@ namespace Message
 
 		Global::client.println(Literal::HTTP::CONTENT_TYPE);
 
-		Global::client.print(Literal::HTTP::AUTHORIZATION_HEADER);
-		Global::client.println(Config::HUB_AUTHORIZATION_VALUE);
-
 		Global::client.print(Literal::HTTP::CONTENT_LENGTH_TAG);
 		Global::client.println(C_String::length(json));
 
@@ -456,17 +451,14 @@ namespace Message
 		}
 
 		// Establish connection
-		// static WiFiClient client;
 		Global::client = WiFiClient();
-
-		if(!Global::client.connect(Global::client_IP, Config::Network::PORT))
+		if(!Global::client.connect(Global::client_IP, Global::client_port))
 		{
 			return false;
 		}
 
 		// Send data if eventually connected
-		uint8_t timeout;
-		for(timeout = 255; !Global::client.connected() && timeout; timeout--)
+		for(uint8_t timeout = 255; !Global::client.connected() && timeout; timeout--)
 		{
 			delay(10);
 		}

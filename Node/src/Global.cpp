@@ -27,6 +27,7 @@ namespace Global
 	WiFiServer server(Config::Network::PORT);
 	WiFiClient client;
 	IPAddress client_IP;
+	uint16_t client_port;
 
 	Exceptions::Exception* exception = NULL;
 } // end namespace Global

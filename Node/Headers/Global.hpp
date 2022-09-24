@@ -52,6 +52,7 @@ namespace Global
 	extern WiFiServer server;
 	extern WiFiClient client;
 	extern IPAddress client_IP;
+	extern uint16_t client_port;
 
 	extern Exceptions::Exception* exception;
 } // end namespace Global
