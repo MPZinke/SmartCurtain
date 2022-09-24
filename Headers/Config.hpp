@@ -19,10 +19,6 @@
 
 namespace Config
 {
-	extern const char AUTHORIZATION_VALUE[];
-	extern const char HUB_AUTHORIZATION_VALUE[];
-	extern const uint32_t AUTH_VALUE_LENGTH;
-
 	namespace Curtain
 	{
 		extern const char CURTAIN_ID[];
@@ -61,6 +57,13 @@ namespace Config
 		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.
 		extern const bool DISCRETE_MOVEMENT_ALLOWED;
 		extern const bool SWITCH;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
+	}
+
+
+	namespace HTTP
+	{
+		extern const char AUTHORIZATION_VALUE[];
+		extern const uint32_t AUTH_VALUE_LENGTH;
 	}
 
 

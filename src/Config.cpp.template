@@ -16,11 +16,6 @@
 
 namespace Config
 {
-	const char AUTHORIZATION_VALUE[] = "CurtainHelloWorld";
-	const char HUB_AUTHORIZATION_VALUE[] = "HubHelloWorld";
-
-	const uint32_t AUTH_VALUE_LENGTH = sizeof(AUTHORIZATION_VALUE) - 1;
-
 	namespace Curtain
 	{
 		const char CURTAIN_ID[] = "1";
@@ -60,6 +55,13 @@ namespace Config
 		const bool DISCRETE_MOVEMENT_ALLOWED = false;
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
 		const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
+	}
+
+
+	namespace HTTP
+	{
+		const char AUTHORIZATION_VALUE[] = "";
+		const uint32_t AUTH_VALUE_LENGTH = (sizeof(AUTHORIZATION_VALUE) / sizeof(char)) - 1;
 	}
 
 

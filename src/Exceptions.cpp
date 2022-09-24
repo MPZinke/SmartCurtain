@@ -63,8 +63,7 @@ namespace Exceptions
 	{
 		String message = this->message();
 		Message::respond_with_json_and_stop(message);
-		Serial.println(message);  //TESTING
-		delete this;
+				delete this;
 	}
 
 
@@ -101,10 +100,7 @@ namespace Exceptions
 	void HTTP_Exception::send()
 	{
 		String message = this->message();
-		Serial.print("_request_header: ");
-		Serial.println(this->_request_header);
 		Message::respond_with_json_and_stop(message, this->_request_header);
-		Serial.println(message);
 		delete this;
 	}
 
@@ -120,7 +116,7 @@ namespace Exceptions
 
 
 	FORBIDDEN_403_Exception::FORBIDDEN_403_Exception(uint32_t line, String file, String message)
-	: HTTP_Exception{line, file, message, 403, Message::Literal::HTTP::UNAUTHORIZED}
+	: HTTP_Exception{line, file, message, 403, Message::Literal::HTTP::FORBIDDEN}
 	{}
 
 
