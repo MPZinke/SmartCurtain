@@ -17,6 +17,7 @@ __author__ = "MPZinke"
 import json
 import paho.mqtt.client as mqtt
 import sys
+from time import sleep
 
 
 class CurtainConnection(mqtt.Client):
@@ -25,21 +26,34 @@ class CurtainConnection(mqtt.Client):
 
 		self.id = id
 		self.length = length
+		self.is_moving = False
+
+
+	def __iter__(self) -> dict:
+		yield from {
+			"id": self.id,
+			"length": self.length,
+			"is_moving": self.is_moving
+		}.items()
 
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
 		self.subscribe("curtains/all")
 		self.subscribe(f"curtains/{self.id}")
-		client.publish("curtains/hub", f"""{{"id": {self.id}, "length": {self.length}}}""")
+		client.publish("curtains/hub", json.dumps(dict(self)))
 
 
 	def on_message(self, client, userdata, message) -> None:
 		print(message.payload)  #TESTING
 		request = json.loads(message.payload)
 		if(request["type"] == "move"):
-			print("Moving")
-		client.publish("curtains/hub", f"""{{"id": {self.id}, "length": {self.length}}}""")
+			self.is_moving = True
+			client.publish("curtains/hub", json.dumps(dict(self)))
+			sleep(3)
+			self.is_moving = False
+
+		client.publish("curtains/hub", json.dumps(dict(self)))
 
 
 	def run(self) -> None:
