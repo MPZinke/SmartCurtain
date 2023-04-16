@@ -18,6 +18,9 @@ import json
 import paho.mqtt.client as mqtt
 
 
+UPDATE_DATA = """{"type": "register", "Curtain": {"Home": 1, "Room": 1}}"""
+
+
 class HubConnection(mqtt.Client):
 	def __init__(self):
 		mqtt.Client.__init__(self)
@@ -27,14 +30,32 @@ class HubConnection(mqtt.Client):
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
-		self.subscribe("curtains/hub")
-		self.publish("curtains/all", """{"type": "status"}""")
+		self.subscribe("SmartCurtain/hub")
+		self.publish("SmartCurtain/all", """{"type": "status"}""")
 
 
 	def on_message(self, client, userdata, message) -> None:
-		curtain_info: dict = json.loads(message.payload)
-		self.curtains[curtain_info["id"]] = curtain_info
-		print(self.curtains)
+		# Status: The request for something's (a curtain's) status
+		# Updates: Specify the data to update.
+		# HUB ——status--> Curtain ——update--> Hub [——update--> Curtain]
+		#	IE. Hub: "What is your status?", Curtain: "Let me update you"[, Hub: "Let me tweak that"]
+		# Curtain ——update--> Hub [——update--> Curtain]
+		#	IE. Curtain: "This is what you should show for me"[, Hub: "Let me tweak that"]
+		# The Hub can however override on home, room, length, and other DB defined values.
+		# However, the Hub will not override is_moving or percentage
+		print(request := json.loads(message.payload))
+
+		if(request["type"] == "update"):
+			if((curtain := request["Curtain"])["id"] not in self.curtains):
+				# Testing "is_connected" and updating values from DB.
+				self.curtains[curtain["id"]] = {**curtain, "home": 1, "room": 1, "length": curtain["length"]-1}
+
+			self_curtain = self.curtains[curtain["id"]]
+			self_curtain.update({key: curtain[key] for key in curtain if(key in ["is_moving", "percentage"])})
+
+			if(any(self_curtain[key] != curtain[key] for key in ["home", "room", "length"])):
+				payload = json.dumps({"type": "update", "Curtain": self_curtain})
+				self.publish(f"""SmartCurtain/-/-/{curtain["id"]}""", payload)
 
 
 	def run(self) -> None:

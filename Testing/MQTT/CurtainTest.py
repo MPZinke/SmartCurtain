@@ -25,35 +25,67 @@ class CurtainConnection(mqtt.Client):
 		mqtt.Client.__init__(self)
 
 		self.id = id
+		self.home = 0
+		self.room = 0
 		self.length = length
+
 		self.is_moving = False
+		self.percentage = 0
 
 
 	def __iter__(self) -> dict:
 		yield from {
 			"id": self.id,
+			"home": self.home,
+			"room": self.room,
 			"length": self.length,
-			"is_moving": self.is_moving
+			"is_moving": self.is_moving,
+			"percentage": self.percentage,
 		}.items()
 
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
-		self.subscribe("curtains/all")
-		self.subscribe(f"curtains/{self.id}")
-		client.publish("curtains/hub", json.dumps(dict(self)))
+		self.subscribe("SmartCurtain/all")
+		self.subscribe(f"""SmartCurtain/-/-/{self.id}""")
+		client.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
 
 
 	def on_message(self, client, userdata, message) -> None:
-		print(message.payload)  #TESTING
-		request = json.loads(message.payload)
-		if(request["type"] == "move"):
-			self.is_moving = True
-			client.publish("curtains/hub", json.dumps(dict(self)))
-			sleep(3)
-			self.is_moving = False
+		print(request := json.loads(message.payload))
 
-		client.publish("curtains/hub", json.dumps(dict(self)))
+		if(request["type"] == "status"):
+			self.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
+
+		if(request["type"] == "update"):
+			self.update(request)
+
+		if(request["type"] == "move"):
+			self.move(request)
+
+
+	def move(self, request):
+		print(request)
+
+		self.is_moving = True
+		client.publish("SmartCurtain", json.dumps(dict(self)))
+
+		sleep(3)
+
+		self.percentage = 100 * int(not bool(self.percentage))
+		self.is_moving = False
+
+		self.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
+
+
+	def update(self, request):
+		self.home = request["Curtain"]["home"]
+		self.room = request["Curtain"]["room"]
+		self.subscribe(f"""SmartCurtain/{self.home}""")
+		self.subscribe(f"""SmartCurtain/-/{self.room}""")
+
+		if("length" in request["Curtain"]):
+			self.length = request["Curtain"]["length"]
 
 
 	def run(self) -> None:

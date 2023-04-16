@@ -130,17 +130,22 @@ V+    °|–– +
     - setuptool
     - sklearn
 
+
+### DESIGN DECISIONS
+- Options precedence is selected High -> Low from Curtain -> Home (because I am specifying that a specific item has precendence over a more general category).
+- Events precedence is selected High -> Low from Home -> Curtain, as an event for an area includes more specific items in that area
+
 ---
 
 ## CONSIDERED FUTURE ADDITIONS
 - [ ] 1. Google Calendar Event Setter
-- [ ] 2. Thermostat & light level integration *(if it's cold & dark outside and close curtains for better insolation (and vice versa))*
+- [ ] 2. Thermostat & light level integration *(if it's cold & dark outside then close curtains for better insolation (and vice versa))*
 - [ ] 3. Who Is Home (ping Android phones to see if person is on local network) closing/opening
 - [x] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
 - [ ] 5. Mobile App
 - [ ] 6. WearOS App
 - [x] 7. JSON Log format
-- [ ] 8. JSON string output for all objects
+- [x] 8. JSON string output for all objects
 - [ ] 9. Updater can run bash script (using same principle as DB updates)
 
 ---
