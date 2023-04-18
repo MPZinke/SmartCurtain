@@ -46,21 +46,26 @@ class CurtainConnection(mqtt.Client):
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
-		self.subscribe("SmartCurtain/all")
-		self.subscribe(f"""SmartCurtain/-/-/{self.id}""")
-		client.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
+		self.subscribe("SmartCurtain/all/status")
+		self.subscribe("SmartCurtain/all/move")
+		self.subscribe(f"""SmartCurtain/-/-/{self.id}/status""")
+		self.subscribe(f"""SmartCurtain/-/-/{self.id}/move""")
+		self.subscribe(f"""SmartCurtain/-/-/{self.id}/update""")
+		client.publish("SmartCurtain/hub/update", json.dumps({"Curtain": dict(self)}))
 
 
 	def on_message(self, client, userdata, message) -> None:
-		print(request := json.loads(message.payload))
+		print(type := message.topic.split("/")[-1])
 
-		if(request["type"] == "status"):
-			self.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
+		if(type == "status"):
+			self.publish("SmartCurtain/hub/update", json.dumps(dict(self)))
 
-		if(request["type"] == "update"):
+		if(type == "update"):
+			print(request := json.loads(message.payload))
 			self.update(request)
 
-		if(request["type"] == "move"):
+		if(type == "move"):
+			print(request := json.loads(message.payload))
 			self.move(request)
 
 
@@ -75,14 +80,16 @@ class CurtainConnection(mqtt.Client):
 		self.percentage = 100 * int(not bool(self.percentage))
 		self.is_moving = False
 
-		self.publish("SmartCurtain/hub", json.dumps({"type": "update", "Curtain": dict(self)}))
+		self.publish("SmartCurtain/hub/update", json.dumps({"Curtain": dict(self)}))
 
 
 	def update(self, request):
 		self.home = request["Curtain"]["home"]
 		self.room = request["Curtain"]["room"]
-		self.subscribe(f"""SmartCurtain/{self.home}""")
-		self.subscribe(f"""SmartCurtain/-/{self.room}""")
+		self.subscribe(f"""SmartCurtain/{self.home}/status""")
+		self.subscribe(f"""SmartCurtain/{self.home}/move""")
+		self.subscribe(f"""SmartCurtain/-/{self.room}/status""")
+		self.subscribe(f"""SmartCurtain/-/{self.room}/move""")
 
 		if("length" in request["Curtain"]):
 			self.length = request["Curtain"]["length"]

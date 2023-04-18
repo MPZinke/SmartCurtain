@@ -30,8 +30,8 @@ class HubConnection(mqtt.Client):
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
-		self.subscribe("SmartCurtain/hub")
-		self.publish("SmartCurtain/all", """{"type": "status"}""")
+		self.subscribe("SmartCurtain/hub/update")
+		self.publish("SmartCurtain/all/status", "")
 
 
 	def on_message(self, client, userdata, message) -> None:
@@ -44,8 +44,9 @@ class HubConnection(mqtt.Client):
 		# The Hub can however override on home, room, length, and other DB defined values.
 		# However, the Hub will not override is_moving or percentage
 		print(request := json.loads(message.payload))
+		print(type := message.topic.split("/")[-1])
 
-		if(request["type"] == "update"):
+		if(type == "update"):
 			if((curtain := request["Curtain"])["id"] not in self.curtains):
 				# Testing "is_connected" and updating values from DB.
 				self.curtains[curtain["id"]] = {**curtain, "home": 1, "room": 1, "length": curtain["length"]-1}
@@ -54,8 +55,7 @@ class HubConnection(mqtt.Client):
 			self_curtain.update({key: curtain[key] for key in curtain if(key in ["is_moving", "percentage"])})
 
 			if(any(self_curtain[key] != curtain[key] for key in ["home", "room", "length"])):
-				payload = json.dumps({"type": "update", "Curtain": self_curtain})
-				self.publish(f"""SmartCurtain/-/-/{curtain["id"]}""", payload)
+				self.publish(f"""SmartCurtain/-/-/{curtain["id"]}/update""", json.dumps({"Curtain": self_curtain}))
 
 
 	def run(self) -> None:
