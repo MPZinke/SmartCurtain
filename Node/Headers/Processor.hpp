@@ -19,7 +19,7 @@
 
 namespace Processor
 {
-	void server_loop();
+	void process_message();
 
 	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
 	void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);

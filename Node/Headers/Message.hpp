@@ -22,30 +22,14 @@ namespace Message
 {
 	namespace Literal
 	{
-		namespace HTTP
+		namespace MQTT
 		{
-			// ———— START LINE ———— //
-			extern const char OK_REQUEST[];  // start string for valid request from device
-			extern const char NO_CONTENT_REQUEST[];  // start string for no content for request
-			extern const char BAD_REQUEST[];  // start string for invalid request from device
-			extern const char UNAUTHORIZED[];  // start string for invalid request from device
-			extern const char FORBIDDEN[];  // start string for invalid request from device
-			extern const char NOT_FOUND_REQUEST[];  // start string for no content for request
-			extern const char INTERNAL_SERVER_ERROR_REQUEST[];
-			// —— START LINE::POST —— //
-			extern const char PATCH_METHOD[];
-			extern const char POST_METHOD[];
-			extern const char HTTP_VERSION[];
-
-			// ———— HEADERS ———— //
-			extern const char AUTHORIZATION_HEADER[];
-			extern const char CONTENT_TYPE[];
-			extern const char CONTENT_LENGTH_TAG[];
-			extern const char HOST_TAG[];
-
-			// ———— OTHER ———— //
-			extern const uint32_t AUTH_TAG_SIZE;
-		}  // end namespace HTTP
+			extern const char CURTAIN_PATH_PREFIX[];
+			extern const char MOVE_SUFFIX[];
+			extern const char STATUS_SUFFIX[];
+			extern const char UPDATE_SUFFIX[];
+			extern const char HUB_UPDATE_TOPIC[];
+		}  // end namespace MQTT
 
 
 		namespace JSON
@@ -64,76 +48,25 @@ namespace Message
 				extern const char DISCRETE_MOVEMENT[];
 				extern const char LENGTH[];
 
-				extern const char EVENT[];
-				extern const char EVENT_ID[];
-				extern const char EVENT_FORCE[];
-				extern const char EVENT_IS_FINISHED[];
+				extern const char EVENT_IS_MOVING[];
 				extern const char EVENT_PERCENTAGE[];
 
 				extern const char HUB_IP[];
 			}  // end namespace Key
-
-
-			namespace Value
-			{
-				extern const char MOVE[];  // Query type value for move
-				extern const char RESET[];  // Query type value for reset
-				extern const char STATUS[];  // Query type value for status
-				extern const char UPDATE[];  // Query type value for updating curtain details
-
-				// Used to auto increment the ID for the value
-				enum
-				{
-					UNDEFINED = 0,
-					MOVE_ID,
-					RESET_ID,
-					STATUS_ID,
-					UPDATE_ID
-				};
-
-
-				typedef struct
-				{
-					const uint8_t id;
-					const char* value;
-				} ValueID;
-
-
-				extern const ValueID VALUE_IDS[];
-			}  // end namespace Value
 		}  // end namespace JSON
-
-
-		namespace Responses
-		{
-			extern const char INVALID[];
-			extern const char MOVING[];
-			extern const char VALID[];
-		}  // end namespace Responses
 	}  // end namespace Literal
 
 
-	// ———— UTILITY ———— //
+	// —————————————————————————————————————————————————— UTILITY —————————————————————————————————————————————————— //
+	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 	String convert_JsonObject_to_String(JsonObject& object);
-	void deactivate_curtain();
-	uint8_t id_for_query_type(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-	// ———— JSON PRODUCERS ———— //
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
-	// ———— RECEIVE DATA ———— //
-	void clear_buffer(uint32_t offset=0);
-	StaticJsonDocument<JSON_BUFFER_SIZE> read_message();
-	void read_headers(register uint32_t& read_count);
-	String read_body(register uint32_t& read_count);
-	void read_to_next_line(register uint32_t& read_count);
-	bool skip_header(register uint32_t& read_count);
+	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
+	String read_message(int message_size);
+	void read_message(int message_size);
 	bool unauthenticated(register uint32_t& read_count);
 	bool unauthorized(register uint32_t& read_count);
-	WiFiClient wait_for_request();
-	// ———— RESPONDING ———— //
-	void respond_with_json_and_stop(String& json, const char response_type[]=Literal::HTTP::OK_REQUEST);
-	void respond_with_json_and_stop(const char json[], const char response_type[]=Literal::HTTP::OK_REQUEST);
-	void write_json(char json[], const char path[], const char method[]=Literal::HTTP::POST_METHOD);
-  	// ———— CONNECT CONNECTION ———— //
-	bool new_global_client_connection();
+	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
+	void update_hub();
 } // end namespace Message
