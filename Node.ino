@@ -59,13 +59,29 @@ void setup()
 	WiFi.mode(WIFI_STA);
 	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::MAC_ADDRESS);
 	WiFi.begin(Config::Network::SSID, Config::Network::PASSWORD);
-	while(WiFi.status() != WL_CONNECTED) delay(500);
+	while(WiFi.status() != WL_CONNECTED)
+	{
+		delay(500);
+	}
 
-	Global::server.begin();
+	while(!Global::mqtt_client.connect(Config::Network::BROKER_DOMAIN, Config::Network::BROKER_PORT))
+	{
+		delay(500);
+	}
 
-	xTaskCreatePinnedToCore((TaskFunction_t)Processor::server_loop, "Server", 10000, NULL, 2, NULL, 0);
+	{  // for namespacing
+		using namespace Message::Literal::MQTT;
+		Global::mqtt_client.onMessage(Processor::process_message);
+		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+MOVE_SUFFIX);
+		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+STATUS_SUFFIX);
+		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
+	}
+
+
+	xTaskCreatePinnedToCore((TaskFunction_t)Processor::loop, "MQTT", 10000, NULL, 2, NULL, 0);
 	xTaskCreatePinnedToCore((TaskFunction_t)Movement::movement_loop, "Movement", 10000, NULL, 1, NULL, 1);
 
+	// Prevent infinite loop detection
 	rtc_wdt_protect_off();
 	rtc_wdt_disable();
 	disableCore0WDT();

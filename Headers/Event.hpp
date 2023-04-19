@@ -25,31 +25,28 @@ namespace Event
 	class Event
 	{
 		private:
-			uint32_t _id;
-			bool _is_finished = false;
+			bool _is_activated = false;
+			bool _is_moving = false;
 			uint8_t _percentage;
 
 		public:
-			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t percentage, bool is_finished=false);
+			Event(String& event_json);
 
 			operator String();
 
-			// ———— GETTERS ———— //
-			uint32_t id();
-			bool is_finished();
+			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
+			bool is_activated();
+			bool is_moving();
 			uint8_t percentage();
 
-			// ———— SETTERS ———— //
-			void is_finished(bool new_is_finished);
+			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
+			void is_activated(bool new_is_activated);
+			void is_moving(bool new_is_moving);
 
-			// ———— MOVEMENT ———— //
+			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards
 			bool event_moves_to_an_end();
 			bool moves_full_span();  // Whether the event causes the curtain to move full span
 			CurtainState state();  // The final state of the curtain
-
-			// ———— OTHER ———— //
-			void append_to(JsonObject& json_object);
 	};
 }

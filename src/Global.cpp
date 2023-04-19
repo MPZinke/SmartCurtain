@@ -26,8 +26,7 @@ namespace Global
 
 	WiFiServer server(Config::Network::PORT);
 	WiFiClient client;
-	IPAddress client_IP;
-	uint16_t client_port;
 
 	Exceptions::Exception* exception = NULL;
+	StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 } // end namespace Global

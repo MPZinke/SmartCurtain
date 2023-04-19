@@ -23,53 +23,70 @@ namespace Curtain
 {
 	using Movement::CurtainState;
 
-	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //
+	// ——————————————————————————————————————————————— CURTAIN OBJECT ——————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
 	class Curtain
 	{
 		private:
-			const uint8_t _id;
-			// ———— OPTIONS ———— //
-			// if the curtain has opportunity to move full span, count steps & return value
-			bool _auto_calibrate = Config::Hardware::BOTH_ENDSTOPS;
-			// if position is unexpected, go to expected position
-			bool _auto_correct = Config::Hardware::EITHER_ENDSTOP;
-			bool _direction = Config::Hardware::DIRECTION_SWITCH;
-			// if the curtain can move to a discrete location (not just open or closed)
-			bool _discrete_movement = Config::Hardware::EITHER_ENDSTOP && Config::Hardware::DISCRETE_MOVEMENT_ALLOWED;
-			uint32_t _length = Config::Hardware::DEFAULT_LENGTH;  // overall length of the curtain [steps]
+			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
+			const uint16_t _id;
+			uint16_t _home_id = 0;
+			uint16_t _room_id = 0;
+
+			// ———————————————————————————————————————————— INFORMATION  ———————————————————————————————————————————— //
+			uint32_t _length = Config::Hardware::MAX_LENGTH;  // overall length of the curtain [steps]
 			uint8_t _percentage = 0;  // the percentage amount open of the curtain
 			uint32_t _position = 0;  // the current length according to the RPi
 
-			uint32_t _last_event_id = 0;  // the ID of the last event (helps determine if fresh restart)
+			// —————————————————————————————————————————————— OPTIONS  —————————————————————————————————————————————— //
+			bool _auto_calibrate = Config::Hardware::BOTH_ENDSTOPS;  // count steps & return value, if moves full span
+			bool _auto_correct = Config::Hardware::EITHER_ENDSTOP;  // go to expected position, if unexpected position
+			bool _direction = Config::Hardware::DIRECTION_SWITCH;  // flip what value goes what direction
+			// if the curtain can move to a discrete location (not just open or closed)
+			bool _discrete_movement = Config::Hardware::EITHER_ENDSTOP && Config::Hardware::DISCRETE_MOVEMENT_ALLOWED;
 
 		public:
 			Curtain(uint8_t id);
 
-			operator String();
+			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
-			// ———— GETTERS ———— //
+			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
 			uint8_t id();
-
+			uint8_t home_id();
+			uint8_t room_id();
+			// ———————————————————————————————————————— SETTERS::INFORMATION ———————————————————————————————————————— //
+			uint32_t length();
+			uint8_t percentage();
+			uint32_t position();
+			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			bool auto_calibrate();
 			bool auto_correct();
 			bool direction();
 			bool discrete_movement();
-			uint32_t length();
-			uint8_t percentage();
-			uint32_t position();
+			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
 			CurtainState state();
+			operator String();
 
-			// ———— SETTERS ———— //
+			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+			// ————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————— //
+			void home_id(register uint16_t new_home_id);
+			void room_id(register uint16_t new_room_id);
+			// ———————————————————————————————————————— SETTERS::INFORMATION ———————————————————————————————————————— //
+			void length(register uint32_t new_length);
+			void percentage(register uint8_t new_percentage);
+			void position(register uint32_t new_position);
+			// —————————————————————————————————————————— SETTERS::OPTIONS —————————————————————————————————————————— //
 			void auto_calibrate(register bool new_auto_calibrate);
 			void auto_correct(register bool new_auto_correct);
 			void direction(register bool new_direction);
-			void length(register uint32_t new_length);
 			void discrete_movement(register bool new_discrete_movement);
-			void percentage(register uint8_t new_percentage);
-			void position(register uint32_t new_position);
-			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+			// ——————————————————————————————————————————— SETTERS::OTHER ——————————————————————————————————————————— //
+			void update();
 
 			// ———— OTHER ———— //
 			void append_to(JsonObject& json_object);

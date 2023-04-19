@@ -28,8 +28,10 @@ namespace Config
 
 	namespace Hardware
 	{
-		// ———————— HARDWARE DICTATING VALUES ————————
-		// ———— PINS ————
+		// ——————————————————————————————————————— HARDWARE DICTATING  VALUES ——————————————————————————————————————— //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		const uint8_t DIRECTION_PIN = 5;
 		const uint8_t ENABLE_PIN = 18;
 		const uint8_t PULSE_PIN = 19;
@@ -37,20 +39,24 @@ namespace Config
 		const uint8_t CLOSE_PIN = 21;
 		const uint8_t OPEN_PIN = 0;
 
-		// ———— WAIT ————
+		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
 
-		// ———————— HARDWARE DETERMINED VALUES ————————
+
+		// ——————————————————————————————————————— HARDWARE DETERMINED VALUES ——————————————————————————————————————— //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
 		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
 		const bool BOTH_ENDSTOPS = CLOSE_ENDSTOP && OPEN_ENDSTOP;
 		const bool EITHER_ENDSTOP = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 
-		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
-		// ———— STEPS ————
-		const uint32_t DEFAULT_LENGTH = 34000;
 
-		// ———— SWITCHES ————
+		// ————————————————————————————————————— PHYSICAL HARDWARE BASED VALUES ————————————————————————————————————— //
+		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.  //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+		const uint32_t MAX_LENGTH = 34000;
+
+		// ———————————————————————————————— PHYSICAL HARDWARE BASED VALUES::SWITCHES ———————————————————————————————— //
 		// I don't like discrete movement, so I am not going to allow it on my curtain.
 		const bool DISCRETE_MOVEMENT_ALLOWED = false;
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
@@ -67,13 +73,14 @@ namespace Config
 
 	namespace Network
 	{
-		// NODE
-		const uint16_t PORT = 80;  // listening port
+		// MQTT
+		const char BROKER_DOMAIN[] = "hub";
+		const uint16_t BROKER_PORT = 1883;
+
+		// Network
 		uint8_t MAC_ADDRESS[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
 
-		// ROUTER
-		uint8_t ROUTER_GATEWAY[] = {10,0,0,1};  // router gateway
-		uint8_t SUBNET_MASK[] = {255,255,255,0};  // of the router
+		// WiFi
 		const char PASSWORD[] = "";  // WiFi password
 		const char SSID[] = "";  // WiFi name
 	}  // end namespace Config::Network

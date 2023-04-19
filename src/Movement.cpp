@@ -41,7 +41,7 @@ namespace Movement
 				Movement::activate();
 				if(Global::client_IP[0])
 				{
-					Message::deactivate_curtain();
+					Message::update_hub();
 				}
 			}
 

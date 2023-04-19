@@ -246,13 +246,13 @@ namespace Curtain
 		update_from_state();
 
 		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_ID] = _id;
+		json_object[JSON::Key::CURTAIN][JSON::Key::HOME_ID] = _home_id;
+		json_object[JSON::Key::CURTAIN][JSON::Key::ROOM_ID] = _room_id;
 		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
 		json_object[JSON::Key::CURTAIN][JSON::Key::AUTO_CORRECT] = _auto_correct;
 		json_object[JSON::Key::CURTAIN][JSON::Key::DIRECTION] = _direction;
-		json_object[JSON::Key::CURTAIN][JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
 		json_object[JSON::Key::CURTAIN][JSON::Key::LENGTH] = _length;
 		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
-		json_object[JSON::Key::CURTAIN][JSON::Key::CURTAIN_POSITION] = _position;
 	}
 
 

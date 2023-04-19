@@ -32,18 +32,19 @@ namespace Event
 
 	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
-	Event::Event(JsonObject& event_object)
+	Event::Event(String& event_json)
 	{
-		using namespace Message::Literal::JSON::Key;
-
-		if(!event_object.containsKey(EVENT_ID))
+		if(deserializeJson(Global::json_document, event_json))
 		{
-			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, error_message);
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read Event into JSON buffer");
 			return;
 		}
 
-		_id = event_object[EVENT_ID];
+		if(!json_document.containsKey("percentage"))
+		{
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Event JSON does not contain key 'percentage'");
+			return;
+		}
 
 		// Set percentage based on functioning percentage since Events are consumed immediately.
 		register uint8_t event_percentage = event_object[EVENT_PERCENTAGE];
@@ -62,28 +63,28 @@ namespace Event
 	}
 
 
-	Event::Event(register uint32_t id, register uint8_t percentage, bool is_finished/*=false*/)
-	{
-		_id = id;
+	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
 
-		// Set percentage based on functioning percentage since Events are consumed immediately.
-		if(!percentage)
-		{
-			_percentage = 0;
-		}
-		else if(!Global::curtain.discrete_movement())
-		{
-			_percentage = 100;
-		}
-		else
-		{
-			_percentage = percentage;
-		}
+	bool Event::is_activated()
+	{
+		return _is_activated;
 	}
 
 
-	// FREE ME WHEN DONE
-	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
+	bool Event::is_moving()
+	{
+		return _is_moving;
+	}
+
+
+	uint8_t Event::percentage()
+	{
+		return _percentage;
+	}
+
+	// ——————————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————————— //
+
+	// SUMMARY: Creates a String JSON for the Event.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Event::operator String()
@@ -92,31 +93,10 @@ namespace Event
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject event_object = json_document.to<JsonObject>();
 
-		event_object[JSON::Key::EVENT_ID] = _id;
-		event_object[JSON::Key::EVENT_IS_FINISHED] = _is_finished;
+		event_object[JSON::Key::EVENT_IS_MOVING] = _is_moving;
 		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
 
 		return Message::convert_JsonObject_to_String(event_object);
-	}
-
-
-	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
-
-	uint32_t Event::id()
-	{
-		return _id;
-	}
-
-
-	bool Event::is_finished()
-	{
-		return _is_finished;
-	}
-
-
-	uint8_t Event::percentage()
-	{
-		return _percentage;
 	}
 
 
@@ -156,20 +136,14 @@ namespace Event
 
 	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
 
-	void Event::is_finished(bool new_is_finished)
+	void Event::is_activated(bool new_is_activated)
 	{
-		_is_finished = new_is_finished;
+		_is_activated = new_is_activated;
 	}
 
 
-	// ——————————————————————————————————————————————————— OTHER ——————————————————————————————————————————————————— //
-
-	void Event::append_to(JsonObject& json_object)
+	void Event::is_moving(bool new_is_moving)
 	{
-		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
-
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_PERCENTAGE] = _percentage;
+		_is_moving = new_is_moving;
 	}
 }  // end namespace Event

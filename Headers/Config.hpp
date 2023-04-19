@@ -51,7 +51,7 @@ namespace Config
 
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
 		// ———— STEPS ————
-		extern const uint32_t DEFAULT_LENGTH;
+		extern const uint32_t MAX_LENGTH;
 
 		// ———— SWITCHES ————
 		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.

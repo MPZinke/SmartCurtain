@@ -17,8 +17,8 @@
 ***********************************************************************************************************************/
 
 
+#include <ArduinoMqttClient.h>
 #include <WiFiClient.h>
-#include <WiFiServer.h>
 
 
 #include "Config.hpp"
@@ -49,11 +49,10 @@ namespace Global
 	extern Curtain::Curtain curtain;
 	extern Event::Event event;
 
-	extern WiFiServer server;
-	extern WiFiClient client;
-	extern IPAddress client_IP;
-	extern uint16_t client_port;
+	extern WiFiClient wifi_client;
+	extern MqttClient mqtt_client;
 
 	extern Exceptions::Exception* exception;
+	extern StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 } // end namespace Global
 
