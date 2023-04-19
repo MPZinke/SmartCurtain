@@ -72,6 +72,7 @@ void setup()
 	{  // for namespacing
 		using namespace Message::Literal::MQTT;
 		Global::mqtt_client.onMessage(Processor::process_message);
+		Global::mqtt_client.subscribe(ALL_CURTAINS);
 		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+MOVE_SUFFIX);
 		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+STATUS_SUFFIX);
 		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
