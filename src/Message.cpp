@@ -32,6 +32,7 @@ namespace Message
 		namespace MQTT
 		{
 			const char CURTAIN_PATH_PREFIX[] = "SmartCurtain/-/-/";
+			const char ALL_CURTAINS[] = "SmartCurtain/all/status";
 			const char MOVE_SUFFIX[] = "/move";
 			const char STATUS_SUFFIX[] = "/status";
 			const char UPDATE_SUFFIX[] = "/update";
