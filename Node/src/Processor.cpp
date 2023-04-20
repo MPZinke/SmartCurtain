@@ -71,7 +71,7 @@ namespace Processor
 	{
 		if(!Global::event.is_activated() || Global::event.is_moving())
 		{
-			new Exception(__FILE__, __LINE__, "TODO")
+			new Exception(__FILE__, __LINE__, "An event is already active")
 			return;
 		}
 

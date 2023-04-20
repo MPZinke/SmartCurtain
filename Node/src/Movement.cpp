@@ -36,8 +36,9 @@ namespace Movement
 		{
 			Hardware::disable_motor();
 
-			if(!Global::event.is_finished())
+			if(!Global::event.is_activated())
 			{
+				Global::event.is_activated(true);
 				Movement::activate();
 				if(Global::client_IP[0])
 				{
