@@ -49,10 +49,9 @@ namespace Curtain
 		curtain_object[JSON::Key::AUTO_CALIBRATE] = _auto_calibrate;
 		curtain_object[JSON::Key::AUTO_CORRECT] = _auto_correct;
 		curtain_object[JSON::Key::DIRECTION] = _direction;
-		curtain_object[JSON::Key::DISCRETE_MOVEMENT] = _discrete_movement;
+		curtain_object[JSON::Key::IS_MOVING] = Global::event.is_moving();
 		curtain_object[JSON::Key::LENGTH] = _length;
 		curtain_object[JSON::Key::CURTAIN_PERCENTAGE] = _percentage;
-		curtain_object[JSON::Key::CURTAIN_POSITION] = _position;
 
 		return Message::convert_JsonObject_to_String(curtain_object);
 	}
