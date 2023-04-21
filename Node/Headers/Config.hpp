@@ -21,7 +21,7 @@ namespace Config
 {
 	namespace Curtain
 	{
-		extern const char CURTAIN_ID[];
+		extern const uint16_t CURTAIN_ID;
 
 		extern const uint32_t IGNORE_MOVEMENT_SIMILARITY;  // max step difference to ignore event
 		extern const uint32_t POSITION_TOLLERANCE;  // steps within ends to consider "close enough"
