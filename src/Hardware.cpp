@@ -90,7 +90,7 @@ namespace Hardware
 
 	bool endstop_triggered()
 	{
-		return is_closed() == CurrentPull::ON || is_open() == CurrentPull::ON;
+		return is_closed() == CurrentPull::ON;
 	}
 
 
@@ -100,20 +100,16 @@ namespace Hardware
 	}
 
 
-	bool is_open()
-	{
-		return digitalRead(OPEN_PIN) == CurrentPull::ON;
-	}
-
-
 	// —————————————————————————————————————————————— POSITION::STATE  —————————————————————————————————————————————— //
 
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
 	CurtainState current_hardware_state()
 	{
-		if(OPEN_ENDSTOP && is_open()) return OPEN;
-		else if(CLOSE_ENDSTOP && is_closed()) return CLOSE;
-		else if(BOTH_ENDSTOPS) return MIDDLE;
-		else return UNKNOWN;
+		if(is_open())
+		{
+			return OPEN;
+		}
+
+		return UNKNOWN;
 	}
 }  // end namespace Hardware
