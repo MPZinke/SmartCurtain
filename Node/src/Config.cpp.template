@@ -37,7 +37,6 @@ namespace Config
 		const uint8_t PULSE_PIN = 19;
 
 		const uint8_t CLOSE_PIN = 21;
-		const uint8_t OPEN_PIN = 0;
 
 		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
@@ -45,10 +44,6 @@ namespace Config
 
 		// ——————————————————————————————————————— HARDWARE DETERMINED VALUES ——————————————————————————————————————— //
 		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-		const bool CLOSE_ENDSTOP = (bool)CLOSE_PIN;
-		const bool OPEN_ENDSTOP = (bool)OPEN_PIN;
-		const bool BOTH_ENDSTOPS = CLOSE_ENDSTOP && OPEN_ENDSTOP;
-		const bool EITHER_ENDSTOP = CLOSE_ENDSTOP || OPEN_ENDSTOP;
 
 
 		// ————————————————————————————————————— PHYSICAL HARDWARE BASED VALUES ————————————————————————————————————— //
@@ -57,8 +52,6 @@ namespace Config
 		const uint32_t MAX_LENGTH = 34000;
 
 		// ———————————————————————————————— PHYSICAL HARDWARE BASED VALUES::SWITCHES ———————————————————————————————— //
-		// I don't like discrete movement, so I am not going to allow it on my curtain.
-		const bool DISCRETE_MOVEMENT_ALLOWED = false;
 		const bool DIRECTION_SWITCH = false;  // Used to make OPEN == ON and CLOSE == OFF.
 		const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
