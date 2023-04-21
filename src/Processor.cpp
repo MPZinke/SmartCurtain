@@ -42,6 +42,7 @@ namespace Processor
 
 		if(JSON_BUFFER_SIZE < message_size)
 		{
+			Global::mqtt_client.flush();
 			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
@@ -75,28 +76,31 @@ namespace Processor
 			return;
 		}
 
-		String event_json = read_message(message_size);
+		Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> json_document = read_message(message_size);
+		if(!json_document.ok())
+		{
+			return
+		}
+
 		Global::event = Event::Event(event_json);
 	}
 
 
 	void case_status()
 	{
-		String status_string = Message::status_json();
-		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
-		Global::mqtt_client.print(status_string);
-		Global::mqtt_client.endMessage();
+		Message::update_hub();
 	}
 
 
 	void case_update(int message_size)
 	{
-		if(!read_message(message_size))
+		Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> json_document = read_message(message_size);
+		if(!json_document.ok())
 		{
-			return;
+			return
 		}
 
-		String curtain_json = read_message(message_size);
-		Global::curtain.update(curtain_json);
+		Global::curtain.update(json_document.value());
+		Message::update_hub();
 	}
 }

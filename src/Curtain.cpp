@@ -5,6 +5,61 @@ namespace Curtain
 	using namespace Movement::CurtainStates;
 
 
+	static bool Curtain::validate(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document)
+	{
+		// Validate structure
+		if(!json_document.containsKey(CURTAIN_ID) || !json_document[CURTAIN_ID].is<int>())
+		{
+			String message("Curtain object must contain key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + CURTAIN_ID + "' of type 'int'");
+			return false;
+		}
+
+		else if(json_document.containsKey(HOME_ID) && !json_document[HOME_ID].is<int>())
+		{
+			String message("If Curtain object contains key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + HOME_ID + "', it must be of type 'int'");
+			return false;
+		}
+
+		else if(json_document.containsKey(ROOM_ID) && !json_document[ROOM_ID].is<int>())
+		{
+			String message("If Curtain object contains key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + ROOM_ID + "', it must be of type 'int'");
+			return false;
+		}
+
+		// Validate hardware overriding values
+		else if(json_document.containsKey(DIRECTION) && !json_document[DIRECTION].is<bool>())
+		{
+			String message("If Curtain object contains key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + DIRECTION + "', it must be of type 'bool'");
+			return false;
+		}
+
+		else if(json_document.containsKey(LENGTH) && !json_document[LENGTH].is<int>())
+		{
+			String message("If Curtain object contains key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + LENGTH + "', it must be of type 'int'");
+			return false;
+		}
+
+		// Validate movement overriding values
+		else if(json_document.containsKey(AUTO_CORRECT) && !json_document[AUTO_CORRECT].is<bool>())
+		{
+			String message("If Curtain object contains key '");
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, message + AUTO_CORRECT + "', it must be of type 'bool'");
+			return false;
+		}
+
+		return true;
+	}
+
+
+	Curtain::Curtain()
+	{}
+
+
 	uint16_t Curtain::id()
 	{
 		return _id;

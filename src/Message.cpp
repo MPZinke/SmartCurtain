@@ -44,22 +44,23 @@ namespace Message
 		{
 			namespace Key
 			{
-				const char QUERY_TYPE[] = "query type";
-
-				const char CURTAIN[] = "curtain";
+				// CURTAIN
+				// Structure
 				const char CURTAIN_ID[] = "id";
-				const char AUTO_CALIBRATE[] = "auto calibrate";
-				const char AUTO_CORRECT[] = "auto correct";
-				const char CURTAIN_PERCENTAGE[] = "percentage";
-				const char CURTAIN_POSITION[] = "position";
-				const char DIRECTION[] = "direction";
-				const char DISCRETE_MOVEMENT[] = "discrete movement";
-				const char LENGTH[] = "length";
+				const char HOME_ID[] = "Home.id";
+				const char ROOM_ID[] = "Room.id";
 
+				// Hardware describing/overriding values
+				const char DIRECTION[] = "direction";
+				const char LENGTH[] = "length";
+				const char PERCENTAGE[] = "percentage";
+
+				// Movement describing/overriding values
+				const char AUTO_CORRECT[] = "Auto Correct";
+
+				// EVENT
 				const char EVENT_IS_MOVING[] = "is moving";
 				const char EVENT_PERCENTAGE[] = "percentage";
-
-				const char HUB_IP[] = "Hub IP";
 			}
 
 
@@ -139,7 +140,7 @@ namespace Message
 	}
 
 
-	bool read_message(int message_size)
+	Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> read_message(int message_size)
 	/*
 	SUMMARY: Reads the mqtt message from the client into the JSON document.
 	PARAMS:  Takes the message size to be read.
@@ -153,13 +154,14 @@ namespace Message
 			message_buffer += (char)Global::mqtt_client.read();
 		}
 
-		if(deserializeJson(json_document, message_buffer))
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		if(deserializeJson(json_document, message_buffer))  // if error number returned, ...
 		{
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not read request into json_buffer");
-			return false;
+			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not parse message as JSON");
+			return Optional<StaticJsonDocument<JSON_BUFFER_SIZE>>();
 		}
 
-		return true;
+		return Optional<StaticJsonDocument<JSON_BUFFER_SIZE>>(json_document);
 	}
 
 
@@ -222,6 +224,7 @@ namespace Message
 
 
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
+
 	void update_hub()
 	{
 		String status_string = Message::status_json();
