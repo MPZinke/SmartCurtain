@@ -25,8 +25,6 @@ namespace Event
 	class Event
 	{
 		private:
-			bool _is_activated = false;
-			bool _is_moving = false;
 			uint8_t _percentage;
 
 		public:
@@ -35,13 +33,7 @@ namespace Event
 			operator String();
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
-			bool is_activated();
-			bool is_moving();
 			uint8_t percentage();
-
-			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
-			void is_activated(bool new_is_activated);
-			void is_moving(bool new_is_moving);
 
 			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards

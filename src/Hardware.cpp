@@ -40,8 +40,6 @@ namespace Hardware
 
 	namespace CurtainStates
 	{
-		const uint8_t UNKNOWN = -2;  // technically 0xFE
-		const uint8_t MIDDLE = -1;  // technically 0xFF
 		const uint8_t CLOSE = (uint8_t)CurrentPull::CLOSE;
 		const uint8_t CLOSED = CLOSE;  // alias for sugar
 		const uint8_t OPEN = (uint8_t)CurrentPull::OPEN;
@@ -103,13 +101,13 @@ namespace Hardware
 	// —————————————————————————————————————————————— POSITION::STATE  —————————————————————————————————————————————— //
 
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
-	CurtainState current_hardware_state()
+	CurtainState state()
 	{
-		if(is_open())
+		if(is_closed())
 		{
-			return OPEN;
+			return CLOSED;
 		}
 
-		return UNKNOWN;
+		return OPEN;
 	}
 }  // end namespace Hardware

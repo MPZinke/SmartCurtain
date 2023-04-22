@@ -16,6 +16,7 @@
 
 #include "../Headers/C_String.hpp"
 #include "../Headers/Curtain.hpp"
+#include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Exceptions.hpp"
 #include "../Headers/Message.hpp"
@@ -70,19 +71,29 @@ namespace Processor
 
 	void case_move(int message_size)
 	{
-		if(!Global::event.is_activated() || Global::event.is_moving())
+		if(Global::curtain.is_moving())
 		{
-			new Exception(__FILE__, __LINE__, "An event is already active")
+			new Exception(__FILE__, __LINE__, "The curtain is already moving")
 			return;
 		}
 
-		Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> json_document = read_message(message_size);
-		if(!json_document.ok())
+		DeserializedJSON event_json = read_message(message_size);
+		if(!event_json.ok())
 		{
-			return
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, "Could not parse message as JSON");
+			return;
 		}
 
-		Global::event = Event::Event(event_json);
+		if(!Event::validate(event_json))
+		{
+			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, "Could not parse message as JSON");
+			return;
+		}
+
+		Event::Event event(event_json);
+		Global::curtain.is_moving(true);
+		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
+		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)event, 1, NULL, 1);
 	}
 
 
@@ -94,13 +105,13 @@ namespace Processor
 
 	void case_update(int message_size)
 	{
-		Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> json_document = read_message(message_size);
-		if(!json_document.ok())
+		DeserializedJSON update_json = read_message(message_size);
+		if(!update_json.ok())
 		{
-			return
+			return;
 		}
 
-		Global::curtain.update(json_document.value());
+		Global::curtain.update(json_document);
 		Message::update_hub();
 	}
 }

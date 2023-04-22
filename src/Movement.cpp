@@ -30,24 +30,9 @@ namespace Movement
 	using namespace Hardware::CurtainStates;  // used CurtainStates as enum
 
 
-	void movement_loop()
+	void move(Event::Event event)
 	{
-		while(true)
-		{
-			Hardware::disable_motor();
-
-			if(!Global::event.is_activated())
-			{
-				Global::event.is_activated(true);
-				Movement::activate();
-				if(Global::client_IP[0])
-				{
-					Message::update_hub();
-				}
-			}
-
-			delay(250);  // Wait half a second before proceeding
-		}
+		//
 	}
 
 	// SUMMARY: Activates curtain for an event to move to a certain position.

@@ -80,20 +80,12 @@ namespace Message
 				};
 			}
 		}
-
-
-		namespace Responses
-		{
-			const char INVALID[] = "{\"error\" : \"Package received does not match JSON format\"}";
-			const char MOVING[] = "{\"success\":\"Moving to position\"}";
-			const char VALID[] = "{\"success\":\"Valid JSON received\"}";
-		}
 	}
 
 
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
-	String convert_JsonObject_to_String(JsonObject& object)
+	inline String convert_JsonObject_to_String(JsonObject& object)
 	{
 		String json_string;
 		serializeJson(object, json_string);
@@ -128,19 +120,7 @@ namespace Message
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
-	String read_message(int message_size)
-	{
-		String message_buffer;
-		for(register uint16_t x = 0; x < message_size; x++)
-		{
-			message_buffer += (char)Global::mqtt_client.read();
-		}
-
-		return message_buffer;
-	}
-
-
-	Optional<StaticJsonDocument<JSON_BUFFER_SIZE>> read_message(int message_size)
+	DeserializedJSON read_message(int message_size)
 	/*
 	SUMMARY: Reads the mqtt message from the client into the JSON document.
 	PARAMS:  Takes the message size to be read.
@@ -154,72 +134,7 @@ namespace Message
 			message_buffer += (char)Global::mqtt_client.read();
 		}
 
-		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		if(deserializeJson(json_document, message_buffer))  // if error number returned, ...
-		{
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Could not parse message as JSON");
-			return Optional<StaticJsonDocument<JSON_BUFFER_SIZE>>();
-		}
-
-		return Optional<StaticJsonDocument<JSON_BUFFER_SIZE>>(json_document);
-	}
-
-
-	bool unauthenticated(register uint32_t& read_count)
-	{
-		// Match "Authorization: " tag
-		using namespace Literal::HTTP;
-		for(register uint32_t header_index = 0; header_index < AUTH_HEADER_LENGTH && read_count < 0xFFFFFFFF
-		  && Global::client.available(); read_count++)
-		{
-			char next = Global::client.read();
-			// If starting a newline and another is found, data section reached; no auth header has been found
-			if(next == '\r' && Global::client.available() && (next = Global::client.read()) == '\n')
-			{
-				return true;
-			}
-
-			// If the tag does not match...
-			if(next != AUTHORIZATION_HEADER[header_index])
-			{
-				read_to_next_line(read_count);
-				header_index = 0;
-			}
-			// Tag matches Auth tag
-			else if(header_index == AUTH_HEADER_LENGTH-1)  // minus 1 for indexing
-			{
-				return false;
-			}
-			// Keep trying
-			else
-			{
-				header_index++;
-			}
-		}
-
-		return true;  // should never happen
-	}
-
-
-	/*
-	SUMMARY: Determines whether the auth value is correct.
-	DETAILS: Reads through each character from client matching the character to the state machine to match to a double 
-	         carriage return-newline combo.
-	RETURNS: Return whether the body of the client is found.
-	*/
-	bool unauthorized(register uint32_t& read_count)
-	{
-		using namespace Config;
-		for(register uint32_t x = 0; x < HTTP::AUTH_VALUE_LENGTH && Global::client.available(); x++, read_count++)
-		{
-			char next = Global::client.read();
-			if(next != HTTP::AUTHORIZATION_VALUE[x])
-			{
-				return true;
-			}
-		}
-
-		return !(Global::client.available() && Global::client.peek() == '\r');
+		return DeserializedJSON(message_buffer);
 	}
 
 
