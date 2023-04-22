@@ -32,8 +32,6 @@ namespace Hardware
 
 	namespace CurtainStates
 	{
-		extern const CurtainState UNKNOWN;
-		extern const CurtainState MIDDLE;
 		extern const CurtainState CLOSE;
 		extern const CurtainState CLOSED;  // alias of CLOSE for sugar
 		extern const CurtainState OPEN;

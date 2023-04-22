@@ -28,8 +28,9 @@ namespace Event
 namespace Movement
 {
 	// Create conceptual aliases
-	using Hardware::CurtainState;
+	// using Hardware::CurtainState;
 	namespace CurtainStates = Hardware::CurtainStates;  // Alias so that other parts can use it as conceptually movement
+	using namespace CurtainStates;
 
 
 	void movement_loop();

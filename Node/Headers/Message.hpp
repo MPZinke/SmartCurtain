@@ -57,16 +57,13 @@ namespace Message
 	}  // end namespace Literal
 
 
-	// —————————————————————————————————————————————————— UTILITY —————————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————— UTILITY  —————————————————————————————————————————————————— //
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
-	String convert_JsonObject_to_String(JsonObject& object);
+	inline String convert_JsonObject_to_String(JsonObject& object);
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	String status_json();
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
-	String read_message(int message_size);
-	void read_message(int message_size);
-	bool unauthenticated(register uint32_t& read_count);
-	bool unauthorized(register uint32_t& read_count);
+	DeserializedJSON read_message(int message_size);
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 	void update_hub();
 } // end namespace Message

@@ -18,6 +18,7 @@ namespace Curtain
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;
+			bool _is_moving = false;
 			uint32_t _length = Config::Hardware::MAX_LENGTH;
 			uint32_t _position = 0;
 
@@ -39,6 +40,7 @@ namespace Curtain
 			// ————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————— //
 			uint32_t length();
 			bool direction();
+			bool is_moving();
 			uint32_t percentage();
 
 			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
@@ -57,7 +59,8 @@ namespace Curtain
 			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
 			void direction(bool new_direction);
 			void length(uint32_t new_length);
-			void percentage(uint32_t new_position);
+			void is_moving(bool new_is_moving);
+			void percentage(uint32_t new_percentage);
 
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			void auto_correct(bool new_auto_correct);
