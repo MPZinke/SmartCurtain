@@ -1,5 +1,11 @@
 
 
+namespace Event
+{
+	class Event;
+}
+
+
 namespace Curtain
 {
 	using Movement::CurtainState;
@@ -64,5 +70,9 @@ namespace Curtain
 
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			void auto_correct(bool new_auto_correct);
+
+			// ——————————————————————————————————————————————— OTHER  ——————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
+			friend uint32_t Event::Event::steps();
 	};
 }

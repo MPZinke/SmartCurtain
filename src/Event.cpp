@@ -132,18 +132,4 @@ namespace Event
 	{
 		return Movement::state_of(_percentage);
 	}
-
-
-	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
-
-	void Event::is_activated(bool new_is_activated)
-	{
-		_is_activated = new_is_activated;
-	}
-
-
-	void Event::is_moving(bool new_is_moving)
-	{
-		_is_moving = new_is_moving;
-	}
 }  // end namespace Event
