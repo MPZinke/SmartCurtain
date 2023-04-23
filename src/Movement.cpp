@@ -24,15 +24,39 @@
 namespace Movement
 {
 	// Import values from Hardware
-	using Config::Hardware::BOTH_ENDSTOPS;
 	using Config::Hardware::CLOSE_ENDSTOP;
-	using Config::Hardware::OPEN_ENDSTOP;
 	using namespace Hardware::CurtainStates;  // used CurtainStates as enum
+
+
+	void reset()
+	{
+		if(Hardware::state() == CLOSED)
+		{
+			Global::curtain.percentage(0);
+		}
+		else
+		{
+			uint32_t steps = move_and_count_to_closed();
+			step_to_position(steps);
+			uint8_t curtain_percentage = steps * 100 / Global::curtain.length();
+			Global::curtain.percentage(curtain_percentage);
+		}
+
+		Global::curtain.is_moving(false);
+	}
 
 
 	void move(Event::Event event)
 	{
-		//
+		// ensure curtain is up to date with hardware
+		Global::curtain.update();
+		if(Global::curtain.percentage() != event.percentage())
+		{
+			// determine how to move
+
+			// move
+		}
+		Global::curtain.is_moving(false);
 	}
 
 	// SUMMARY: Activates curtain for an event to move to a certain position.
@@ -220,6 +244,19 @@ namespace Movement
 
 			Hardware::disable_motor();
 			return steps;
+		}
+
+
+		uint32_t move_and_count_to_closed()
+		{
+			Hardware::set_direction(CLOSED);
+			uint32_t steps_not_taken;
+			for(steps_not_taken = 0xFFFFFFFFFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
+			{
+				Hardware::pusle();
+			}
+
+			return 0xFFFFFFFFFFFFFFFF - steps_not_taken;
 		}
 
 
