@@ -65,7 +65,7 @@ namespace Hardware
 	}
 
 
-	// Pulse motor (HIGH->LOW) twice.
+	// Pulse motor (HIGH->LOW).
 	void pulse()
 	{
 		digitalWrite(PULSE_PIN, HIGH);

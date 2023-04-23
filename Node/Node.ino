@@ -81,6 +81,9 @@ void setup()
 
 	// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
 	xTaskCreatePinnedToCore((TaskFunction_t)Processor::loop, "MQTT", 10000, NULL, 2, NULL, 0);
+	// Reset Curtain
+	Global::curtain.is_moving(true);
+	xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
 
 	// Prevent infinite loop detection
 	rtc_wdt_protect_off();

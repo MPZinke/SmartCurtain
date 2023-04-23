@@ -31,16 +31,16 @@ namespace Curtain
 	}
 
 
-
 	// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
+
 	bool auto_correct()
 	{
 		return _auto_correct;
 	}
 
 
-
 	// ————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————— //
+
 	uint32_t length()
 	{
 		return _length;
@@ -69,11 +69,20 @@ namespace Curtain
 
 	CurtainState Curtain::state()
 	{
+		if(Hardware::state() == CLOSED)
+		{
+			_position = 0;
+		}
+		else if(_position == 0)
+		{
+			_position = _length;
+		}
+
 		if(_position == 0)
 		{
 			return CLOSED;
 		}
-		if(_position == _length)
+		else if(_position == _length)
 		{
 			return FULLY_OPEN;
 		}
@@ -180,9 +189,28 @@ namespace Curtain
 	}
 
 
-	// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
+	// —————————————————————————————————————————— SETTERS::OPTIONS —————————————————————————————————————————— //
 	void auto_correct(bool new_auto_correct)
 	{
 		_auto_correct = new_auto_correct
+	}
+
+
+	void update()
+	{
+		if(Hardware::state() == CLOSED)
+		{
+			_position = 0;
+		}
+		else if(_position == 0)
+		{
+			_position = _length;
+		}
+	}
+
+
+	void update(DeserializedJSON& update_json)
+	{
+
 	}
 }
