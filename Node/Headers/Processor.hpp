@@ -15,9 +15,6 @@
 #include <ArduinoJson.h>
 
 
-#include "Config.hpp"
-
-
 namespace Processor
 {
 	void loop();

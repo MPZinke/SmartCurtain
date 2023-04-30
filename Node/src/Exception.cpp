@@ -12,6 +12,8 @@
 
 
 #include "../Headers/Exception.hpp"
+
+#include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
 #include "../Headers/Message.hpp"
 

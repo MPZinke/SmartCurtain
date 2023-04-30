@@ -15,9 +15,6 @@
 #include <ArduinoJson.h>
 
 
-#include "Config.hpp"
-
-
 namespace DeserializedJSON
 {
 	class DeserializedJSON;
