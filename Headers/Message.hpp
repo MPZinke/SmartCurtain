@@ -11,11 +11,15 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
 
 
 #include "Config.hpp"
+#include "DeserializedJSON.hpp"
 
 
 namespace Message
@@ -25,6 +29,7 @@ namespace Message
 		namespace MQTT
 		{
 			extern const char CURTAIN_PATH_PREFIX[];
+			extern const char ALL_CURTAINS[];
 			extern const char MOVE_SUFFIX[];
 			extern const char STATUS_SUFFIX[];
 			extern const char UPDATE_SUFFIX[];
@@ -36,22 +41,21 @@ namespace Message
 		{
 			namespace Key
 			{
-				extern const char QUERY_TYPE[];
-
-				extern const char CURTAIN[];
+				// CURTAIN
+				// Structure
 				extern const char CURTAIN_ID[];
-				extern const char AUTO_CALIBRATE[];
-				extern const char AUTO_CORRECT[];
-				extern const char CURTAIN_PERCENTAGE[];
-				extern const char CURTAIN_POSITION[];
-				extern const char DIRECTION[];
-				extern const char DISCRETE_MOVEMENT[];
+				extern const char HOME_ID[];
+				extern const char ROOM_ID[];
+
+				// Hardware describing/overriding values
 				extern const char LENGTH[];
+				extern const char PERCENTAGE[];
 
-				extern const char EVENT_IS_MOVING[];
-				extern const char EVENT_PERCENTAGE[];
+				// Movement describing/overriding values
+				extern const char AUTO_CORRECT[];
 
-				extern const char HUB_IP[];
+				// Non-Overridable
+				extern const char IS_MOVING[];
 			}  // end namespace Key
 		}  // end namespace JSON
 	}  // end namespace Literal
@@ -61,7 +65,6 @@ namespace Message
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 	inline String convert_JsonObject_to_String(JsonObject& object);
 	String http_exception_json(uint16_t error_code, char error_message[]);
-	String status_json();
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 	DeserializedJSON read_message(int message_size);
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //

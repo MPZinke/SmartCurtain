@@ -11,6 +11,9 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <stdint.h>
 
 
@@ -31,31 +34,31 @@ namespace Config
 
 	namespace Hardware
 	{
-		// ———————— HARDWARE DICTATING VALUES ————————
-		// ———— PINS ————
+		// ——————————————————————————————————————— HARDWARE DICTATING  VALUES ——————————————————————————————————————— //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		extern const uint8_t DIRECTION_PIN;
 		extern const uint8_t ENABLE_PIN;
 		extern const uint8_t PULSE_PIN;
 
 		extern const uint8_t CLOSE_PIN;
-		extern const uint8_t OPEN_PIN;
 
-		// ———— WAIT ————
+		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		extern const uint16_t PULSE_WAIT;  // Wait between pulses for the stepper motor
 
-		// ———————— HARDWARE DETERMINED VALUES ————————
-		extern const bool CLOSE_ENDSTOP;
-		extern const bool OPEN_ENDSTOP;
-		extern const bool BOTH_ENDSTOPS;  // whether curtain contains both endstops
-		extern const bool EITHER_ENDSTOP;
 
-		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.
-		// ———— STEPS ————
+		// ——————————————————————————————————————— HARDWARE DETERMINED VALUES ——————————————————————————————————————— //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+
+		// ————————————————————————————————————— PHYSICAL HARDWARE BASED VALUES ————————————————————————————————————— //
+		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.  //
+		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 		extern const uint32_t MAX_LENGTH;
 
-		// ———— SWITCHES ————
-		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == 100 and CLOSE == 0.
-		extern const bool DISCRETE_MOVEMENT_ALLOWED;
+		// ———————————————————————————————— PHYSICAL HARDWARE BASED VALUES::SWITCHES ———————————————————————————————— //
+		extern const bool DIRECTION_SWITCH;  // Used to make OPEN == ON and CLOSE == OFF.
 		extern const bool SWITCH;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
 
@@ -69,15 +72,15 @@ namespace Config
 
 	namespace Network
 	{
-		// NODE
-		extern const uint16_t PORT;  // listening port
-		extern uint8_t MAC_ADDRESS[];  // {'Z', 'C', 'R', 'T', 'N', '1'}
-		extern uint8_t NODE_HOST[];  // node host
+		// MQTT
+		extern const char BROKER_DOMAIN[];
+		extern const uint16_t BROKER_PORT;
 
-		// ROUTER
-		extern uint8_t ROUTER_GATEWAY[];  // router gateway
-		extern uint8_t SUBNET_MASK[];  // of the router
-		extern const char PASSWORD[];  // WiFi password
-		extern const char SSID[];  // WiFi name
+		// Network
+		extern const uint8_t MAC_ADDRESS[];
+
+		// WiFi
+		extern const char PASSWORD[];
+		extern const char SSID[];
 	}  // end namespace Config::Network
 }  // end namespace Configure

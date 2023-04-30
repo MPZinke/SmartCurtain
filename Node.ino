@@ -32,10 +32,9 @@
 #include "Headers/Config.hpp"
 #include "Headers/Global.hpp"
 
-#include "Headers/C_String.hpp"
 #include "Headers/Curtain.hpp"
 #include "Headers/Event.hpp"
-#include "Headers/Exceptions.hpp"
+#include "Headers/Exception.hpp"
 #include "Headers/Hardware.hpp"
 #include "Headers/Movement.hpp"
 #include "Headers/Message.hpp"
@@ -46,7 +45,6 @@ void setup()
 {
 	// ———— GPIO SETUP ————
 	pinMode(Config::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
-	pinMode(Config::Hardware::OPEN_PIN, INPUT);  // now analog, technically do not need
 
 	pinMode(Config::Hardware::DIRECTION_PIN, OUTPUT);
 	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);

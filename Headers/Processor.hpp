@@ -11,6 +11,9 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <ArduinoJson.h>
 
 
@@ -19,11 +22,10 @@
 
 namespace Processor
 {
-	void process_message();
+	void loop();
+	void process_message(int);
 
-	StaticJsonDocument<JSON_BUFFER_SIZE> decode_json();
-	void case_default(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
-	void case_move(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	void case_move(int message_size);
 	void case_status();
-	void case_update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+	void case_update(int message_size);
 }

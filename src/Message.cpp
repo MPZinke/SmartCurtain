@@ -16,13 +16,13 @@
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
 
-#include "../Headers/C_String.hpp"
+
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
-#include "../Headers/Exceptions.hpp"
+#include "../Headers/Exception.hpp"
 
 
-using namespace Exceptions;
+using namespace Exception;
 
 
 namespace Message
@@ -51,33 +51,11 @@ namespace Message
 				const char ROOM_ID[] = "Room.id";
 
 				// Hardware describing/overriding values
-				const char DIRECTION[] = "direction";
 				const char LENGTH[] = "length";
 				const char PERCENTAGE[] = "percentage";
 
 				// Movement describing/overriding values
 				const char AUTO_CORRECT[] = "Auto Correct";
-
-				// EVENT
-				const char EVENT_IS_MOVING[] = "is moving";
-				const char EVENT_PERCENTAGE[] = "percentage";
-			}
-
-
-			namespace Value
-			{
-				const char MOVE[] = "move";  // Query type value for move
-				const char RESET[] = "reset";  // Query type value for reset
-				const char STATUS[] = "status";  // Query type value for status
-				const char UPDATE[] = "update";  // Query type value for update
-
-				const ValueID VALUE_IDS[] =
-				{
-					{MOVE_ID, MOVE},
-					{RESET_ID, RESET},
-					{STATUS_ID, STATUS},
-					{UPDATE_ID, UPDATE}
-				};
 			}
 		}
 	}
@@ -107,17 +85,6 @@ namespace Message
 	}
 
 
-	String status_json()
-	{
-		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		JsonObject status_object = json_document.to<JsonObject>();
-
-		Global::curtain.append_to(status_object);
-
-		return convert_JsonObject_to_String(status_object);
-	}
-
-
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
 	DeserializedJSON read_message(int message_size)
@@ -142,7 +109,7 @@ namespace Message
 
 	void update_hub()
 	{
-		String status_string = Message::status_json();
+		String status_string = (String)Global::curtain;
 		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
 		Global::mqtt_client.print(status_string);
 		Global::mqtt_client.endMessage();

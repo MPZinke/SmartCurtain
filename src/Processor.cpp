@@ -14,15 +14,15 @@
 #include "../Headers/Processor.hpp"
 #include "../Headers/Global.hpp"
 
-#include "../Headers/C_String.hpp"
+
 #include "../Headers/Curtain.hpp"
 #include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Event.hpp"
-#include "../Headers/Exceptions.hpp"
+#include "../Headers/Exception.hpp"
 #include "../Headers/Message.hpp"
 
 
-using namespace Exceptions;
+using namespace Exception;
 
 
 namespace Processor
@@ -39,12 +39,12 @@ namespace Processor
 	void process_message(int message_size)
 	{
 		String topic = Global::mqtt_client.messageTopic();
-		String type = topic.substr(topic.lastIndexOf('/'));
+		String type = topic.substring(topic.lastIndexOf('/'));
 
 		if(JSON_BUFFER_SIZE < message_size)
 		{
 			Global::mqtt_client.flush();
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
+			new Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
 		else if(type == Message::Literal::MQTT::MOVE_SUFFIX)
@@ -73,27 +73,27 @@ namespace Processor
 	{
 		if(Global::curtain.is_moving())
 		{
-			new Exception(__FILE__, __LINE__, "The curtain is already moving")
+			new Exception(__LINE__, __FILE__, "The curtain is already moving");
 			return;
 		}
 
-		DeserializedJSON event_json = read_message(message_size);
+		DeserializedJSON event_json = Message::read_message(message_size);
 		if(!event_json.ok())
 		{
-			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, "Could not parse message as JSON");
+			new Exception(__LINE__, __FILE__, "Could not parse message as JSON");
 			return;
 		}
 
 		if(!Event::validate(event_json))
 		{
-			new BAD_REQUEST_400_Exception(__FILE__, __LINE__, "Could not parse message as JSON");
+			new Exception(__LINE__, __FILE__, "Could not parse message as JSON");
 			return;
 		}
 
 		Event::Event event(event_json);
 		Global::curtain.is_moving(true);
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
-		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)event, 1, NULL, 1);
+		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 1, NULL, 1);
 	}
 
 
@@ -105,13 +105,13 @@ namespace Processor
 
 	void case_update(int message_size)
 	{
-		DeserializedJSON update_json = read_message(message_size);
+		DeserializedJSON update_json = Message::read_message(message_size);
 		if(!update_json.ok())
 		{
 			return;
 		}
 
-		Global::curtain.update(json_document);
+		Global::curtain = update_json;
 		Message::update_hub();
 	}
 }

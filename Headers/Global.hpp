@@ -17,6 +17,9 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <ArduinoMqttClient.h>
 #include <WiFiClient.h>
 
@@ -36,7 +39,7 @@ namespace Event
 }
 
 
-namespace Exceptions
+namespace Exception
 {
 	class Exception;
 }
@@ -47,12 +50,10 @@ namespace Exceptions
 namespace Global
 {
 	extern Curtain::Curtain curtain;
-	extern Event::Event event;
 
 	extern WiFiClient wifi_client;
 	extern MqttClient mqtt_client;
 
-	extern Exceptions::Exception* exception;
-	extern StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+	extern Exception::Exception* exception;
 } // end namespace Global
 
