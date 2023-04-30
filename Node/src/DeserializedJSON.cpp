@@ -2,7 +2,7 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2022.03.14                                                                                                      *
+*   on 2021.11.27                                                                                                      *
 *                                                                                                                      *
 *   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
@@ -12,41 +12,43 @@
 
 
 
-#include <stdint.h>
+#include "../Headers/DeserializedJSON.hpp"
 
 
-namespace Hardware
+namespace DeserializedJSON
 {
-	// ———— SUGAR ————
-	typedef uint8_t CurtainState;
-
-
-	namespace CurrentPull
+	DeserializedJSON::DeserializedJSON(String json)
 	{
-		extern const bool ON;  // the "ON"/"ACTIVATE" state for the device
-		extern const bool OFF;  // the "OFF"/"DEACTIVATE" state for the device
-
-		extern const bool CLOSE;  // solidify convention
-		extern const bool OPEN;  // solidify convention
+		_ok = !deserializeJson(_document, json);
 	}
 
 
-	namespace CurtainStates
+	bool DeserializedJSON::ok()
 	{
-		extern const CurtainState CLOSE;
-		extern const CurtainState CLOSED;  // alias of CLOSE for sugar
-		extern const CurtainState OPEN;
+		return _ok;
 	}
 
 
-	extern const uint32_t STEP_MASK;
+	StaticJsonDocument<JSON_BUFFER_SIZE> DeserializedJSON::document()
+	{
+		return _document;
+	}
 
 
-	void disable_motor();
-	void enable_motor();
-	void pulse();
-	void set_direction(CurtainState direction);
-	bool endstop_triggered();
-	bool is_closed();
-	CurtainState state();
-}  // end namespace Hardware
+	JsonVariantConst DeserializedJSON::operator[](int index) const
+	{
+		return _document[index];
+	}
+
+
+	JsonVariantConst DeserializedJSON::operator[](const char* key) const
+	{
+		return _document[key];
+	}
+
+
+	bool DeserializedJSON::containsKey(const char* key)
+	{
+		return _document.containsKey(key);
+	}
+}

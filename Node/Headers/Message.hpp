@@ -11,14 +11,17 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
-
 
 #include <ArduinoJson.h>
 
 
 #include "Config.hpp"
-#include "DeserializedJSON.hpp"
+
+
+namespace DeserializedJSON
+{
+	class DeserializedJSON;
+}
 
 
 namespace Message
@@ -62,10 +65,10 @@ namespace Message
 
 	// —————————————————————————————————————————————————— UTILITY  —————————————————————————————————————————————————— //
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
-	inline String convert_JsonObject_to_String(JsonObject& object);
+	String convert_JsonObject_to_String(JsonObject& object);
 	String http_exception_json(uint16_t error_code, char error_message[]);
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
-	DeserializedJSON read_message(int message_size);
+	DeserializedJSON::DeserializedJSON read_message(int message_size);
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 	void update_hub();
 } // end namespace Message
