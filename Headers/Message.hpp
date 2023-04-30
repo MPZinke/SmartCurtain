@@ -15,7 +15,6 @@
 
 
 #include <ArduinoJson.h>
-#include <WiFiClient.h>
 
 
 #include "Config.hpp"

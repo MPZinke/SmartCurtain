@@ -21,7 +21,6 @@
 
 
 #include <ArduinoMqttClient.h>
-#include <WiFiClient.h>
 
 
 #include "Config.hpp"
@@ -43,6 +42,9 @@ namespace Exception
 {
 	class Exception;
 }
+
+
+class WiFiClient;
 
 
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //
