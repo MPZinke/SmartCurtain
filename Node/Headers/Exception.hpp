@@ -11,11 +11,14 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <stdint.h>
 #include <Arduino.h>
 
 
-namespace Exceptions
+namespace Exception
 {
 	class Exception
 	{
@@ -28,61 +31,14 @@ namespace Exceptions
 			Exception(uint32_t line, String file, String message);
 			virtual ~Exception();
 
+			operator String();
+
 			uint32_t line();
 			String file();
 			String message();
 
 			virtual void send();
-	};
 
-
-	class HTTP_Exception: public Exception
-	{
-		protected:
-			const char* _request_header = NULL;
-			uint16_t _status_code;
-
-		public:
-			HTTP_Exception(uint32_t line, String file, String message, uint16_t status_code,
-			  const char* request_header);
-			~HTTP_Exception();
-
-			String message();
-			void send();
-	};
-
-
-	class BAD_REQUEST_400_Exception: public HTTP_Exception
-	{
-		public:
-			BAD_REQUEST_400_Exception(uint32_t line, String file, String message);
-	};
-
-
-	class UNAUTHORIZED_401_Exception: public HTTP_Exception
-	{
-		public:
-			UNAUTHORIZED_401_Exception(uint32_t line, String file, String message);
-	};
-
-
-	class FORBIDDEN_403_Exception: public HTTP_Exception
-	{
-		public:
-			FORBIDDEN_403_Exception(uint32_t line, String file, String message);
-	};
-
-
-	class NOT_FOUND_404_Exception: public HTTP_Exception
-	{
-		public:
-			NOT_FOUND_404_Exception(uint32_t line, String file, String message);
-	};
-
-
-	class INTERNAL_SERVER_ERROR_500_Exception: public HTTP_Exception
-	{
-		public:
-			INTERNAL_SERVER_ERROR_500_Exception(uint32_t line, String file, String message);
+			// friend operator String(Exception* exception);
 	};
 }  // end namespace Exceptions

@@ -13,6 +13,9 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <stdint.h>
 
 
@@ -21,49 +24,29 @@
 
 namespace Event
 {
-	class Event;  // Declare it so it knows it exists
+	class Event;
 }
 
 
 namespace Movement
 {
 	// Create conceptual aliases
-	// using Hardware::CurtainState;
+	using Hardware::CurtainState;
 	namespace CurtainStates = Hardware::CurtainStates;  // Alias so that other parts can use it as conceptually movement
-	using namespace CurtainStates;
 
 
-	void movement_loop();
-
-	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2,
-	  register uint32_t allowable_difference);
-	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2);
-	inline CurtainState approximate_state_of(register uint32_t position, register uint32_t curtain_length);
-	inline CurtainState state_of(register uint32_t position, register uint32_t curtain_length);
-	inline CurtainState state_of(register uint32_t position);
-	CurtainState state_of(register uint8_t percentage);
-
-	bool (*function_for_side(CurtainState state))();
-	bool return_false();
-	bool return_true();
-	uint32_t steps();
-	void activate();
+	void move(Event::Event event);
+	void reset();
 
 	namespace Secure
 	{
-		void move_and_calibrate();
-		void move_and_reset();
-		inline void move_discretely();
+		uint32_t move_and_count_to_closed();
+		uint32_t move_and_count_down_or_until_closed(register uint32_t remaining_steps);
 		inline void move_until_closed();
-		inline void move_until_open();
-		inline void move_until_state_reached(bool(*state_function)());
-		uint32_t move_and_count_to_position_or_end(bool(*state_function)());
-		uint32_t move_and_count_down_or_until_end(register uint32_t steps, bool (*state_function)());
-		uint32_t move_and_count_down_or_until_end(register uint32_t steps, CurtainState direction);
 	}  // end namespace Secure
 
 	namespace Unsecure
 	{
-		inline void step();
+		inline void step(register uint32_t steps);
 	}  // end namespace Unsecure
 }  // end namespace GPIO

@@ -11,6 +11,9 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
+
 #include <stdint.h>
 
 
@@ -47,6 +50,5 @@ namespace Hardware
 	void set_direction(CurtainState direction);
 	bool endstop_triggered();
 	bool is_closed();
-	bool is_open();
-	CurtainState current_hardware_state();
+	CurtainState state();
 }  // end namespace Hardware

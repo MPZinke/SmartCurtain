@@ -18,13 +18,13 @@
 
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
+#include "../Headers/Hardware.hpp"
 #include "../Headers/Message.hpp"
 
 
 namespace Movement
 {
 	// Import values from Hardware
-	using Config::Hardware::CLOSE_ENDSTOP;
 	using namespace Hardware::CurtainStates;  // used CurtainStates as enum
 
 
@@ -36,8 +36,9 @@ namespace Movement
 		}
 		else
 		{
-			uint32_t steps = move_and_count_to_closed();
-			step_to_position(steps);
+			uint32_t steps = Secure::move_and_count_to_closed();
+			Hardware::set_direction(OPEN);
+			Unsecure::step(steps);
 			uint8_t curtain_percentage = steps * 100 / Global::curtain.length();
 			Global::curtain.percentage(curtain_percentage);
 		}
@@ -58,9 +59,9 @@ namespace Movement
 			{
 				Secure::move_until_closed();
 			}
-			else if(event.direction() == CLOSE && Global::curtain.auto_calibrate())
+			else if(event.direction() == CLOSE && Global::curtain.auto_correct())
 			{
-				if(!move_and_count_down_or_until_closed(event.steps()))
+				if(!Secure::move_and_count_down_or_until_closed(event.steps()))
 				{	
 					Global::curtain.update();  // ensure curtain is up to date with hardware
 					Hardware::set_direction(OPEN);
@@ -89,7 +90,7 @@ namespace Movement
 			uint32_t steps_not_taken;
 			for(steps_not_taken = 0xFFFFFFFFFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
-				Hardware::pusle();
+				Hardware::pulse();
 			}
 
 			return 0xFFFFFFFFFFFFFFFF - steps_not_taken;
@@ -139,18 +140,16 @@ namespace Movement
 		// ——————————————————————————————————————————————— MOVEMENT::STEP ——————————————————————————————————————————————— //
 		// Step implies a reliant on the counting of steps to know position & is unguarded by hardware.
 
-		inline void step()
+		inline void step(register uint32_t steps)
 		{
-			Hardware::set_direction(Global::event.direction());
 			Hardware::enable_motor();
 
 			// make number of steps an even amount to match movement loop (prevent overflow)
-			for(register uint32_t remaining_steps = steps() & Hardware::STEP_MASK; remaining_steps; remaining_steps--)
+			for(; steps != 0; steps--)
 			{
 				Hardware::pulse();
 			}
 
-			Global::curtain.percentage(Global::event.percentage());
 			Hardware::disable_motor();
 		}
 	}  // end namespace Movement::Unsecure
