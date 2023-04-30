@@ -72,15 +72,9 @@ namespace Exception
 	void Exception::send()
 	{
 		String message = (String)(*this);
-		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
+		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_ERROR_TOPIC);
 		Global::mqtt_client.print(message);
 		Global::mqtt_client.endMessage();
 		delete this;
 	}
-
-
-	// String operator(Exception* exception)
-	// {
-	// 	String()
-	// }
 }

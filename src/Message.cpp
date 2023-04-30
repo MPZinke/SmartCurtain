@@ -38,6 +38,7 @@ namespace Message
 			const char STATUS_SUFFIX[] = "/status";
 			const char UPDATE_SUFFIX[] = "/update";
 			const char HUB_UPDATE_TOPIC[] = "SmartCurtain/hub/update";
+			const char HUB_ERROR_TOPIC[] = "SmartCurtain/hub/error";
 		}  // end namespace MQTT
 
 
