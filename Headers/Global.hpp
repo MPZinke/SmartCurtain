@@ -21,18 +21,9 @@
 #include <ArduinoMqttClient.h>
 
 
-#include "Config.hpp"
-
-
 namespace Curtain
 {
 	class Curtain;
-}
-
-
-namespace Event
-{
-	class Event;
 }
 
 
