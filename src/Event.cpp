@@ -18,11 +18,9 @@
 #include "../Headers/Global.hpp"
 
 #include "../Headers/Curtain.hpp"
+#include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Exception.hpp"
 #include "../Headers/Message.hpp"
-
-
-using namespace Exception;
 
 
 namespace Event
@@ -30,14 +28,20 @@ namespace Event
 	using namespace Curtain::CurtainStates;
 
 
-	bool validate(DeserializedJSON& event_json)
+	inline String invalid_key_message(const char* key, const char* type_str)
+	{
+		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
+	}
+
+
+	bool validate(DeserializedJSON::DeserializedJSON& event_json)
 	{
 		using namespace Message::Literal::JSON::Key;
 
 		// Validate structure
 		if(event_json.containsKey(PERCENTAGE) && !event_json[PERCENTAGE].is<int>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(PERCENTAGE, "int"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(PERCENTAGE, "int"));
 			return false;
 		}
 
@@ -47,7 +51,7 @@ namespace Event
 	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
 
-	Event::Event(DeserializedJSON& event_json)
+	Event::Event(DeserializedJSON::DeserializedJSON& event_json)
 	{
 		using namespace Message::Literal::JSON::Key;
 
@@ -90,5 +94,17 @@ namespace Event
 	bool Event::event_moves_to_an_end()
 	{
 		return _percentage == 0 || _percentage == 100;
+	}
+
+
+	uint32_t Event::steps()
+	{
+		uint8_t percentage_delta = Global::curtain.percentage() - _percentage;
+		if(percentage_delta < 0)
+		{
+			percentage_delta *= -1;
+		}
+
+		return percentage_delta * Global::curtain._length / 100;
 	}
 }  // end namespace Event

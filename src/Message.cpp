@@ -18,6 +18,7 @@
 
 
 #include "../Headers/Curtain.hpp"
+#include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Exception.hpp"
 
@@ -56,6 +57,9 @@ namespace Message
 
 				// Movement describing/overriding values
 				const char AUTO_CORRECT[] = "Auto Correct";
+
+				// Non-Overridable
+				const char IS_MOVING[] = "is_moving";
 			}
 		}
 	}
@@ -63,7 +67,7 @@ namespace Message
 
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
-	inline String convert_JsonObject_to_String(JsonObject& object)
+	String convert_JsonObject_to_String(JsonObject& object)
 	{
 		String json_string;
 		serializeJson(object, json_string);
@@ -87,7 +91,7 @@ namespace Message
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
-	DeserializedJSON read_message(int message_size)
+	DeserializedJSON::DeserializedJSON read_message(int message_size)
 	/*
 	SUMMARY: Reads the mqtt message from the client into the JSON document.
 	PARAMS:  Takes the message size to be read.
@@ -101,7 +105,7 @@ namespace Message
 			message_buffer += (char)Global::mqtt_client.read();
 		}
 
-		return DeserializedJSON(message_buffer);
+		return DeserializedJSON::DeserializedJSON(message_buffer);
 	}
 
 

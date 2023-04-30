@@ -11,8 +11,6 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
-
 
 #include <stdint.h>
 #include <Arduino.h>
@@ -29,6 +27,7 @@ namespace Exception
 
 		public:
 			Exception(uint32_t line, String file, String message);
+			Exception(uint32_t line, String file, const char* message);
 			virtual ~Exception();
 
 			operator String();

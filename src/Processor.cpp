@@ -44,7 +44,7 @@ namespace Processor
 		if(JSON_BUFFER_SIZE < message_size)
 		{
 			Global::mqtt_client.flush();
-			new Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
+			new Exception::Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
 		else if(type == Message::Literal::MQTT::MOVE_SUFFIX)
@@ -73,20 +73,20 @@ namespace Processor
 	{
 		if(Global::curtain.is_moving())
 		{
-			new Exception(__LINE__, __FILE__, "The curtain is already moving");
+			new Exception::Exception(__LINE__, __FILE__, "The curtain is already moving");
 			return;
 		}
 
-		DeserializedJSON event_json = Message::read_message(message_size);
+		DeserializedJSON::DeserializedJSON event_json = Message::read_message(message_size);
 		if(!event_json.ok())
 		{
-			new Exception(__LINE__, __FILE__, "Could not parse message as JSON");
+			new Exception::Exception(__LINE__, __FILE__, "Could not parse message as JSON");
 			return;
 		}
 
 		if(!Event::validate(event_json))
 		{
-			new Exception(__LINE__, __FILE__, "Could not parse message as JSON");
+			new Exception::Exception(__LINE__, __FILE__, "Could not parse message as JSON");
 			return;
 		}
 
@@ -105,7 +105,7 @@ namespace Processor
 
 	void case_update(int message_size)
 	{
-		DeserializedJSON update_json = Message::read_message(message_size);
+		DeserializedJSON::DeserializedJSON update_json = Message::read_message(message_size);
 		if(!update_json.ok())
 		{
 			return;

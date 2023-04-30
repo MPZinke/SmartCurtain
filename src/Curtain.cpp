@@ -1,6 +1,7 @@
 
 
 #include "../Headers/Curtain.hpp"
+#include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Exception.hpp"
 #include "../Headers/Message.hpp"
 
@@ -10,7 +11,13 @@ namespace Curtain
 	using namespace Movement::CurtainStates;
 
 
-	bool validate(DeserializedJSON& curtain_json)
+	inline String invalid_key_message(const char* key, const char* type_str)
+	{
+		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
+	}
+
+
+	bool validate(DeserializedJSON::DeserializedJSON& curtain_json)
 	{
 		using namespace Exception;
 		using namespace Message::Literal::JSON::Key;
@@ -18,33 +25,33 @@ namespace Curtain
 		// Validate structure
 		if(!curtain_json.containsKey(CURTAIN_ID) || !curtain_json[CURTAIN_ID].is<int>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(CURTAIN_ID, "int"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(CURTAIN_ID, "int"));
 			return false;
 		}
 
 		else if(curtain_json.containsKey(HOME_ID) && !curtain_json[HOME_ID].is<int>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(HOME_ID, "int"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(HOME_ID, "int"));
 			return false;
 		}
 
 		else if(curtain_json.containsKey(ROOM_ID) && !curtain_json[ROOM_ID].is<int>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(ROOM_ID, "int"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(ROOM_ID, "int"));
 			return false;
 		}
 
 		// Validate hardware overriding values
 		else if(curtain_json.containsKey(LENGTH) && !curtain_json[LENGTH].is<int>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(LENGTH, "int"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(LENGTH, "int"));
 			return false;
 		}
 
 		// Validate movement overriding values
 		else if(curtain_json.containsKey(AUTO_CORRECT) && !curtain_json[AUTO_CORRECT].is<bool>())
 		{
-			new Exception(__LINE__, __FILE__, invalid_key_message(AUTO_CORRECT, "bool"));
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(AUTO_CORRECT, "bool"));
 			return false;
 		}
 
@@ -159,12 +166,6 @@ namespace Curtain
 	}
 
 
-	inline String invalid_key_message(const char* key, const char* type_str)
-	{
-		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
-	}
-
-
 	// —————————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
@@ -232,7 +233,7 @@ namespace Curtain
 	// ——————————————————————————————————————————————————————— OTHER  ——————————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
-	Curtain& Curtain::operator=(DeserializedJSON& update_json)
+	void Curtain::operator=(DeserializedJSON::DeserializedJSON& update_json)
 	{
 		using namespace Message::Literal::JSON::Key;
 

@@ -11,12 +11,23 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
+#include <Arduino.h>
 
 
-#include "DeserializedJSON.hpp"
-#include "Event.hpp"
+#include "Config.hpp"
 #include "Movement.hpp"
+
+
+namespace DeserializedJSON
+{
+	class DeserializedJSON;
+}
+
+
+namespace Event
+{
+	class Event;
+}
 
 
 namespace Curtain
@@ -24,12 +35,14 @@ namespace Curtain
 	using Movement::CurtainState;
 	namespace CurtainStates = Hardware::CurtainStates;
 
+
 	// ——————————————————————————————————————————————— CURTAIN OBJECT ——————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 	class Curtain
 	{
 		private:
+			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
 			uint16_t _id = Config::Curtain::CURTAIN_ID;
 			uint16_t _room_id = 0;
@@ -67,8 +80,6 @@ namespace Curtain
 			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
 			// CurtainState state();
 			operator String();
-			static bool validate(DeserializedJSON& curtain_json);
-
 
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
@@ -89,10 +100,12 @@ namespace Curtain
 
 			// ——————————————————————————————————————————————— OTHER  ——————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
-			Curtain& operator=(DeserializedJSON& curtain_json);
-			friend uint32_t Event::Event::steps();
+			void operator=(DeserializedJSON::DeserializedJSON& curtain_json);
 	};
 
 
-	bool validate(DeserializedJSON& curtain_json);
+
+
+	inline String invalid_key_message(const char* key, const char* type_str);
+	bool validate(DeserializedJSON::DeserializedJSON& curtain_json);
 }

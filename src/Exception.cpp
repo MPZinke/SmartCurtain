@@ -28,6 +28,14 @@ namespace Exception
 	}
 
 
+	Exception::Exception(uint32_t line, String file, const char* message)
+	{
+		_line = line;
+		_file = file;
+		_message = String(message);
+	}
+
+
 	Exception::~Exception()
 	{
 		Global::exception = NULL;

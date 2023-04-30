@@ -11,14 +11,17 @@
 ***********************************************************************************************************************/
 
 
-#pragma once
-
-
+#include <Arduino.h>
 #include <ArduinoJson.h>
 
 
-#include "DeserializedJSON.hpp"
 #include "Movement.hpp"
+
+
+namespace DeserializedJSON
+{
+	class DeserializedJSON;
+}
 
 
 namespace Event
@@ -32,13 +35,12 @@ namespace Event
 			uint8_t _percentage;
 
 		public:
-			Event(DeserializedJSON& event_json);
+			Event(DeserializedJSON::DeserializedJSON& event_json);
 
 			operator String();
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
-			static bool validate(DeserializedJSON& event_json);
 
 			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards
@@ -48,5 +50,6 @@ namespace Event
 	};
 
 
-	bool validate(DeserializedJSON& event_json);
+	inline String invalid_key_message(const char* key, const char* type_str);
+	bool validate(DeserializedJSON::DeserializedJSON& event_json);
 }
