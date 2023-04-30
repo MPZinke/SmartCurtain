@@ -239,16 +239,20 @@ namespace Curtain
 
 		if(update_json.containsKey(HOME_ID))
 		{
+			// TODO: unsubscribe from previous
 			_home_id = update_json[HOME_ID];
+			// TODO: subscribe to new
 		}
 
 		if(update_json.containsKey(ROOM_ID))
 		{
+			// TODO: unsubscribe from previous
 			_room_id = update_json[ROOM_ID];
+			// TODO: subscribe to new
 		}
 
 		// Validate hardware overriding values
-		if(update_json.containsKey(LENGTH))
+		if(update_json.containsKey(LENGTH) && update_json[LENGTH] < _length)
 		{
 			_length = update_json[LENGTH];
 		}

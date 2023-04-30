@@ -33,6 +33,7 @@ namespace Message
 			extern const char STATUS_SUFFIX[];
 			extern const char UPDATE_SUFFIX[];
 			extern const char HUB_UPDATE_TOPIC[];
+			extern const char HUB_ERROR_TOPIC[];
 		}  // end namespace MQTT
 
 

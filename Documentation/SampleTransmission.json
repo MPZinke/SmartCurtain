@@ -1,30 +1,19 @@
 
-// Event requesting
+// Curtain Updating
 {
-	"query type": "move",  // or about, reset
-	"curtain": 
-	{
-		"id": 4294967295,
+	"id": 4294967295,  // Required for both & must match the curtain being sent to
 
-		// Settable
-		"auto calibrate": false,
-		"auto correct": false,
-		"direction": false,
-		"discrete movement": false,
-		"length": 4294967295,  //OPTIONAL
-		"percentage": 100
-	},
-	"event":
-	{
-		"id": 4294967295,
-		"percentage": 100  // percentage
-	},
-	"Hub IP": "192.168.255.255"
+	// Settable by Hub
+	"Home.id": 4294967295,
+	"Room.id": 4294967295,
+	"auto correct": false,
+	"length": 4294967295,
+	// Settable by Curtain
+	"percentage": 100
 }
 
-// About response
+
+// Event sending
 {
-	"id": 4294967295,  // stored as a char array
-	"length": 4294967295,
-	"position": 4294967295
+	"percentage": 100
 }
