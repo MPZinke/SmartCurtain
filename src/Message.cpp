@@ -32,6 +32,7 @@ namespace Message
 	{
 		namespace MQTT
 		{
+			const char PATH_PREFIX[] = "SmartCurtain/";
 			const char CURTAIN_PATH_PREFIX[] = "SmartCurtain/-/-/";
 			const char ALL_CURTAINS[] = "SmartCurtain/all/status";
 			const char MOVE_SUFFIX[] = "/move";
@@ -69,6 +70,12 @@ namespace Message
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 
 	String convert_JsonObject_to_String(JsonObject& object)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		String json_string;
 		serializeJson(object, json_string);
@@ -78,6 +85,12 @@ namespace Message
 
 
 	String http_exception_json(uint16_t error_code, char error_message[])
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject error_object = json_document.to<JsonObject>();
@@ -113,6 +126,12 @@ namespace Message
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 
 	void update_hub()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		String status_string = (String)Global::curtain;
 		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);

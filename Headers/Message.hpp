@@ -27,6 +27,7 @@ namespace Message
 	{
 		namespace MQTT
 		{
+			extern const char PATH_PREFIX[];
 			extern const char CURTAIN_PATH_PREFIX[];
 			extern const char ALL_CURTAINS[];
 			extern const char MOVE_SUFFIX[];

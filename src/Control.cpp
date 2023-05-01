@@ -11,7 +11,7 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/Processor.hpp"
+#include "../Headers/Control.hpp"
 #include "../Headers/Global.hpp"
 
 
@@ -25,9 +25,15 @@
 using namespace Exception;
 
 
-namespace Processor
+namespace Control
 {
 	void loop()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		while(1)
 		{
@@ -37,6 +43,12 @@ namespace Processor
 
 
 	void process_message(int message_size)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		String topic = Global::mqtt_client.messageTopic();
 		String type = topic.substring(topic.lastIndexOf('/'));
@@ -70,6 +82,12 @@ namespace Processor
 	// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
 
 	void case_move(int message_size)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(Global::curtain.is_moving())
 		{
@@ -98,12 +116,24 @@ namespace Processor
 
 
 	void case_status()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		Message::update_hub();
 	}
 
 
 	void case_update(int message_size)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		DeserializedJSON::DeserializedJSON update_json = Message::read_message(message_size);
 		if(!update_json.ok())

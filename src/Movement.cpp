@@ -29,6 +29,12 @@ namespace Movement
 
 
 	void reset()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(Hardware::state() == CLOSED)
 		{
@@ -85,6 +91,12 @@ namespace Movement
 	namespace Secure
 	{
 		uint32_t move_and_count_to_closed()
+		/*
+		SUMMARY: 
+		PARAMS:  
+		DETAILS: 
+		RETURNS: 
+		*/
 		{
 			Hardware::set_direction(CLOSED);
 			uint32_t steps_not_taken;
@@ -103,6 +115,12 @@ namespace Movement
 		// Does two pulses every iteration until all steps take or sensor is tripped.
 		// Returns remaining steps.
 		uint32_t move_and_count_down_or_until_closed(register uint32_t remaining_steps)
+		/*
+		SUMMARY: 
+		PARAMS:  
+		DETAILS: 
+		RETURNS: 
+		*/
 		{
 			Hardware::set_direction(CLOSE);
 			Hardware::enable_motor();
@@ -120,6 +138,12 @@ namespace Movement
 		// For functionality, see: Movement::move_until_state_reached(.).
 		// Takes movement direction flag option (that is then XOR-ed).
 		inline void move_until_closed()
+		/*
+		SUMMARY: 
+		PARAMS:  
+		DETAILS: 
+		RETURNS: 
+		*/
 		{
 			Hardware::set_direction(CLOSE);
 			Hardware::enable_motor();
@@ -141,6 +165,12 @@ namespace Movement
 		// Step implies a reliant on the counting of steps to know position & is unguarded by hardware.
 
 		inline void step(register uint32_t steps)
+		/*
+		SUMMARY: 
+		PARAMS:  
+		DETAILS: 
+		RETURNS: 
+		*/
 		{
 			Hardware::enable_motor();
 
