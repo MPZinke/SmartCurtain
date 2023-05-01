@@ -43,31 +43,37 @@
 
 void setup()
 {
-	// ———— GPIO SETUP ————
-	pinMode(Config::Hardware::CLOSE_PIN, INPUT);  // now analog, technically do not need
-
-	pinMode(Config::Hardware::DIRECTION_PIN, OUTPUT);
-	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
-	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
-
-	Hardware::disable_motor();  // don't burn up the motor
-
-	// ———— GLOBAL VARIABLES ————
-	// wifi setup
-	WiFi.mode(WIFI_STA);
-	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::MAC_ADDRESS);
-	WiFi.begin(Config::Network::SSID, Config::Network::PASSWORD);
-	while(WiFi.status() != WL_CONNECTED)
+	// ———— GPIO SETUP ———— //
 	{
-		delay(500);
+		using namespace Config::Hardware;
+		pinMode(CLOSE_PIN, INPUT);
+	
+		pinMode(DIRECTION_PIN, OUTPUT);
+		pinMode(ENABLE_PIN, OUTPUT);
+		pinMode(PULSE_PIN, OUTPUT);
+	
+		Hardware::disable_motor();  // don't burn up the motor
+	}
+	
+	// ———— WIFI ———— //
+	{
+		using namespace Config::Network;
+		WiFi.mode(WIFI_STA);
+		esp_wifi_set_mac(WIFI_IF_STA, MAC_ADDRESS);
+		WiFi.begin(SSID, PASSWORD);
+		while(WiFi.status() != WL_CONNECTED)
+		{
+			delay(500);
+		}
 	}
 
-	while(!Global::mqtt_client.connect(Config::Network::BROKER_DOMAIN, Config::Network::BROKER_PORT))
+	// ———— MQTT ———— //
 	{
-		delay(500);
-	}
+		while(!Global::mqtt_client.connect(Config::Network::BROKER_DOMAIN, Config::Network::BROKER_PORT))
+		{
+			delay(500);
+		}
 
-	{  // for namespacing
 		using namespace Message::Literal::MQTT;
 		Global::mqtt_client.onMessage(Control::process_message);
 		Global::mqtt_client.subscribe(ALL_CURTAINS);
@@ -76,18 +82,20 @@ void setup()
 		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
 	}
 
+	// ———— Threads ———— //
+	{
+		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
+		xTaskCreatePinnedToCore((TaskFunction_t)Control::loop, "MQTT", 10000, NULL, 2, NULL, 0);
+		// Reset Curtain
+		Global::curtain.is_moving(true);
+		xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
 
-	// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
-	xTaskCreatePinnedToCore((TaskFunction_t)Control::loop, "MQTT", 10000, NULL, 2, NULL, 0);
-	// Reset Curtain
-	Global::curtain.is_moving(true);
-	xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
-
-	// Prevent infinite loop detection
-	rtc_wdt_protect_off();
-	rtc_wdt_disable();
-	disableCore0WDT();
-	disableLoopWDT();
+		// Prevent infinite loop detection
+		rtc_wdt_protect_off();
+		rtc_wdt_disable();
+		disableCore0WDT();
+		disableLoopWDT();
+	}
 }
 
 

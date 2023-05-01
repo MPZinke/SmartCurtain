@@ -50,6 +50,7 @@ namespace Movement
 		}
 
 		Global::curtain.is_moving(false);
+		Message::update_hub();
 	}
 
 
@@ -82,6 +83,7 @@ namespace Movement
 		}
 
 		Global::curtain.is_moving(false);
+		Message::update_hub();
 	}
 
 

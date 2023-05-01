@@ -35,6 +35,8 @@ namespace Control
 	RETURNS: 
 	*/
 	{
+		Message::update_hub();
+
 		while(1)
 		{
 			Global::mqtt_client.poll();
