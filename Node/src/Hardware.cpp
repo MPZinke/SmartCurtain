@@ -54,12 +54,24 @@ namespace Hardware
 
 
 	void disable_motor()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(ENABLE_PIN, CurrentPull::ON);
 	}
 
 
 	void enable_motor()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(ENABLE_PIN, CurrentPull::OFF);
 	}
@@ -67,6 +79,12 @@ namespace Hardware
 
 	// Pulse motor (HIGH->LOW).
 	void pulse()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(PULSE_PIN, HIGH);
 		delayMicroseconds(PULSE_WAIT);
@@ -78,6 +96,12 @@ namespace Hardware
 	// Sets the direction pin of the motor for the stepper driver.
 	// Take the ON/OFF dirction current, the curtain's direction option. 
 	void set_direction(CurtainState direction)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
 		digitalWrite(DIRECTION_PIN, ((direction + Global::curtain.direction()) & 0b1));
@@ -87,12 +111,24 @@ namespace Hardware
 	// ————————————————————————————————————————————————— GPIO::READ ————————————————————————————————————————————————— //
 
 	bool endstop_triggered()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return is_closed() == CurrentPull::ON;
 	}
 
 
 	bool is_closed()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return digitalRead(CLOSE_PIN) == CurrentPull::ON;
 	}
@@ -102,6 +138,12 @@ namespace Hardware
 
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
 	CurtainState state()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(is_closed())
 		{

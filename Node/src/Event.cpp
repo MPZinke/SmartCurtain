@@ -29,12 +29,24 @@ namespace Event
 
 
 	inline String invalid_key_message(const char* key, const char* type_str)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
 	}
 
 
 	bool validate(DeserializedJSON::DeserializedJSON& event_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		using namespace Message::Literal::JSON::Key;
 
@@ -52,6 +64,12 @@ namespace Event
 
 
 	Event::Event(DeserializedJSON::DeserializedJSON& event_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		using namespace Message::Literal::JSON::Key;
 
@@ -62,6 +80,12 @@ namespace Event
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
 
 	uint8_t Event::percentage()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _percentage;
 	}
@@ -72,6 +96,12 @@ namespace Event
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
 	Event::operator String()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject event_object = json_document.to<JsonObject>();
@@ -85,6 +115,12 @@ namespace Event
 	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
 
 	CurtainState Event::direction()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(_percentage < Global::curtain.percentage()) return CLOSE;
 		return OPEN;
@@ -92,12 +128,24 @@ namespace Event
 
 
 	bool Event::event_moves_to_an_end()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _percentage == 0 || _percentage == 100;
 	}
 
 
 	uint32_t Event::steps()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		uint8_t percentage_delta = Global::curtain.percentage() - _percentage;
 		if(percentage_delta < 0)

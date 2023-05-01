@@ -15,7 +15,7 @@
 #include <ArduinoJson.h>
 
 
-namespace Processor
+namespace Control
 {
 	void loop();
 	void process_message(int);

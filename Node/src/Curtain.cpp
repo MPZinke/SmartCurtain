@@ -4,6 +4,7 @@
 #include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Exception.hpp"
 #include "../Headers/Message.hpp"
+#include "../Headers/Global.hpp"
 
 
 namespace Curtain
@@ -12,14 +13,25 @@ namespace Curtain
 
 
 	inline String invalid_key_message(const char* key, const char* type_str)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
 	}
 
 
 	bool validate(DeserializedJSON::DeserializedJSON& curtain_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
-		using namespace Exception;
 		using namespace Message::Literal::JSON::Key;
 
 		// Validate structure
@@ -63,6 +75,12 @@ namespace Curtain
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 	Curtain::Curtain()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{}
 
 
@@ -72,18 +90,36 @@ namespace Curtain
 	// ————————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————————— //
 
 	uint16_t Curtain::id()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _id;
 	}
 
 
 	uint16_t Curtain::room_id()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _room_id;
 	}
 
 
 	uint16_t Curtain::home_id()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _home_id;
 	}
@@ -92,6 +128,12 @@ namespace Curtain
 	// —————————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————————— //
 
 	bool Curtain::auto_correct()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _auto_correct;
 	}
@@ -100,24 +142,48 @@ namespace Curtain
 	// ————————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————————— //
 
 	uint32_t Curtain::length()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _length;
 	}
 
 
 	bool Curtain::direction()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _direction;
 	}
 
 
 	bool Curtain::is_moving()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _is_moving;
 	}
 
 
 	uint32_t Curtain::percentage()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _position * 100 / _length;
 	}
@@ -125,31 +191,13 @@ namespace Curtain
 
 	// ——————————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————————— //
 
-	// CurtainState Curtain::state()
-	// {
-	// 	if(Hardware::state() == CLOSED)
-	// 	{
-	// 		_position = 0;
-	// 	}
-	// 	else if(_position == 0)
-	// 	{
-	// 		_position = _length;
-	// 	}
-
-	// 	if(_position == 0)
-	// 	{
-	// 		return CLOSED;
-	// 	}
-	// 	else if(_position == _length)
-	// 	{
-	// 		return FULLY_OPEN;
-	// 	}
-
-	// 	return PARTIALLY_OPEN;
-	// }
-
-
 	Curtain::operator String()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
@@ -172,12 +220,24 @@ namespace Curtain
 	// ————————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————————— //
 
 	void Curtain::room_id(uint16_t new_room_id)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_room_id = new_room_id;
 	}
 
 
 	void Curtain::home_id(uint16_t new_home_id)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_home_id = new_home_id;
 	}
@@ -186,24 +246,48 @@ namespace Curtain
 	// ————————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————————— //
 
 	void Curtain::direction(bool new_direction)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_direction = new_direction;
 	}
 
 
 	void Curtain::length(uint32_t new_length)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_length = new_length;
 	}
 
 
 	void Curtain::is_moving(bool new_is_moving)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_is_moving = new_is_moving;
 	}
 
 
 	void Curtain::percentage(uint32_t new_percentage)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_position = new_percentage * _length / 100;
 	}
@@ -212,12 +296,24 @@ namespace Curtain
 	// —————————————————————————————————————————————— SETTERS::OPTIONS —————————————————————————————————————————————— //
 
 	void Curtain::auto_correct(bool new_auto_correct)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_auto_correct = new_auto_correct;
 	}
 
 
 	void Curtain::update()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(Hardware::state() == CLOSED)
 		{
@@ -234,21 +330,40 @@ namespace Curtain
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 	void Curtain::operator=(DeserializedJSON::DeserializedJSON& update_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		using namespace Message::Literal::JSON::Key;
+		using namespace Message::Literal::MQTT;
 
-		if(update_json.containsKey(HOME_ID))
+		if(update_json.containsKey(HOME_ID) && update_json[HOME_ID] != _home_id)
 		{
-			// TODO: unsubscribe from previous
+			if(_home_id != 0)
+			{
+				Global::mqtt_client.unsubscribe(String(PATH_PREFIX)+_home_id+MOVE_SUFFIX);
+				Global::mqtt_client.unsubscribe(String(PATH_PREFIX)+_home_id+UPDATE_SUFFIX);
+			}
+
 			_home_id = update_json[HOME_ID];
-			// TODO: subscribe to new
+			Global::mqtt_client.subscribe(String(PATH_PREFIX)+_home_id+MOVE_SUFFIX);
+			Global::mqtt_client.subscribe(String(PATH_PREFIX)+_home_id+UPDATE_SUFFIX);
 		}
 
-		if(update_json.containsKey(ROOM_ID))
+		if(update_json.containsKey(ROOM_ID) && update_json[ROOM_ID] != _room_id)
 		{
-			// TODO: unsubscribe from previous
+			if(_room_id != 0)
+			{
+				Global::mqtt_client.unsubscribe(String(PATH_PREFIX)+"-/"+_room_id+MOVE_SUFFIX);
+				Global::mqtt_client.unsubscribe(String(PATH_PREFIX)+"-/"+_room_id+UPDATE_SUFFIX);
+			}
+
 			_room_id = update_json[ROOM_ID];
-			// TODO: subscribe to new
+			Global::mqtt_client.subscribe(String(PATH_PREFIX)+"-/"+_room_id+MOVE_SUFFIX);
+			Global::mqtt_client.subscribe(String(PATH_PREFIX)+"-/"+_room_id+UPDATE_SUFFIX);
 		}
 
 		// Validate hardware overriding values

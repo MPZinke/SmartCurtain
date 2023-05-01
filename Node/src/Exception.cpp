@@ -23,6 +23,12 @@ namespace Exception
 	// ————————————————————————————————————————————————— EXCEPTION  ————————————————————————————————————————————————— //
 
 	Exception::Exception(uint32_t line, String file, String message)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_line = line;
 		_file = file;
@@ -31,6 +37,12 @@ namespace Exception
 
 
 	Exception::Exception(uint32_t line, String file, const char* message)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		_line = line;
 		_file = file;
@@ -39,24 +51,48 @@ namespace Exception
 
 
 	Exception::~Exception()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		Global::exception = NULL;
 	}
 
 
 	uint32_t Exception::line()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _line;
 	}
 
 
 	String Exception::file()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _file;
 	}
 
 
 	Exception::operator String()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject error_object = json_document.to<JsonObject>();
@@ -70,6 +106,12 @@ namespace Exception
 
 
 	void Exception::send()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		String message = (String)(*this);
 		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_ERROR_TOPIC);
