@@ -71,13 +71,10 @@ namespace Control
 		}
 		else if(type == Message::Literal::MQTT::UPDATE_SUFFIX)
 		{
-			case_update(message_size);
+			case_update_curtain(message_size);
 		}
 
-		if(Global::exception)
-		{
-			Global::exception->send();
-		}
+		Message::update_hub();
 	}
 
 
@@ -125,11 +122,11 @@ namespace Control
 	RETURNS: 
 	*/
 	{
-		Message::update_hub();
+		Global::curtain.update();  // ensure curtain is up to date with hardware
 	}
 
 
-	void case_update(int message_size)
+	void case_update_curtain(int message_size)
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -144,6 +141,5 @@ namespace Control
 		}
 
 		Global::curtain = update_json;
-		Message::update_hub();
 	}
 }

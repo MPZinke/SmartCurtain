@@ -133,9 +133,22 @@ namespace Message
 	RETURNS: 
 	*/
 	{
-		String status_string = (String)Global::curtain;
-		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
-		Global::mqtt_client.print(status_string);
+		String message;
+		const char* topic;
+		if(Global::exception != NULL)
+		{
+			topic = Message::Literal::MQTT::HUB_ERROR_TOPIC;
+			message = (String)(*Global::exception);
+			delete Global::exception;
+		}
+		else
+		{
+			topic = Message::Literal::MQTT::HUB_UPDATE_TOPIC;
+			message = (String)(Global::curtain);
+		}
+
+		Global::mqtt_client.beginMessage(topic);
+		Global::mqtt_client.print(message);
 		Global::mqtt_client.endMessage();
 	}
 }

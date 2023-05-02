@@ -18,6 +18,9 @@
 
 namespace Exception
 {
+	extern void(*reset_function) (void);  // Move the program counter to 0x00
+
+
 	class Exception
 	{
 		protected:
@@ -28,16 +31,12 @@ namespace Exception
 		public:
 			Exception(uint32_t line, String file, String message);
 			Exception(uint32_t line, String file, const char* message);
-			virtual ~Exception();
+			~Exception();
 
 			operator String();
 
 			uint32_t line();
 			String file();
 			String message();
-
-			virtual void send();
-
-			// friend operator String(Exception* exception);
 	};
 }  // end namespace Exceptions

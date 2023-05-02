@@ -20,6 +20,9 @@
 
 namespace Exception
 {
+	void(*reset_function) (void) = 0;  // Move the program counter to 0x00
+
+
 	// ————————————————————————————————————————————————— EXCEPTION  ————————————————————————————————————————————————— //
 
 	Exception::Exception(uint32_t line, String file, String message)
@@ -30,9 +33,16 @@ namespace Exception
 	RETURNS: 
 	*/
 	{
+		if(Global::exception != NULL)
+		{
+			reset_function();
+		}
+
 		_line = line;
 		_file = file;
 		_message = message;
+
+		Global::exception = this;
 	}
 
 
@@ -44,9 +54,16 @@ namespace Exception
 	RETURNS: 
 	*/
 	{
+		if(Global::exception != NULL)
+		{
+			reset_function();
+		}
+
 		_line = line;
 		_file = file;
 		_message = String(message);
+
+		Global::exception = this;
 	}
 
 
@@ -102,21 +119,5 @@ namespace Exception
 		error_object["file"] = _file;
 
 		return Message::convert_JsonObject_to_String(error_object);
-	}
-
-
-	void Exception::send()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		String message = (String)(*this);
-		Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_ERROR_TOPIC);
-		Global::mqtt_client.print(message);
-		Global::mqtt_client.endMessage();
-		delete this;
 	}
 }

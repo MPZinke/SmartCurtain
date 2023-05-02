@@ -56,9 +56,17 @@ namespace Movement
 
 	void move(Event::Event event)
 	/*
-	NOTES: Expects that curtain.is_moving is true.
+	NOTES: Expects that curtain._is_moving is true.
 	*/
 	{
+		// Ensure that the is moving flag has been set so that the movement thread spawner can check whether the curtain
+		//  is already moving. If the movement thread spawner sees the curtain is already moving, then it will not
+		//  create another event. This prevents multiple resources trying to control the hardware at once.
+		if(Global::curtain.is_moving() == true)
+		{
+			return;
+		}
+
 		Global::curtain.update();  // ensure curtain is up to date with hardware
 		if(Global::curtain.percentage() != event.percentage())
 		{

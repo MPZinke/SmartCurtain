@@ -65,7 +65,6 @@ namespace Message
 	// —————————————————————————————————————————————————— UTILITY  —————————————————————————————————————————————————— //
 	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
 	String convert_JsonObject_to_String(JsonObject& object);
-	String http_exception_json(uint16_t error_code, char error_message[]);
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 	DeserializedJSON::DeserializedJSON read_message(int message_size);
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
