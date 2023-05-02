@@ -323,6 +323,7 @@ namespace Curtain
 		{
 			_position = _length;
 		}
+		// else { assume position is correct }
 	}
 
 
