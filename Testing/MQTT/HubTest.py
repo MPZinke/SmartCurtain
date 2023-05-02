@@ -31,6 +31,7 @@ class HubConnection(mqtt.Client):
 	def on_connect(self, client, userdata, flags, result_code) -> None:
 		print(f"Connected with result code {str(result_code)}")
 		self.subscribe("SmartCurtain/hub/update")
+		self.subscribe("SmartCurtain/hub/error")
 		self.publish("SmartCurtain/all/status", "")
 
 
@@ -54,8 +55,11 @@ class HubConnection(mqtt.Client):
 			self_curtain = self.curtains[curtain["id"]]
 			self_curtain.update({key: curtain[key] for key in curtain if(key in ["is_moving", "percentage"])})
 
-			if(any(self_curtain[key] != curtain[key] for key in ["home", "room", "length"])):
+			if(any(self_curtain[key] != curtain[key] for key in ["home", "room", "length", "Auto Correct"])):
 				self.publish(f"""SmartCurtain/-/-/{curtain["id"]}/update""", json.dumps({"Curtain": self_curtain}))
+
+		elif(type == "error"):
+			print(f"Error received: {message.payload}")
 
 
 	def run(self) -> None:

@@ -6,10 +6,11 @@
 	// Settable by Hub
 	"Home.id": 4294967295,
 	"Room.id": 4294967295,
-	"auto correct": false,
-	"length": 4294967295,
+	"Auto Correct": false,  // Matches the Option's name
+	"length": 4294967295,  // Curtain takes the minimum of self-known length & hub's specified length
 	// Settable by Curtain
-	"percentage": 100
+	"percentage": 100,
+	"is_moving": true
 }
 
 
