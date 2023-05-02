@@ -62,7 +62,7 @@ namespace Movement
 		// Ensure that the is moving flag has been set so that the movement thread spawner can check whether the curtain
 		//  is already moving. If the movement thread spawner sees the curtain is already moving, then it will not
 		//  create another event. This prevents multiple resources trying to control the hardware at once.
-		if(Global::curtain.is_moving() == true)
+		if(Global::curtain.is_moving() != true)
 		{
 			return;
 		}
@@ -74,15 +74,18 @@ namespace Movement
 			{
 				Secure::move_until_closed();
 			}
-			else if(event.direction() == CLOSE && Global::curtain.auto_correct())
+			// Move towards a closed position
+			else if(event.direction() == CLOSE)
 			{
-				if(!Secure::move_and_count_down_or_until_closed(event.steps()))
-				{	
+				// If failed to reach non-zero state without hitting 0 and allowed to correct self:
+				if(!Secure::move_towards_closed(event.steps()) && Global::curtain.auto_correct())
+				{
 					Global::curtain.update();  // ensure curtain is up to date with hardware
 					Hardware::set_direction(OPEN);
 					Unsecure::step(event.steps());
 				}
 			}
+			// Move to an open position
 			else
 			{
 				Hardware::set_direction(event.direction());
@@ -90,6 +93,7 @@ namespace Movement
 			}
 		}
 
+		Global::curtain.percentage(event.percentage());
 		Global::curtain.is_moving(false);
 		Message::update_hub();
 	}
@@ -119,12 +123,11 @@ namespace Movement
 		}
 
 
-		// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
 		// Checks whether an endstop has been reached after taking each step.
 		// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
 		// Does two pulses every iteration until all steps take or sensor is tripped.
 		// Returns remaining steps.
-		uint32_t move_and_count_down_or_until_closed(register uint32_t remaining_steps)
+		uint32_t move_towards_closed(register uint32_t remaining_steps)
 		/*
 		SUMMARY: 
 		PARAMS:  
