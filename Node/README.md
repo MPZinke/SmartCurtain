@@ -58,6 +58,7 @@ The Curtain automatically subscribes to
 - `SmartCurtain/-/-/<curtain_id>/move`
 - `SmartCurtain/-/-/<curtain_id>/status`
 - `SmartCurtain/-/-/<curtain_id>/update`
+
 When the hub updates the curtain, it will then subscribe to
 - `SmartCurtain/<home_id>/move`
 - `SmartCurtain/<home_id>/status`
@@ -147,3 +148,11 @@ On an update command, the curtain updates the hub with its update
 	"is_moving": true  // Whether the Curtain is moving
 }
 ```
+
+
+## Software
+![image](../Documentation/Images/Software/ADS_Node.jpg)
+
+
+## Hardware
+![image](../Documentation/Images/Hardware/MQTTStateDiagram.png)
