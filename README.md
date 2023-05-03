@@ -2,17 +2,17 @@
 
 ---
 
-## DESCRIPTION
+## Description
 This folder is what goes on the Arduino.
 
-### CONTENTS
+### Contents
 - `./Node.ino` The main Arduino program file.
 - `./Headers/` The header files for the Arduino program.
 - `./src/` The .cpp files for the Arduino program.
 
 ---
 
-## INSTALLATION
+## Installation
 - Open `~/Node/Node.ino` into Arduino IDE (or equivalent).
 - Install ESP32 board library `https://dl.espressif.com/dl/package_esp32_index.json`
 - Install [ArduinoJson library](https://arduinojson.org/).
@@ -26,9 +26,9 @@ This folder is what goes on the Arduino.
 - Save your edited `./src/Config.cpp.template` as `./src/Config.cpp`.
 - Compile the project to the ESP32.
 
+---
 
 ## Communication
-
 
 ### Commands
 There are 3 basenames that describe a type of action:
@@ -151,6 +151,7 @@ On an update command, the curtain updates the hub with its update
 }
 ```
 
+---
 
 ## Software
 
