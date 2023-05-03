@@ -49,10 +49,20 @@ Path formatting is as follows:
 `SmartCurtain/-/<room_id>/<command>`
 `SmartCurtain/-/-/<curtain_id>/<command>`
 
-![image](../Documentation/Images/MQTT/MQTTCommunicationFlowDiagram.png)
+![image](../Documentation/Images/MQTT/MQTTCommunicationFlowDiagram.jpg)
 
 ### Subscribing
-The Curtain automatically subscribes to `SmartCurtain/all/move`, `SmartCurtain/all/status`, `SmartCurtain/-/-/<curtain_id>/move`, `SmartCurtain/-/-/<curtain_id>/status` and `SmartCurtain/-/-/<curtain_id>/update`. When the hub updates the curtain, it will then subscribe to `SmartCurtain/<home_id>/move`, `SmartCurtain/<home_id>/status`, `SmartCurtain/-/<room_id>/move` and `SmartCurtain/-/<room_id>/status`.
+The Curtain automatically subscribes to
+- `SmartCurtain/all/move`
+- `SmartCurtain/all/status`
+- `SmartCurtain/-/-/<curtain_id>/move`
+- `SmartCurtain/-/-/<curtain_id>/status`
+- `SmartCurtain/-/-/<curtain_id>/update`
+When the hub updates the curtain, it will then subscribe to
+- `SmartCurtain/<home_id>/move`
+- `SmartCurtain/<home_id>/status`
+- `SmartCurtain/-/<room_id>/move`
+- `SmartCurtain/-/<room_id>/status`
 
 The hub and curtain do a shout out to the other when they turn on. This way if the hub is already running and a curtain powers on, the hub will know, and vice versa.
 ![image](../Documentation/Images/MQTT/MQTTStateDiagram.png)
