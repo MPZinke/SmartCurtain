@@ -22,7 +22,8 @@ Smart Curtain is an automation of curtains to open curtains to a certain positio
 
 
 ### How It Works
-- 
+
+![image](./Documentation/Images/Model/CurtainRodRendered.png)
 
 
 ### CONTENTS
