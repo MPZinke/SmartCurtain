@@ -10,32 +10,29 @@ Smart Curtain is an automation of curtains to open curtains to a certain positio
 
 
 ### FEATURES
-- Control curtains either by all, home, room, or individually
-- Immediate movement to a specified position (0–100%)
-- Move to a position (0–100%) at a specified time
-- Sunrise opening and sunset closing
-- Event predition
-- Device knows if it has been manually opened
-
-#### Movement Functionality
--
+- Curtain that
+	- Knows whether it is closed or open
+	- Receives move and status requests through MQTT on a
+		- Home level
+		- Room level
+		- Individual level
+- Hub React App for human interfacing
+- Hub Python Flask backend for scheduling additional features
+	- Immediate movement to a specified position (0–100%)
+	- Move to a position (0–100%) at a specified time
+	- Sunrise opening and sunset closing
+	- Event predition
+- Hub Postgres database for storing home, rooms, curtains, events, and options
 
 
 ### How It Works
+TODO: Add use case diagram
 
 ![image](./Documentation/Images/Model/CurtainRodRendered.png)
 
 
-### CONTENTS
-- `~/3DModels` The 3-D Models for the SmartCurtain
-- `~/Documentation` Descriptions, examples, & diagrams of this project
-- `~/Hub/` The scripts for the Raspberry Pi/Hub system to server requests from user & nodes
-- `~/Node/` The arduino program to query the Hub for action information.
-- `~/Testing` Virtual devices & other scripts used for testing code/systems
-- `.gitignore` SELF EXPLANATORY
-- `README.md` SELF EXPLANATORY
 
-### HARDWARE
+### Requirements
 - Raspberry Pi or linux computer with W/LAN capabilities
 - Curtain Electronics
 	- ESP32 dev board
@@ -51,71 +48,30 @@ Smart Curtain is an automation of curtains to open curtains to a certain positio
 	- 2 [GT2 Pulley](https://www.amazon.com/dp/B07PGDBY8L/?coliid=I1ZPOZ4D0TO473&colid=3Q91VWIGIBUKK)
 	- GT2 Belt Free Wheel
 
+### CONTENTS
+- `~/3DModels` The 3-D Models for the SmartCurtain
+- `~/Documentation` Descriptions, examples, & diagrams of this project
+- `~/Hub/` The scripts for the Raspberry Pi/Hub system to server requests from user & nodes
+- `~/Node/` The arduino program to query the Hub for action information.
+- `~/Testing` Virtual devices & other scripts used for testing code/systems
+- `.gitignore` SELF EXPLANATORY
+- `README.md` SELF EXPLANATORY
+
 ---
 
 ## INSTALLATION
 
-### ARDUINO
-- Install ESP32 board library `https://dl.espressif.com/dl/package_esp32_index.json`
-- Install [ArduinoJson library](https://arduinojson.org/).
-- Install [ArduinoMQTTClient library](https://github.com/arduino-libraries/ArduinoMqttClient).
-- Open `~/SmartCurtain/Node/Node.ino` into Arduino IDE (or equivalent).
-- Edit `src/Config.cpp.template` with appropriate values and save as `src/Config.cpp`.
-- Compile & Bootload program to Arduino.
+Installation occurs over 3 parts. Please use their respective installation documents
+- [Hub installation](./Hub/README.md#Installation)
+- [Node installation](./Node/README.md#Installation)
+- [Curtain installation](./Documentation/PhysicalSetup.md#Installation)
 
-### RASPBERRY PI
-*This assumes the Raspberry Pi has already been connected to the internet*
-- Requires sudo generated sshkey (and the pubkey on github) if the git repo is cloned with ssh.
-- Clone repository to Raspberry Pi.
-- Edit `~/SmartCurtain/Hub/DB/Sample.sql` as needed for your setup.
-- Edit `~/SmartCurtain/Hub/Python/Other/Global.py` to supply your locale & information.
-- `cd` into `~/SmartCurtain/Hub/`.
-- Run `make` command.
 
 ### HARDWARE SETUP
 **Changed: do not trust instructions**
 
 - Make sure hardware works individually (See diagrams below for specifics).
 - Connect all devices to network and assemble curtain.
-
-#### MOTOR
-```
-_
- |_
-M  |----- Wire 1
-o  |----- Wire 2
-t  |
-o  |----- Wire 3
-r _|----- Wire 4
-_|
-
-```
-
-#### DRIVER
-```
-_______
-Ena - °|-------------------
-Ena + °|–– ESP32 18 (GPIO) |
-Dir - °|-------------------+---- ESP32 (GND)
-Dir + °|–– ESP32 5  (GPIO) |
-Pul - °|-------------------
-Pul + °|–– ESP32 19 (GPIO)
-B-    °|–– Wire 1
-B+    °|–– Wire 2
-A-    °|–– Wire 3
-A+    °|–– Wire 4
-V-    °|–– -
-V+    °|–– +
-–––––––
-```
-
-
-## UPDATE
-
-### HUB
-
-- `cd ~/SmartCurtain/Hub`
-- `make update`
 
 ---
 
@@ -124,7 +80,7 @@ V+    °|–– +
 
 ### INSTALLED EXTERNAL PACKAGES
 - postgresdb
-- python3:
+- python3.10:
 	- requests
 	- Flask
 	- Flask-Cors
@@ -144,12 +100,8 @@ V+    °|–– +
 - [ ] 1. Google Calendar Event Setter
 - [ ] 2. Thermostat & light level integration *(if it's cold & dark outside then close curtains for better insolation (and vice versa))*
 - [ ] 3. Who Is Home (ping Android phones to see if person is on local network) closing/opening
-- [x] 4. Update module automatically updates Hub nightly when origin/Production branch is updated.
-- [ ] 5. Mobile App
-- [ ] 6. WearOS App
-- [x] 7. JSON Log format
-- [x] 8. JSON string output for all objects
-- [ ] 9. Updater can run bash script (using same principle as DB updates)
+- [ ] 4. Mobile App
+- [ ] 5. WearOS App
 
 ---
 
@@ -158,6 +110,8 @@ created by: MPZinke on 08.20.2018
 edited by: MPZinke on 2020.12.28 to actually make it a README instead of a text file.
 
 Remember that you're making this at your own accord and I take no responsibility for any mistakes or problems that may arise.
+
+edited by: MPZinke on 2023.05.03 to use MQTT.
 
 ---
 
