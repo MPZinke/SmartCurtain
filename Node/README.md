@@ -153,7 +153,14 @@ On an update command, the curtain updates the hub with its update
 
 
 ## Software
+
+### Architecture
 ![image](../Documentation/Images/Software/ADS_Node.jpg)
+
+
+### Sequencing
+![image](../Documentation/Images/Software/CurtainMovementStateDiagram.jpg)
+
 
 
 ## Hardware
