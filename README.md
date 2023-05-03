@@ -59,7 +59,7 @@ Smart Curtain is an automation of curtains to open curtains to a certain positio
 - Install [ArduinoJson library](https://arduinojson.org/).
 - Install [ArduinoMQTTClient library](https://github.com/arduino-libraries/ArduinoMqttClient).
 - Open `~/SmartCurtain/Node/Node.ino` into Arduino IDE (or equivalent).
-- Edit `src/Config.cpp.template` with appropriate values and save as `scr/Config.cpp`.
+- Edit `src/Config.cpp.template` with appropriate values and save as `src/Config.cpp`.
 - Compile & Bootload program to Arduino.
 
 ### RASPBERRY PI
