@@ -43,11 +43,13 @@ There are 3 basenames that describe a type of action:
 The move and status commands can be grouped on a home or room level. The curtains under either the home or room (indicated by the topic) will pickup the commands by subscribing to that topic.
 
 Path formatting is as follows:
-`SmartCurtain/all/<command>`
-`SmartCurtain/hub/<command>`
-`SmartCurtain/<home_id>/<command>`
-`SmartCurtain/-/<room_id>/<command>`
-`SmartCurtain/-/-/<curtain_id>/<command>`
+- `SmartCurtain/all/<command>`
+- `SmartCurtain/hub/<command>`
+- `SmartCurtain/<home_id>/<command>`
+- `SmartCurtain/-/<room_id>/<command>`
+- `SmartCurtain/-/-/<curtain_id>/<command>`
+
+Noteably, because the id for a home regardless of the home or curtain, the room regardless of the home or curtain and the curtain regardless of the home or room are unique to their respective areas, the above paths allow for easy grouping.
 
 ![image](../Documentation/Images/MQTT/MQTTCommunicationFlowDiagram.jpg)
 
