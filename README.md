@@ -29,6 +29,8 @@ This folder is what goes on the Arduino.
 ---
 
 ## Communication
+The hub and curtain do a shout out to the other when they turn on. This way if the hub is already running and a curtain powers on, the hub will know, and vice versa.
+![image](../Documentation/Images/MQTT/MQTTStateDiagram.png)
 
 ### Commands
 There are 3 basenames that describe a type of action:
@@ -66,9 +68,6 @@ When the hub updates the curtain, it will then subscribe to
 - `SmartCurtain/<home_id>/status`
 - `SmartCurtain/-/<room_id>/move`
 - `SmartCurtain/-/<room_id>/status`
-
-The hub and curtain do a shout out to the other when they turn on. This way if the hub is already running and a curtain powers on, the hub will know, and vice versa.
-![image](../Documentation/Images/MQTT/MQTTStateDiagram.png)
 
 
 ### `../move`
