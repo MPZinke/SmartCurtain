@@ -39,9 +39,6 @@ namespace Hardware
 	}
 
 
-	extern const uint32_t STEP_MASK;
-
-
 	void disable_motor();
 	void enable_motor();
 	void pulse();

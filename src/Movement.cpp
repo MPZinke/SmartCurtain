@@ -30,10 +30,10 @@ namespace Movement
 
 	void reset()
 	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
+	SUMMARY: Resets the curtain by moving it to closed and then back to its original position, counting steps along the
+	         way.
+	DETAILS: Moves the curtain to a closed position, counting steps along the way. Then moves that number of steps back
+	         to the other direction.
 	*/
 	{
 		if(Hardware::state() == CLOSED)
@@ -104,35 +104,33 @@ namespace Movement
 
 	namespace Secure
 	{
-		uint32_t move_and_count_to_closed()
+		inline uint32_t move_and_count_to_closed()
 		/*
-		SUMMARY: 
-		PARAMS:  
-		DETAILS: 
-		RETURNS: 
+		SUMMARY: Moves the curtain to the closed position (until the closed endstop is reached) and counts the number of
+		         steps to get there.
+		RETURNS: Returns the number of steps taken to get to the closed position.
 		*/
 		{
 			Hardware::set_direction(CLOSED);
+			Hardware::enable_motor();
 			uint32_t steps_not_taken;
 			for(steps_not_taken = 0xFFFFFFFFFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();
 			}
 
+			Hardware::disable_motor();
 			return 0xFFFFFFFFFFFFFFFF - steps_not_taken;
 		}
 
 
-		// Checks whether an endstop has been reached after taking each step.
-		// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
-		// Does two pulses every iteration until all steps take or sensor is tripped.
-		// Returns remaining steps.
-		uint32_t move_towards_closed(register uint32_t remaining_steps)
+		inline uint32_t move_towards_closed(register uint32_t remaining_steps)
 		/*
-		SUMMARY: 
-		PARAMS:  
-		DETAILS: 
-		RETURNS: 
+		SUMMARY: Moves the curtain towards the closed position and checks whether the endstop has been triggered.
+		PARAMS:  The number of steps to move.
+		DETAILS: Moves towards closed, counting each step. If the close endstop has been triggered, curtain will stop
+		         moving.
+		RETURNS: Whether the curtain was able to move to its desired position.
 		*/
 		{
 			Hardware::set_direction(CLOSE);
@@ -148,14 +146,9 @@ namespace Movement
 		}
 
 
-		// For functionality, see: Movement::move_until_state_reached(.).
-		// Takes movement direction flag option (that is then XOR-ed).
 		inline void move_until_closed()
 		/*
-		SUMMARY: 
-		PARAMS:  
-		DETAILS: 
-		RETURNS: 
+		SUMMARY: Moves the curtain until the close endstop is triggered.
 		*/
 		{
 			Hardware::set_direction(CLOSE);
@@ -179,10 +172,8 @@ namespace Movement
 
 		inline void step(register uint32_t steps)
 		/*
-		SUMMARY: 
-		PARAMS:  
-		DETAILS: 
-		RETURNS: 
+		SUMMARY: Steps the curtain a provided number of steps.
+		PARAMS:  Takes the number of steps to move.
 		*/
 		{
 			Hardware::enable_motor();

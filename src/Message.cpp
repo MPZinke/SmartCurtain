@@ -34,7 +34,8 @@ namespace Message
 		{
 			const char PATH_PREFIX[] = "SmartCurtain/";
 			const char CURTAIN_PATH_PREFIX[] = "SmartCurtain/-/-/";
-			const char ALL_CURTAINS[] = "SmartCurtain/all/status";
+			const char ALL_CURTAINS_MOVE[] = "SmartCurtain/all/move";
+			const char ALL_CURTAINS_STATUS[] = "SmartCurtain/all/status";
 			const char MOVE_SUFFIX[] = "/move";
 			const char STATUS_SUFFIX[] = "/status";
 			const char UPDATE_SUFFIX[] = "/update";
@@ -71,10 +72,9 @@ namespace Message
 
 	String convert_JsonObject_to_String(JsonObject& object)
 	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
+	SUMMARY: Syntactic Sugar to convert a JsonObject to a String.
+	PARAMS:  Takes the JsonObject to convert
+	RETURNS: The String converted from the JsonObject
 	*/
 	{
 		String json_string;
@@ -84,33 +84,15 @@ namespace Message
 	}
 
 
-	String http_exception_json(uint16_t error_code, char error_message[])
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		JsonObject error_object = json_document.to<JsonObject>();
-
-		error_object["success"] = false;
-		error_object["status code"] = error_code;
-		error_object["message"] = error_message;
-
-		return convert_JsonObject_to_String(error_object);
-	}
-
-
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
 	DeserializedJSON::DeserializedJSON read_message(int message_size)
 	/*
-	SUMMARY: Reads the mqtt message from the client into the JSON document.
+	SUMMARY: Reads the mqtt message from the client into the DeserializedJSON object.
 	PARAMS:  Takes the message size to be read.
-	DETAILS: Checks whether the size is managable. If so the ...TODO
-	RETURNS: Whether the message was successfully read into the JSON document.
+	DETAILS: Reads the message into a string buffer. The string buffer is then deserialized in the DeserializedJSON
+	         object.
+	RETURNS: Returns the DeserializedJSON that holds the JSON and whether the message is a valid JSON.
 	*/
 	{
 		String message_buffer;
@@ -127,10 +109,10 @@ namespace Message
 
 	void update_hub()
 	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
+	SUMMARY: Updates the hub with either the Curtain JSON or and exception if one is listed.
+	PARAMS:  GLOBAL::exception && GLOBAL::curtain.
+	DETAILS: Checks whether an exception is listed. If so, it converts that to a JSON and publishes to the hub's error
+	         topic. Otherwise it converts the curtain to a JSON and posts that to the hub's `.../update` topic.
 	*/
 	{
 		String message;

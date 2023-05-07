@@ -81,7 +81,7 @@ namespace Control
 
 	// ——————————————————————————————————————————————————— CASES  ——————————————————————————————————————————————————— //
 
-	void case_move(int message_size)
+	inline void case_move(int message_size)
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -115,7 +115,7 @@ namespace Control
 	}
 
 
-	void case_status()
+	inline void case_status()
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -127,7 +127,7 @@ namespace Control
 	}
 
 
-	void case_update_curtain(int message_size)
+	inline void case_update_curtain(int message_size)
 	/*
 	SUMMARY: 
 	PARAMS:  

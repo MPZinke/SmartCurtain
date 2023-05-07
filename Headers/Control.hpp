@@ -20,7 +20,7 @@ namespace Control
 	void loop();
 	void process_message(int);
 
-	void case_move(int message_size);
-	void case_status();
-	void case_update_curtain(int message_size);
+	inline void case_move(int message_size);
+	inline void case_status();
+	inline void case_update_curtain(int message_size);
 }
