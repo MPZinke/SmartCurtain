@@ -135,20 +135,7 @@ On an update request, the known information is received and updated where allowe
 ```
 
 #### Response
-On an update command, the curtain updates the hub with its update
-```json
-{
-	"id": 1,  // Curtain's ID (1-4294967295)
-	// ———— HUB CAN SET CURTAIN ———— //
-	"Home.id": 1,  // Curtain's Home's ID (0-4294967295)
-	"Room.id": 1,  // Curtain's Room's ID (0-4294967295)
-	"Auto Correct": false,  // Whether the Curtain is allowed to Auto Correct
-	"length": 32000,  // The allowed length of the Curtain (Sets to minimum of Hub's length & Curtain's length)
-	// ———— CURTAIN CAN SET HUB ———— //
-	"percentage": 100,  // The current percentage of the Curtain
-	"is_moving": true  // Whether the Curtain is moving
-}
-```
+On an update command, the curtain does not update the Hub, as not doing so give the Curtain the power to choose what to update about itself. This also prevents possible infinite looping.
 
 ---
 

@@ -29,7 +29,8 @@ namespace Message
 		{
 			extern const char PATH_PREFIX[];
 			extern const char CURTAIN_PATH_PREFIX[];
-			extern const char ALL_CURTAINS[];
+			extern const char ALL_CURTAINS_MOVE[];
+			extern const char ALL_CURTAINS_STATUS[];
 			extern const char MOVE_SUFFIX[];
 			extern const char STATUS_SUFFIX[];
 			extern const char UPDATE_SUFFIX[];

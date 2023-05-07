@@ -46,10 +46,6 @@ namespace Hardware
 	}
 
 
-	// Mask used to make pulsing smooth (no int overflow, timeout, etc)
-	const uint32_t STEP_MASK = 0x7FFFE;  // 0x7FFFE (524286) [steps] @ 60 [µS/step] = 31.45716 [S].
-
-
 	using namespace CurtainStates;  // used CurtainStates as enum
 
 
