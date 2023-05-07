@@ -71,6 +71,7 @@ namespace Control
 		}
 		else if(type == Message::Literal::MQTT::UPDATE_SUFFIX)
 		{
+			// Does not update hub to prevent possible ciruclar looping from possible bad programming :)
 			case_update_curtain(message_size);
 		}
 
