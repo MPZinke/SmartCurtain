@@ -78,17 +78,24 @@ namespace Movement
 			else if(event.direction() == CLOSE)
 			{
 				// If failed to reach non-zero state without hitting 0 and allowed to correct self:
-				if(!Secure::move_towards_closed(event.steps()) && Global::curtain.auto_correct())
+				if(!Secure::move_towards_closed(event.steps()))
 				{
-					Global::curtain.update();  // ensure curtain is up to date with hardware
-					Hardware::set_direction(OPEN);
-					Unsecure::step(event.steps());
+					if(!Global::curtain.auto_correct())
+					{
+						event.percentage(0);  // GENERIC: event.percentage(100 * (event.direction != CLOSE));
+					}
+					else
+					{
+						Global::curtain.update();  // ensure curtain is up to date with hardware
+						Hardware::set_direction(OPEN);
+						Unsecure::step(event.steps());
+					}
 				}
 			}
 			// Move to an open position
 			else
 			{
-				Hardware::set_direction(event.direction());
+				Hardware::set_direction(OPEN);
 				Unsecure::step(event.steps());
 			}
 		}
@@ -114,17 +121,17 @@ namespace Movement
 			Hardware::set_direction(CLOSED);
 			Hardware::enable_motor();
 			uint32_t steps_not_taken;
-			for(steps_not_taken = 0xFFFFFFFFFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
+			for(steps_not_taken = 0xFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
-			return 0xFFFFFFFFFFFFFFFF - steps_not_taken;
+			return 0xFFFFFFFF - steps_not_taken;
 		}
 
 
-		inline uint32_t move_towards_closed(register uint32_t remaining_steps)
+		inline bool move_towards_closed(register uint32_t remaining_steps)
 		/*
 		SUMMARY: Moves the curtain towards the closed position and checks whether the endstop has been triggered.
 		PARAMS:  The number of steps to move.
@@ -154,7 +161,7 @@ namespace Movement
 			Hardware::set_direction(CLOSE);
 			Hardware::enable_motor();
 
-			for(uint32_t x = 0xFFFFFFFFFFFFFFFF; 0 < x && !Hardware::is_closed(); x--)
+			for(uint32_t x = 0xFFFFFFFF; 0 < x && !Hardware::is_closed(); x--)
 			{
 				Hardware::pulse();
 			}

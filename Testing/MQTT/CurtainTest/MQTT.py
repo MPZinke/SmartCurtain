@@ -5,7 +5,7 @@ __author__ = "MPZinke"
 ########################################################################################################################
 #                                                                                                                      #
 #   created by: MPZinke                                                                                                #
-#   on 2022.09.03                                                                                                      #
+#   on 2023.05.08                                                                                                      #
 #                                                                                                                      #
 #   DESCRIPTION:                                                                                                       #
 #   BUGS:                                                                                                              #
@@ -14,25 +14,39 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from datetime import datetime
-from flask import request
 import json
+import paho.mqtt.client as mqtt
 
 
-from SmartCurtain import SmartCurtain
+class MQTTClient(mqtt.Client):
+	def __init__(self):
+		mqtt.Client.__init__(self)
+
+		self._Global_client_message = None
+		self._Global_client_topic = None
 
 
-# `POST /api/v1.0/curtain/<int:curtain_id>/events/new`
-# Creates a new curtain's event with the JSON body.
-def POST(smart_curtain: SmartCurtain, curtain_id: int):
-	if((curtain := smart_curtain["-"]["-"][curtain_id]) is None):
-		raise Exception("Not found")  #TODO
+	def on_connect(self, client, userdata, flags, result_code) -> None:
+		import Global
 
-	body: dict = request.json
-	if((percentage := body.get("percentage")) is None):
-		raise Exception("Bad body")  #TODO
-	kwargs = {"Options_id": body.get("Options.id")}
-	kwargs["time"] = datetime.strptime("%Y-%m-%d %H:%M:%S", body["time"]) if("time" in body) else None
+		print(f"Connected with result code {str(result_code)}")
+		self.subscribe("SmartCurtain/all/move")
+		self.subscribe("SmartCurtain/all/status")
+		self.subscribe(f"""SmartCurtain/-/-/{Global.curtain.id()}/move""")
+		self.subscribe(f"""SmartCurtain/-/-/{Global.curtain.id()}/status""")
+		self.subscribe(f"""SmartCurtain/-/-/{Global.curtain.id()}/update""")
+		client.publish("SmartCurtain/hub/update", str(Global.curtain))
 
-	new_event = curtain.new_CurtainEvent(percentage=percentage)  #TODO: Finish
-	return dict(new_event)
+	
+	def messageTopic(self) -> str:
+		return self._Global_client_topic
+
+
+	def on_message(self, client, userdata, message):
+		self._Global_client_message = message.payload
+		self._Global_client_topic = message.topic
+
+		print("DEBUG", message.payload)
+
+		import Control
+		Control.process_message(len(message.payload))

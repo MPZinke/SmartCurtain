@@ -5,7 +5,7 @@ __author__ = "MPZinke"
 ########################################################################################################################
 #                                                                                                                      #
 #   created by: MPZinke                                                                                                #
-#   on 2022.09.03                                                                                                      #
+#   on 2023.05.08                                                                                                      #
 #                                                                                                                      #
 #   DESCRIPTION:                                                                                                       #
 #   BUGS:                                                                                                              #
@@ -14,25 +14,46 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from datetime import datetime
-from flask import request
-import json
+import time
 
 
-from SmartCurtain import SmartCurtain
+CLOSE = False
+OPEN = True
 
 
-# `POST /api/v1.0/curtain/<int:curtain_id>/events/new`
-# Creates a new curtain's event with the JSON body.
-def POST(smart_curtain: SmartCurtain, curtain_id: int):
-	if((curtain := smart_curtain["-"]["-"][curtain_id]) is None):
-		raise Exception("Not found")  #TODO
+DIRECTION = CLOSE
+MOTOR_ENABLED = True
 
-	body: dict = request.json
-	if((percentage := body.get("percentage")) is None):
-		raise Exception("Bad body")  #TODO
-	kwargs = {"Options_id": body.get("Options.id")}
-	kwargs["time"] = datetime.strptime("%Y-%m-%d %H:%M:%S", body["time"]) if("time" in body) else None
 
-	new_event = curtain.new_CurtainEvent(percentage=percentage)  #TODO: Finish
-	return dict(new_event)
+def enable_motor():
+	MOTOR_ENABLED = True
+
+
+def disable_motor():
+	MOTOR_ENABLED = False
+
+
+def is_closed():
+	return Global.curtain._virtual_physical_position == 0
+
+
+def pulse():
+	if(MOTOR_ENABLED == False):
+		raise Exception("Motor is disabled")
+
+	time.sleep(6e-5 * 2)
+	if(DIRECTION == CLOSE):
+		Global.curtain._virtual_physical_position -= 1
+	else:
+		Global.curtain._virtual_physical_position += 1
+
+	if(Global.curtain._virtual_physical_position < 0):
+		raise Exception("Software failed to prevent curtain from going past endstop")
+
+	if(Global.curtain.length() < Global.curtain._virtual_physical_position):
+		raise Exception("Software moved curtain past fully open")
+
+
+def set_direction(direction: bool):
+	# DIRECTION = int(direction + Global.curtain.direction()) & 0b1
+	DIRECTION = direction

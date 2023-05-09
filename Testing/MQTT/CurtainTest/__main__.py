@@ -5,7 +5,7 @@ __author__ = "MPZinke"
 ########################################################################################################################
 #                                                                                                                      #
 #   created by: MPZinke                                                                                                #
-#   on 2022.09.03                                                                                                      #
+#   on 2023.05.08                                                                                                      #
 #                                                                                                                      #
 #   DESCRIPTION:                                                                                                       #
 #   BUGS:                                                                                                              #
@@ -14,25 +14,23 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from datetime import datetime
-from flask import request
 import json
+import sys
+from time import sleep
 
 
-from SmartCurtain import SmartCurtain
+import Global
+import Control
 
 
-# `POST /api/v1.0/curtain/<int:curtain_id>/events/new`
-# Creates a new curtain's event with the JSON body.
-def POST(smart_curtain: SmartCurtain, curtain_id: int):
-	if((curtain := smart_curtain["-"]["-"][curtain_id]) is None):
-		raise Exception("Not found")  #TODO
 
-	body: dict = request.json
-	if((percentage := body.get("percentage")) is None):
-		raise Exception("Bad body")  #TODO
-	kwargs = {"Options_id": body.get("Options.id")}
-	kwargs["time"] = datetime.strptime("%Y-%m-%d %H:%M:%S", body["time"]) if("time" in body) else None
+# —————————————————————————————————————————————————————— CONTROL ————————————————————————————————————————————————————— #
 
-	new_event = curtain.new_CurtainEvent(percentage=percentage)  #TODO: Finish
-	return dict(new_event)
+
+def main():
+	id = sys.argv[1]
+	Control.loop()
+
+
+if(__name__ == "__main__"):
+	main()
