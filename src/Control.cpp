@@ -108,7 +108,7 @@ namespace Control
 			return;
 		}
 
-		Event::Event event(event_json);
+		static Event::Event event(event_json);
 		Global::curtain.is_moving(true);
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
 		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 1, NULL, 1);

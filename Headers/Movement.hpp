@@ -39,7 +39,7 @@ namespace Movement
 	namespace Secure
 	{
 		inline uint32_t move_and_count_to_closed();
-		inline uint32_t move_towards_closed(register uint32_t remaining_steps);
+		inline bool move_towards_closed(register uint32_t remaining_steps);
 		inline void move_until_closed();
 	}  // end namespace Secure
 
