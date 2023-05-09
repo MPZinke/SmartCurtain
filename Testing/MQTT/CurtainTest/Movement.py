@@ -30,7 +30,7 @@ def move(event: Event) -> None:
 					step(event.steps())
 		else:
 			Hardware.set_direction(event.direction())
-			step(event.steps())
+			Unsecure.step(event.steps())
 
 	Global.curtain.percentage(event.percentage())
 	Global.curtain.is_moving(False)
@@ -78,6 +78,17 @@ class Secure:
 			if(Hardware.is_closed()):
 				break
 
+			Hardware.pulse()
+
+		Hardware.disable_motor()
+
+
+class Unsecure:
+	@staticmethod
+	def step(steps: int) -> None:
+		Hardware.enable_motor()
+
+		for _ in range(steps, 0, -1):
 			Hardware.pulse()
 
 		Hardware.disable_motor()

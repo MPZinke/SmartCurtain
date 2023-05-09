@@ -28,4 +28,4 @@ class Event:
 		if(steps_delta < 0):
 			steps_delta *= -1
 
-		return int(steps_delta * self.length / 100)
+		return int(steps_delta * Global.curtain.length() / 100)
