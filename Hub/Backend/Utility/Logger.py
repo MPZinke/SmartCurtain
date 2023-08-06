@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -21,7 +21,7 @@ import traceback;
 from typing import Union;
 
 
-from Global import LOG_DIR;
+# from Global import LOG_DIR;
 
 
 def log_error(error : Union[Exception, str]) -> bool:

@@ -1,0 +1,225 @@
+<mxfile host="Electron" modified="2023-05-03T02:38:09.156Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.1 Chrome/112.0.5615.87 Electron/24.1.2 Safari/537.36" etag="Ti8roeBXM9GlV-KmKBG9" version="21.2.1" type="device">
+  <diagram name="Page-1" id="pHds0ncz5mtCfNrCksRV">
+    <mxGraphModel dx="954" dy="674" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="qstebaepbjRvp3I9UijR-7" value="&lt;font style=&quot;font-size: 36px;&quot;&gt;Controller&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=12 12;" parent="1" vertex="1">
+          <mxGeometry x="400" width="600" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-6" value="&lt;font style=&quot;font-size: 36px;&quot;&gt;Movement Thread&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=12 12;" parent="1" vertex="1">
+          <mxGeometry x="1000" width="880" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-5" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;Secured By Endstop&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="160" width="640" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-1" target="P4CtzSKfr0nTiWOdNZDI-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-1" value="Hub gets a command to move" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-2" target="P4CtzSKfr0nTiWOdNZDI-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-2" value="Hub publishes request" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="240" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-3" target="P4CtzSKfr0nTiWOdNZDI-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-3" value="Curtain gets request to move" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-4" target="P4CtzSKfr0nTiWOdNZDI-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-13" value="Curtain is already moving" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-10" vertex="1" connectable="0">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-4" target="P4CtzSKfr0nTiWOdNZDI-12" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-15" value="Curtain is not&lt;br&gt;already moving" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-14" vertex="1" connectable="0">
+          <mxGeometry y="-1" relative="1" as="geometry">
+            <mxPoint y="-21" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-4" value="Curtain checks if already moving" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-5" value="Hub gets error" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-6" target="P4CtzSKfr0nTiWOdNZDI-5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-6" value="Curtain creates error and publishes to hub" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-12" target="P4CtzSKfr0nTiWOdNZDI-16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-12" value="Curtain marks &lt;br&gt;itself as moving" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="840" y="80" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-16" target="P4CtzSKfr0nTiWOdNZDI-22" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-16" value="Curtain spawns a moving event" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="840" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-18" target="P4CtzSKfr0nTiWOdNZDI-19" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-18" value="Curtain publishes&lt;br&gt;to hub&amp;nbsp;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-19" value="Hub gets update" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-22" target="P4CtzSKfr0nTiWOdNZDI-18" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-25" value="Curtain is already at position" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-24" vertex="1" connectable="0">
+          <mxGeometry x="-0.5654" relative="1" as="geometry">
+            <mxPoint y="-50" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-22" target="P4CtzSKfr0nTiWOdNZDI-26" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-22" value="Spawned moving event checks if Curtain is at position" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-26" target="P4CtzSKfr0nTiWOdNZDI-27" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-42" value="Event is in &lt;br&gt;closed position" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-41" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-26" target="P4CtzSKfr0nTiWOdNZDI-28" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-26" value="Curtain &lt;br&gt;determines&amp;nbsp;&lt;br&gt;if it is moving to closed" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-27" target="P4CtzSKfr0nTiWOdNZDI-46" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-27" value="Curtain moves &lt;br&gt;until closed endstop is activated" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-28" target="P4CtzSKfr0nTiWOdNZDI-39" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-50" value="Event direction is &lt;br&gt;not&amp;nbsp;towards closed" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-49" vertex="1" connectable="0">
+          <mxGeometry x="0.0125" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-28" target="P4CtzSKfr0nTiWOdNZDI-35" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-28" value="Curtain &lt;br&gt;determines&amp;nbsp;if&lt;br&gt;direction is towards close" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1440" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-35" target="P4CtzSKfr0nTiWOdNZDI-48" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-1" value="Curtain hits endstop" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-61" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-64" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-35" target="P4CtzSKfr0nTiWOdNZDI-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1780" y="280" />
+              <mxPoint x="1780" y="680" />
+              <mxPoint x="1100" y="680" />
+              <mxPoint x="1100" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-2" value="Curtain does&lt;br&gt;not hit endstop" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-64" vertex="1" connectable="0">
+          <mxGeometry x="-0.9216" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-35" value="Curtain &lt;br&gt;moves towards closed" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1640" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-36" target="P4CtzSKfr0nTiWOdNZDI-39" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1580" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-4" value="Auto correct&lt;br&gt;is allowed" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-60" vertex="1" connectable="0">
+          <mxGeometry x="0.025" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-36" target="P4CtzSKfr0nTiWOdNZDI-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1700" y="680" />
+              <mxPoint x="1100" y="680" />
+              <mxPoint x="1100" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-3" value="Auto correct is&lt;br&gt;not allowed" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="P4CtzSKfr0nTiWOdNZDI-63" vertex="1" connectable="0">
+          <mxGeometry x="-0.9539" relative="1" as="geometry">
+            <mxPoint y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-36" value="Curtain &lt;br&gt;determines&amp;nbsp;if auto correct is&lt;br&gt;&amp;nbsp;activated" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1640" y="560" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-39" target="P4CtzSKfr0nTiWOdNZDI-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1500" y="680" />
+              <mxPoint x="1100" y="680" />
+              <mxPoint x="1100" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-39" value="Curtain steps to position" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1440" y="560" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-44" value="Event is not in&lt;br&gt;closed position" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="260" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-46" target="P4CtzSKfr0nTiWOdNZDI-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1100" y="600" />
+              <mxPoint x="1100" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-46" value="Closed endstop is activated" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="560" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="P4CtzSKfr0nTiWOdNZDI-48" target="P4CtzSKfr0nTiWOdNZDI-36" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-48" value="Closed endstop is activated" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1640" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="P4CtzSKfr0nTiWOdNZDI-53" value="Event direction is&amp;nbsp;&lt;br&gt;towards closed" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1540" y="260" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="qstebaepbjRvp3I9UijR-9" value="Curtain not&lt;br&gt;in position" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1160" y="260" width="80" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

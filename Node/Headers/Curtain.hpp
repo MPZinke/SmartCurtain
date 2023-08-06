@@ -2,79 +2,110 @@
 /***********************************************************************************************************************
 *                                                                                                                      *
 *   created by: MPZinke                                                                                                *
-*   on 2020.11.28                                                                                                      *
+*   on 2021.11.27                                                                                                      *
 *                                                                                                                      *
-*   DESCRIPTION: Main Curtain class for organizing received data into an object. Also contains abstracted curtain      *
-*    related functions such as what state a position would be.                                                         *
+*   DESCRIPTION: TEMPLATE                                                                                              *
 *   BUGS:                                                                                                              *
-*   FUTURE: - Add cool temperature, light, & thermostat data.                                                          *
+*   FUTURE:                                                                                                            *
 *                                                                                                                      *
 ***********************************************************************************************************************/
 
 
-#include <ArduinoJson.h>
+#include <Arduino.h>
 
 
 #include "Config.hpp"
 #include "Movement.hpp"
 
 
+namespace DeserializedJSON
+{
+	class DeserializedJSON;
+}
+
+
+namespace Event
+{
+	class Event;
+}
+
+
 namespace Curtain
 {
 	using Movement::CurtainState;
+	namespace CurtainStates = Hardware::CurtainStates;
 
-	// —————————————————————————————————————————————————— CURTAIN —————————————————————————————————————————————————— //
 
-	// declared here for Gpio.h functions, since Gpio.h is called in Curtain.h (and thus exists before it)
+	// ——————————————————————————————————————————————— CURTAIN OBJECT ——————————————————————————————————————————————— //
+	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
 	class Curtain
 	{
 		private:
-			const uint8_t _id;
-			// ———— OPTIONS ———— //
-			// if the curtain has opportunity to move full span, count steps & return value
-			bool _auto_calibrate = Config::Hardware::BOTH_ENDSTOPS;
-			// if position is unexpected, go to expected position
-			bool _auto_correct = Config::Hardware::EITHER_ENDSTOP;
-			bool _direction = Config::Hardware::DIRECTION_SWITCH;
-			// if the curtain can move to a discrete location (not just open or closed)
-			bool _discrete_movement = Config::Hardware::EITHER_ENDSTOP && Config::Hardware::DISCRETE_MOVEMENT_ALLOWED;
-			uint32_t _length = Config::Hardware::DEFAULT_LENGTH;  // overall length of the curtain [steps]
-			uint8_t _percentage = 0;  // the percentage amount open of the curtain
-			uint32_t _position = 0;  // the current length according to the RPi
+			friend class Event::Event;
+			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
+			uint16_t _id = Config::Curtain::CURTAIN_ID;
+			uint16_t _room_id = 0;
+			uint16_t _home_id = 0;
 
-			uint32_t _last_event_id = 0;  // the ID of the last event (helps determine if fresh restart)
+			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
+			bool _direction = Config::Hardware::DIRECTION_SWITCH;
+			bool _is_moving = false;
+			uint32_t _length = Config::Hardware::MAX_LENGTH;
+			uint32_t _position = 0;
+
+			// —————————————————————————————————————————————— OPTIONS  —————————————————————————————————————————————— //
+			bool _auto_correct = true;
 
 		public:
-			Curtain(uint8_t id);
+			Curtain();
 
+			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
+
+			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
+			uint16_t id();
+			uint16_t room_id();
+			uint16_t home_id();
+
+			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
+			bool auto_correct();
+
+			// ————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————— //
+			uint32_t length();
+			bool direction();
+			bool is_moving();
+			uint32_t percentage();
+
+			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
+			// CurtainState state();
 			operator String();
 
-			// ———— GETTERS ———— //
-			uint8_t id();
+			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
-			bool auto_calibrate();
-			bool auto_correct();
-			bool direction();
-			bool discrete_movement();
-			uint32_t length();
-			uint8_t percentage();
-			uint32_t position();
-			CurtainState state();
+			// ————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————— //
+			void room_id(uint16_t new_room_id);
+			void home_id(uint16_t new_home_id);
 
-			// ———— SETTERS ———— //
-			void auto_calibrate(register bool new_auto_calibrate);
-			void auto_correct(register bool new_auto_correct);
-			void direction(register bool new_direction);
-			void length(register uint32_t new_length);
-			void discrete_movement(register bool new_discrete_movement);
-			void percentage(register uint8_t new_percentage);
-			void position(register uint32_t new_position);
-			void update(StaticJsonDocument<JSON_BUFFER_SIZE>& json_document);
+			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
+			void direction(bool new_direction);
+			void length(uint32_t new_length);
+			void is_moving(bool new_is_moving);
+			void percentage(uint32_t new_percentage);
+			void update();
 
-			// ———— OTHER ———— //
-			void append_to(JsonObject& json_object);
+			// —————————————————————————————————————————— SETTERS::OPTIONS —————————————————————————————————————————— //
+			void auto_correct(bool new_auto_correct);
 
-		private:
-			void update_from_state();
+			// ——————————————————————————————————————————————— OTHER  ——————————————————————————————————————————————— //
+			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
+			void operator=(DeserializedJSON::DeserializedJSON& curtain_json);
 	};
-} // end namespace Curtain
+
+
+
+
+	inline String invalid_key_message(const char* key, const char* type_str);
+	bool validate(DeserializedJSON::DeserializedJSON& curtain_json);
+}

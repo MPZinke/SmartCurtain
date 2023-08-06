@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -15,9 +15,10 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from Manager import Manager;
-from Server import Server;
-from SmartCurtain import SmartCurtain;
+# from Manager import Manager
+from MQTT import MQTTClient
+from Server import Server
+from SmartCurtain import SmartCurtain
 
 
 class Backend:
@@ -25,22 +26,23 @@ class Backend:
 	The main object that holds the various parts of the backend.
 	"""
 	def __init__(self):
-		self._SmartCurtain = SmartCurtain();
-		self._Manager = Manager(self._SmartCurtain);
-		self._Server = Server(self._SmartCurtain);
+		self._SmartCurtain = SmartCurtain()
+		# self._Manager = Manager(self._SmartCurtain)
+		self._MQTTClient = MQTTClient(self._SmartCurtain)
+		self._Server = Server(self._SmartCurtain)
 
 
 	def start(self):
-		# self._Manager.start();
-		self._Server.start();
-		self._SmartCurtain.start();
+		# self._Manager.start()
+		self._MQTTClient.start()
+		self._Server.start()
 
 
 
 def main():
-	smartcurtain = Backend();
-	smartcurtain.start();
+	smartcurtain = Backend()
+	smartcurtain.start()
 
 
 if __name__ == '__main__':
-	main();
+	main()

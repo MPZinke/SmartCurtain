@@ -18,180 +18,91 @@
 
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
+#include "../Headers/Hardware.hpp"
 #include "../Headers/Message.hpp"
 
 
 namespace Movement
 {
 	// Import values from Hardware
-	using Config::Hardware::BOTH_ENDSTOPS;
-	using Config::Hardware::CLOSE_ENDSTOP;
-	using Config::Hardware::OPEN_ENDSTOP;
 	using namespace Hardware::CurtainStates;  // used CurtainStates as enum
 
 
-	void movement_loop()
+	void reset()
+	/*
+	SUMMARY: Resets the curtain by moving it to closed and then back to its original position, counting steps along the
+	         way.
+	DETAILS: Moves the curtain to a closed position, counting steps along the way. Then moves that number of steps back
+	         to the other direction.
+	*/
 	{
-		while(true)
+		if(Hardware::state() == CLOSED)
 		{
-			Hardware::disable_motor();
-
-			if(!Global::event.is_finished())
-			{
-				Movement::activate();
-				if(Global::client_IP[0])
-				{
-					Message::deactivate_curtain();
-				}
-			}
-
-			delay(250);  // Wait half a second before proceeding
+			Global::curtain.percentage(0);
 		}
-	}
-
-	// SUMMARY: Activates curtain for an event to move to a certain position.
-	// PARAMS:  Takes the reference to the event.
-	// DETAILS: Determines the movement time based on hardware if hardware exists.
-	void activate()
-	{
-		if(Global::curtain.auto_calibrate() && Global::event.moves_full_span())
-		{
-			Secure::move_and_calibrate();
-		}
-		// If hardware allowed and the event moves to CLOSED (including non-discrete only movement)
-		else if(CLOSE_ENDSTOP && Global::event.state() == CLOSED)
-		{
-			Secure::move_until_closed();
-		}
-		// If hardware allowed and the event moves to OPEN (including non-discrete only movement)
-		else if(OPEN_ENDSTOP && Global::event.state() == OPEN)
-		{
-			Secure::move_until_open();
-		}
-		// Non-discrete, movement is covered by Event object. If the movement is discrete, it will automatically go to
-		//  the else of the below if, since it is automatically converted to OPEN/CLOSED. If it had an endstop and were
-		//  supposed to move to an end, the event would be caught above.
-		// if statement: has ability to prevent self-destructive behavior
-		else if((OPEN_ENDSTOP && Global::event.direction() == OPEN)
-		  || (CLOSE_ENDSTOP && Global::event.direction() == CLOSE))
-		{
-			Secure::move_discretely();
-		}
-		// —— No endstops below this point ——
-		// —— Position is assumed below this point (even with an encoder) ——
-		// REMINDER: For non-discrete: Percentage is converted to 0 or 100 and movement is assumed to be correct.
-		// REMINDER: For discrete: Percentage remains the same and movement is assumed to be correct.
-		// Because event percentage is automatically changed if the curtain is non-discrete and current position is
-		//  only able to be assumed, discrete and non-discrete movements work the same at this point. Curtain can just
-		//  be told to step, regardless of if it is discretely between or the full length of the curtain.
 		else
 		{
-			Unsecure::step();
+			uint32_t steps = Secure::move_and_count_to_closed();
+			Hardware::set_direction(OPEN);
+			Unsecure::step(steps);
+			uint8_t curtain_percentage = steps * 100 / Global::curtain.length();
+			Global::curtain.percentage(curtain_percentage);
 		}
 
-		Global::event.is_finished(true);
+		Global::curtain.is_moving(false);
+		Message::update_hub();
 	}
 
 
-	// —————————————————————————————————————————————————— POSITION —————————————————————————————————————————————————— //
-	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-	// Position1 is within an allowable difference of position2.
-	// Takes two step positions, and an allowable difference.
-	// Returns whether they are within a certain amount of eachother.
-	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2,
-	  register uint32_t allowable_difference)
+	void move(Event::Event event)
+	/*
+	NOTES: Expects that curtain._is_moving is true.
+	*/
 	{
-		return (position1 - allowable_difference <= position2) && (position2 <= position1 + allowable_difference);
-	}
-
-
-	// Position1 is within Gobal::wiggle_room of position2.
-	// Takes two step positions.
-	// Returns whether they are within a certain amount of eachother.
-	inline bool is_approximate_position(register uint32_t position1, register uint32_t position2)
-	{
-		return is_approximate_position(position1, position2, Config::Curtain::POSITION_TOLLERANCE);
-	}
-
-
-	// —————————————————————————————————————————————— POSITION::STATE  —————————————————————————————————————————————— //
-
-	// Approximates the position and then returns an enum value.
-	// Takes a position to check, the length of the curtain to compare it to.
-	// Returns the enum value of the approximated current state for position.
-	inline CurtainState approximate_state_of(register uint32_t position, register uint32_t curtain_length)
-	{
-		if(is_approximate_position(position, 0)) return CLOSED;
-		if(is_approximate_position(position, curtain_length)) return OPEN;
-		return MIDDLE;
-	}
-
-
-	// Determines the position and then returns an enum value.
-	// Takes a position to check, the length of the curtain to compare it to.
-	// Returns the enum value of the current state for position.
-	inline CurtainState state_of(register uint32_t position, register uint32_t curtain_length)
-	{
-		if(position == 0) return CLOSED;
-		if(position == curtain_length) return OPEN;
-		return MIDDLE;
-	}
-
-
-	// Determines the position and then returns an enum value.
-	// Takes a position to check, the length of the curtain to compare it to.
-	// Returns the enum value of the current state for position.
-	inline CurtainState state_of(register uint32_t position)
-	{
-		return state_of(position, Global::curtain.length());
-	}
-
-
-	// Determines the state of a percentage and then returns an enum value.
-	// Takes a position to check, the length of the curtain to compare it to.
-	// Returns the enum value of the current state for position.
-	CurtainState state_of(register uint8_t percentage)
-	{
-		return state_of((uint32_t)percentage, 100);
-	}
-
-
-	// ———————————————————————————————————————————————————— UTILITY ————————————————————————————————————————————————————
-
-	bool (*function_for_side(CurtainState state))()
-	{
-		bool(*direction_function[2])();
-		direction_function[CLOSE] = Hardware::is_closed;
-		direction_function[OPEN] = Hardware::is_open;
-
-		return direction_function[state];
-	}
-
-
-	bool return_false()
-	{
-		return false;
-	}
-
-
-	bool return_true()
-	{
-		return true;
-	}
-
-
-	uint32_t steps()
-	{
-		uint32_t desired_position = (uint32_t)Global::event.percentage() * Global::curtain.length() / 100;
-
-		// More complicated statements are processed in if clause so that if the pipeline is broken, there is less to
-		//  recover to.
-		if(Global::event.direction() == OPEN)
+		// Ensure that the is moving flag has been set so that the movement thread spawner can check whether the curtain
+		//  is already moving. If the movement thread spawner sees the curtain is already moving, then it will not
+		//  create another event. This prevents multiple resources trying to control the hardware at once.
+		if(Global::curtain.is_moving() != true)
 		{
-			return desired_position - Global::curtain.position();
+			return;
 		}
-		return Global::curtain.position();
+
+		Global::curtain.update();  // ensure curtain is up to date with hardware
+		if(Global::curtain.percentage() != event.percentage())
+		{
+			if(event.percentage() == 0)
+			{
+				Secure::move_until_closed();
+			}
+			// Move towards a closed position
+			else if(event.direction() == CLOSE)
+			{
+				// If failed to reach non-zero state without hitting 0 and allowed to correct self:
+				if(!Secure::move_towards_closed(event.steps()))
+				{
+					if(!Global::curtain.auto_correct())
+					{
+						event.percentage(0);  // GENERIC: event.percentage(100 * (event.direction != CLOSE));
+					}
+					else
+					{
+						Global::curtain.update();  // ensure curtain is up to date with hardware
+						Hardware::set_direction(OPEN);
+						Unsecure::step(event.steps());
+					}
+				}
+			}
+			// Move to an open position
+			else
+			{
+				Hardware::set_direction(OPEN);
+				Unsecure::step(event.steps());
+			}
+		}
+
+		Global::curtain.percentage(event.percentage());
+		Global::curtain.is_moving(false);
+		Message::update_hub();
 	}
 
 
@@ -200,138 +111,63 @@ namespace Movement
 
 	namespace Secure
 	{
-
-		// ——————————————————————————————————————————————— MOVEMENT::MOVE ——————————————————————————————————————————————— //
-		// Move implies that it will move until a possible event happens & implies it is safeguarded by hardware.
-		// If you use these functions without checking the hardware exists,
-		//  1) You are using it wrong
-		//  2) You are going grind your belt (amongst other things)
-
-		void move_and_calibrate()
+		inline uint32_t move_and_count_to_closed()
+		/*
+		SUMMARY: Moves the curtain to the closed position (until the closed endstop is reached) and counts the number of
+		         steps to get there.
+		RETURNS: Returns the number of steps taken to get to the closed position.
+		*/
 		{
-			bool (*function)() = function_for_side(!Global::event.state());
-			uint32_t steps = move_and_count_to_position_or_end(function);
-
-			Global::curtain.length(steps);
-			Global::curtain.percentage(100 * Hardware::is_open() * OPEN_ENDSTOP);
-		}
-
-
-		// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
-		// Moves to an end until sensor is tripped, counting steps along the way.
-		// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
-		// Does two pulses every iteration until sensor is tripped, summing up pulses as it goes.
-		// Returns number of steps taken to reach point.
-		uint32_t move_and_count_to_position_or_end(bool(*state_function)())
-		{
+			Hardware::set_direction(CLOSED);
 			Hardware::enable_motor();
-
-			register uint32_t steps;
-			for(steps = 0; !state_function() && steps < Hardware::STEP_MASK; steps++)
+			uint32_t steps_not_taken;
+			for(steps_not_taken = 0xFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
-			return steps;
+			return 0xFFFFFFFF - steps_not_taken;
 		}
 
 
-		// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
-		// Checks whether an endstop has been reached after taking each step.
-		// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
-		// Does two pulses every iteration until all steps take or sensor is tripped.
-		// Returns remaining steps.
-		uint32_t move_and_count_down_or_until_end(register uint32_t remaining_steps, bool (*state_function)())
-		{
-			Hardware::enable_motor();
-
-			// Make number of steps an even amount to match movement loop (prevent overflow)
-			for(remaining_steps = steps()&Hardware::STEP_MASK; !state_function() && remaining_steps; remaining_steps--)
-			{
-				Hardware::pulse();
-			}
-
-			Hardware::disable_motor();
-			return remaining_steps;
-		}
-
-
-		// Checks whether an endstop has been reached after taking each step.
-		// Takes number of steps, a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
-		// Does two pulses every iteration until all steps take or sensor is tripped.
-		// Returns remaining steps.
-		uint32_t move_and_count_down_or_until_end(register uint32_t steps, CurtainState direction)
-		{
-			bool (*state_function)() = function_for_side(direction);
-			return move_and_count_down_or_until_end(steps, state_function);
-		}
-
-
-		inline void move_discretely()
-		{
-			CurtainState direction = Global::event.direction();
-			Hardware::set_direction(direction);
-
-			uint32_t movement_steps = steps();
-			register uint32_t remaining_steps = move_and_count_down_or_until_end(movement_steps, direction);
-			// The only way there are any steps remaining is if an endstop is triggered.
-			if(remaining_steps > Config::Curtain::POSITION_TOLLERANCE)
-			{
-				//TODO: Create a new event
-				// Because curtain open position is at the length of the curtain, the position will be 1 * length * the
-				//  existance of OPEN_ENDSTOP (to take into account even if the pin mistakenly reads high). If the
-				//  curtain is not open, then it is closed, because a endstop would have to be triggered to be here (or
-				//  all steps would be consumed). 
-				Global::curtain.position(Global::curtain.length() * Hardware::is_open() * OPEN_ENDSTOP);
-				if(Global::curtain.auto_correct())
-				{
-					::Movement::Unsecure::step();  //TODO: Make a move_ function
-					Global::curtain.percentage(Global::event.percentage());  // call it good enough
-				}
-			}
-			else
-			{
-				Global::curtain.percentage(Global::event.percentage());  // alleged success
-			}
-		}
-
-
-		// For functionality, see: Movement::move_until_state_reached(.).
-		// Takes movement direction flag option (that is then XOR-ed).
-		inline void move_until_closed()
+		inline bool move_towards_closed(register uint32_t remaining_steps)
+		/*
+		SUMMARY: Moves the curtain towards the closed position and checks whether the endstop has been triggered.
+		PARAMS:  The number of steps to move.
+		DETAILS: Moves towards closed, counting each step. If the close endstop has been triggered, curtain will stop
+		         moving.
+		RETURNS: Whether the curtain was able to move to its desired position.
+		*/
 		{
 			Hardware::set_direction(CLOSE);
-			move_until_state_reached(Hardware::is_closed);
-			Global::curtain.percentage(0);
-		}
-
-
-		// For functionality, see: move_until_state_reached(.).
-		// Takes movement direction flag option (that is then XOR-ed).
-		inline void move_until_open()
-		{
-			Hardware::set_direction(OPEN);
-			move_until_state_reached(Hardware::is_open);
-			Global::curtain.percentage(100);
-		}
-
-		// DESTRUCTIVE IF USED INCORRECTLY (IE WRONG END STOP FUNCTION: is_open/is_closed).
-		// Moves to an end until sensor is tripped.
-		// Takes a function pointer (is_open/is_closed) used to determine whether the sensor is tripped.
-		// Does two pulses every iteration until sensor is tripped.
-		inline void move_until_state_reached(bool(*state_function)())
-		{
 			Hardware::enable_motor();
 
-			while(!state_function())
+			for(; 0 < remaining_steps && !Hardware::is_closed(); remaining_steps--)
+			{
+				Hardware::pulse();
+			}
+
+			Hardware::disable_motor();
+			return remaining_steps == 0;
+		}
+
+
+		inline void move_until_closed()
+		/*
+		SUMMARY: Moves the curtain until the close endstop is triggered.
+		*/
+		{
+			Hardware::set_direction(CLOSE);
+			Hardware::enable_motor();
+
+			for(uint32_t x = 0xFFFFFFFF; 0 < x && !Hardware::is_closed(); x--)
 			{
 				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
 		}
-
 	}  // end namespace Movement::StateGuarded
 
 
@@ -341,18 +177,20 @@ namespace Movement
 		// ——————————————————————————————————————————————— MOVEMENT::STEP ——————————————————————————————————————————————— //
 		// Step implies a reliant on the counting of steps to know position & is unguarded by hardware.
 
-		inline void step()
+		inline void step(register uint32_t steps)
+		/*
+		SUMMARY: Steps the curtain a provided number of steps.
+		PARAMS:  Takes the number of steps to move.
+		*/
 		{
-			Hardware::set_direction(Global::event.direction());
 			Hardware::enable_motor();
 
 			// make number of steps an even amount to match movement loop (prevent overflow)
-			for(register uint32_t remaining_steps = steps() & Hardware::STEP_MASK; remaining_steps; remaining_steps--)
+			for(; steps != 0; steps--)
 			{
 				Hardware::pulse();
 			}
 
-			Global::curtain.percentage(Global::event.percentage());
 			Hardware::disable_motor();
 		}
 	}  // end namespace Movement::Unsecure

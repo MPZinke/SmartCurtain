@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -14,9 +14,65 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from SmartCurtain.Curtain import Curtain as Curtain;
-from SmartCurtain.CurtainEvent import CurtainEvent as CurtainEvent;
-from SmartCurtain.CurtainOption import CurtainOption as CurtainOption;
-from SmartCurtain.Option import Option as Option;
+import json
+from typing import Optional
 
-from SmartCurtain.SmartCurtain import SmartCurtain;
+
+from SmartCurtain.Option import Option
+from SmartCurtain.Area import Area
+from SmartCurtain.AreaEvent import AreaEvent
+from SmartCurtain.AreaOption import AreaOption
+from SmartCurtain.Curtain import Curtain
+from SmartCurtain.Room import Room
+from SmartCurtain.Home import Home
+
+
+from Utility import LookupStruct
+
+
+class SmartCurtain:
+	def __init__(self):
+		self._Homes: list[Home] = Home.current()
+		self._Options: list[Option] = Option.all()
+
+
+	# ——————————————————————————————————————————————— GETTERS/SETTERS  ——————————————————————————————————————————————— #
+
+	def __iter__(self) -> dict:
+		yield from {
+			"Homes": [dict(home) for home in self._Homes],
+			"Options": [dict(option) for option in self._Options]
+		}.items()
+
+
+	def __str__(self) -> str:
+		return json.dumps(dict(self), default=str)
+
+
+
+	def __getitem__(self, Home_id: int|str) -> Optional[Home]|LookupStruct[Room, Curtain]:
+		"""
+		RETURNS: If an int is supplied, the home with a matching ID is returned or none. If "-" is supplied, a...
+		"""
+		return LookupStruct[Home, Room, Curtain](self._Homes)[Home_id]
+
+
+	def Homes(self) -> list[Home]:
+		return self._Homes.copy()
+
+
+	def Room(self, Room_id: int) -> Optional[Room]:
+		for home in self._Homes:
+			if((room := home[Room_id]) is not None):
+				return room
+
+		return None
+
+
+	def Curtain(self, Curtain_id: int) -> Optional[Curtain]:
+		for home in self._Homes:
+			for room in home.Rooms():
+				if((curtain := room[Curtain_id]) is not None):
+					return curtain
+
+		return None

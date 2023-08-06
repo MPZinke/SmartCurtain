@@ -11,10 +11,17 @@
 ***********************************************************************************************************************/
 
 
+#include <Arduino.h>
 #include <ArduinoJson.h>
 
 
 #include "Movement.hpp"
+
+
+namespace DeserializedJSON
+{
+	class DeserializedJSON;
+}
 
 
 namespace Event
@@ -25,31 +32,24 @@ namespace Event
 	class Event
 	{
 		private:
-			uint32_t _id;
-			bool _is_finished = false;
 			uint8_t _percentage;
 
 		public:
-			Event(JsonObject& event_object);
-			Event(uint32_t id, uint8_t percentage, bool is_finished=false);
+			Event(DeserializedJSON::DeserializedJSON& event_json);
 
 			operator String();
 
-			// ———— GETTERS ———— //
-			uint32_t id();
-			bool is_finished();
+			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
 
-			// ———— SETTERS ———— //
-			void is_finished(bool new_is_finished);
-
-			// ———— MOVEMENT ———— //
+			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards
 			bool event_moves_to_an_end();
-			bool moves_full_span();  // Whether the event causes the curtain to move full span
 			CurtainState state();  // The final state of the curtain
-
-			// ———— OTHER ———— //
-			void append_to(JsonObject& json_object);
+			uint32_t steps();
 	};
+
+
+	inline String invalid_key_message(const char* key, const char* type_str);
+	bool validate(DeserializedJSON::DeserializedJSON& event_json);
 }

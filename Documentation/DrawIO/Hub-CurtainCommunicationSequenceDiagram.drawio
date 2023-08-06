@@ -1,0 +1,109 @@
+<mxfile host="Electron" modified="2023-05-01T20:47:58.589Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.1.2 Chrome/106.0.5249.199 Electron/21.4.3 Safari/537.36" etag="lSIBQ6nYXvDH5PMoC9kG" version="21.1.2" type="device">
+  <diagram name="Page-1" id="HyqRfFvvH0HVffcgjbjg">
+    <mxGraphModel dx="2874" dy="878" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3WIzue396VuWa2IyJ7cl-15" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="560" y="400" width="360" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-18" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="810" y="280" width="20" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-1" value="User" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="280" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-2" value="Hub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="520" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-3" value="Curtain" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="760" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-4" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" target="3WIzue396VuWa2IyJ7cl-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="680" as="sourcePoint" />
+            <mxPoint x="720" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-5" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="580" y="680" as="sourcePoint" />
+            <mxPoint x="579.5" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-6" value="" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="680" as="sourcePoint" />
+            <mxPoint x="819.5" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-7" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="260" as="sourcePoint" />
+            <mxPoint x="580" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-8" value="User creates an event" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="390" y="230" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-9" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="580" y="300" as="sourcePoint" />
+            <mxPoint x="820" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-10" value="Hub publishes event to move topic" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="595" y="270" width="210" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-11" value="TOPICS:&lt;br&gt;SmartCurtain/all/move&lt;br&gt;SmartCurtain/{Homes.id}/move&lt;br&gt;SmartCurtain/-/{Rooms.id}/move&lt;br&gt;SmartCurtain/-/-/{Curtains.id}/move" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="595" y="290" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-12" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="600" as="sourcePoint" />
+            <mxPoint x="580" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-13" value="Curtain publishes state to update topic" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="585" y="570" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-14" value="TOPICS:&lt;br&gt;SmartCurtain/hub/update" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="620" y="600" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-16" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="439" as="sourcePoint" />
+            <mxPoint x="580" y="439" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-17" value="TOPICS:&lt;br&gt;SmartCurtain/hub/error" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="625" y="439" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-20" value="Curtain publishes error to error topic" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="585" y="409" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-24" value="" style="curved=1;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="520" as="sourcePoint" />
+            <mxPoint x="820" y="560" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="870" y="520" />
+              <mxPoint x="870" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-25" value="Curtain moves&lt;br&gt;to position" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="3WIzue396VuWa2IyJ7cl-24" vertex="1" connectable="0">
+          <mxGeometry x="0.0009" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3WIzue396VuWa2IyJ7cl-26" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;exitX=-0.001;exitY=0.384;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.385;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="3WIzue396VuWa2IyJ7cl-15" target="3WIzue396VuWa2IyJ7cl-15" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="380" y="490" as="sourcePoint" />
+            <mxPoint x="820" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

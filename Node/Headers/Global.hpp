@@ -17,11 +17,8 @@
 ***********************************************************************************************************************/
 
 
-#include <WiFiClient.h>
-#include <WiFiServer.h>
 
-
-#include "Config.hpp"
+#include <ArduinoMqttClient.h>
 
 
 namespace Curtain
@@ -30,16 +27,13 @@ namespace Curtain
 }
 
 
-namespace Event
-{
-	class Event;
-}
-
-
-namespace Exceptions
+namespace Exception
 {
 	class Exception;
 }
+
+
+class WiFiClient;
 
 
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //
@@ -47,13 +41,10 @@ namespace Exceptions
 namespace Global
 {
 	extern Curtain::Curtain curtain;
-	extern Event::Event event;
 
-	extern WiFiServer server;
-	extern WiFiClient client;
-	extern IPAddress client_IP;
-	extern uint16_t client_port;
+	extern WiFiClient wifi_client;
+	extern MqttClient mqtt_client;
 
-	extern Exceptions::Exception* exception;
+	extern Exception::Exception* exception;
 } // end namespace Global
 

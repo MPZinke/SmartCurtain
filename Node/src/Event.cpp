@@ -14,162 +14,145 @@
 
 #include "../Headers/Event.hpp"
 
+
 #include "../Headers/Global.hpp"
 
 #include "../Headers/Curtain.hpp"
-#include "../Headers/Exceptions.hpp"
-#include "../Headers/Movement.hpp"
+#include "../Headers/DeserializedJSON.hpp"
+#include "../Headers/Exception.hpp"
 #include "../Headers/Message.hpp"
-
-
-using namespace Exceptions;
 
 
 namespace Event
 {
-	using namespace Movement::CurtainStates;
+	using namespace Curtain::CurtainStates;
 
 
-	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
+	inline String invalid_key_message(const char* key, const char* type_str)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
+	{
+		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
+	}
 
-	Event::Event(JsonObject& event_object)
+
+	bool validate(DeserializedJSON::DeserializedJSON& event_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		using namespace Message::Literal::JSON::Key;
 
-		if(!event_object.containsKey(EVENT_ID))
+		// Validate structure
+		if(event_json.containsKey(PERCENTAGE) && !event_json[PERCENTAGE].is<int>())
 		{
-			String error_message = String("Key value \"") + EVENT + "\" is missing key: \"" + EVENT_ID + "\"";
-			new BAD_REQUEST_400_Exception(__LINE__, __FILE__, error_message);
-			return;
+			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(PERCENTAGE, "int"));
+			return false;
 		}
 
-		_id = event_object[EVENT_ID];
-
-		// Set percentage based on functioning percentage since Events are consumed immediately.
-		register uint8_t event_percentage = event_object[EVENT_PERCENTAGE];
-		if(!event_percentage)
-		{
-			_percentage = 0;
-		}
-		else if(!Global::curtain.discrete_movement() || event_percentage > 100)
-		{
-			_percentage = 100;
-		}
-		else
-		{
-			_percentage = event_percentage;
-		}
+		return true;
 	}
 
+	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
-	Event::Event(register uint32_t id, register uint8_t percentage, bool is_finished/*=false*/)
+
+	Event::Event(DeserializedJSON::DeserializedJSON& event_json)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
-		_id = id;
+		using namespace Message::Literal::JSON::Key;
 
-		// Set percentage based on functioning percentage since Events are consumed immediately.
-		if(!percentage)
-		{
-			_percentage = 0;
-		}
-		else if(!Global::curtain.discrete_movement())
-		{
-			_percentage = 100;
-		}
-		else
-		{
-			_percentage = percentage;
-		}
-	}
-
-
-	// FREE ME WHEN DONE
-	// SUMMARY: Creates a malloced char array the size of the serialized json and writes it.
-	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
-	//  Mallocs char* array for c_string. Serializes data to c_string.
-	Event::operator String()
-	{
-		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
-		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		JsonObject event_object = json_document.to<JsonObject>();
-
-		event_object[JSON::Key::EVENT_ID] = _id;
-		event_object[JSON::Key::EVENT_IS_FINISHED] = _is_finished;
-		event_object[JSON::Key::EVENT_PERCENTAGE] = _percentage;
-
-		return Message::convert_JsonObject_to_String(event_object);
+		_percentage = event_json[PERCENTAGE];
 	}
 
 
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
 
-	uint32_t Event::id()
-	{
-		return _id;
-	}
-
-
-	bool Event::is_finished()
-	{
-		return _is_finished;
-	}
-
-
 	uint8_t Event::percentage()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _percentage;
+	}
+
+	// ——————————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————————— //
+
+	// SUMMARY: Creates a String JSON for the Event.
+	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
+	//  Mallocs char* array for c_string. Serializes data to c_string.
+	Event::operator String()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
+	{
+		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
+		JsonObject event_object = json_document.to<JsonObject>();
+
+		event_object[Message::Literal::JSON::Key::PERCENTAGE] = _percentage;
+
+		return Message::convert_JsonObject_to_String(event_object);
 	}
 
 
 	// —————————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————————— //
 
 	CurtainState Event::direction()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		if(_percentage < Global::curtain.percentage()) return CLOSE;
-		else if(Global::curtain.percentage() < _percentage) return OPEN;
-		return MIDDLE;
+		return OPEN;
 	}
 
 
 	bool Event::event_moves_to_an_end()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return _percentage == 0 || _percentage == 100;
 	}
 
 
-	// Determines whether the curtain moves all the way across the rod (open to close) for desired position.
-	// Get the state of the curtain based of GPIO.  Compares with the state of the desired position.
-	// Returns true if curtain moves all the way across rod, false otherwise.
-	bool Event::moves_full_span()
+	uint32_t Event::steps()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
-		CurtainState curtian_state = Global::curtain.state();
-		// parens not needed (precedence) but used to remove warnings
-		return (curtian_state == CLOSED && _percentage == 100) || (curtian_state == OPEN && _percentage == 0);
-	}
+		uint8_t percentage_delta = Global::curtain.percentage() - _percentage;
+		if(percentage_delta < 0)
+		{
+			percentage_delta *= -1;
+		}
 
-
-	// SUGAR: whether desired position is open/close/middle.
-	CurtainState Event::state()
-	{
-		return Movement::state_of(_percentage);
-	}
-
-
-	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
-
-	void Event::is_finished(bool new_is_finished)
-	{
-		_is_finished = new_is_finished;
-	}
-
-
-	// ——————————————————————————————————————————————————— OTHER ——————————————————————————————————————————————————— //
-
-	void Event::append_to(JsonObject& json_object)
-	{
-		using namespace Message::Literal;  // not entire namespace to help show where the below values are from
-
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_ID] = _id;
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_IS_FINISHED] = _is_finished;
-		json_object[JSON::Key::EVENT][JSON::Key::EVENT_PERCENTAGE] = _percentage;
+		return percentage_delta * Global::curtain._length / 100;
 	}
 }  // end namespace Event

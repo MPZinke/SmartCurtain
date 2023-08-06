@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -12,3 +12,5 @@ __author__ = "MPZinke"
 #   FUTURE:                                                                                                            #
 #                                                                                                                      #
 ########################################################################################################################
+
+import SmartCurtain

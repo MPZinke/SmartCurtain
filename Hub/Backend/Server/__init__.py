@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -14,5 +14,5 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from Server.Route import Route;
+from Server import Routes;
 from Server.Server import Server;

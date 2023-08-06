@@ -40,35 +40,47 @@ namespace Hardware
 
 	namespace CurtainStates
 	{
-		const uint8_t UNKNOWN = -2;  // technically 0xFE
-		const uint8_t MIDDLE = -1;  // technically 0xFF
 		const uint8_t CLOSE = (uint8_t)CurrentPull::CLOSE;
 		const uint8_t CLOSED = CLOSE;  // alias for sugar
 		const uint8_t OPEN = (uint8_t)CurrentPull::OPEN;
 	}
 
 
-	// Mask used to make pulsing smooth (no int overflow, timeout, etc)
-	const uint32_t STEP_MASK = 0x7FFFE;  // 0x7FFFE (524286) [steps] @ 60 [µS/step] = 31.45716 [S].
-
-
 	using namespace CurtainStates;  // used CurtainStates as enum
 
 
 	void disable_motor()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(ENABLE_PIN, CurrentPull::ON);
 	}
 
 
 	void enable_motor()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(ENABLE_PIN, CurrentPull::OFF);
 	}
 
 
-	// Pulse motor (HIGH->LOW) twice.
+	// Pulse motor (HIGH->LOW).
 	void pulse()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		digitalWrite(PULSE_PIN, HIGH);
 		delayMicroseconds(PULSE_WAIT);
@@ -80,6 +92,12 @@ namespace Hardware
 	// Sets the direction pin of the motor for the stepper driver.
 	// Take the ON/OFF dirction current, the curtain's direction option. 
 	void set_direction(CurtainState direction)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		// Curtain direction can overflow 0th bit to act as a switch. 
 		digitalWrite(DIRECTION_PIN, ((direction + Global::curtain.direction()) & 0b1));
@@ -89,31 +107,45 @@ namespace Hardware
 	// ————————————————————————————————————————————————— GPIO::READ ————————————————————————————————————————————————— //
 
 	bool endstop_triggered()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
-		return is_closed() == CurrentPull::ON || is_open() == CurrentPull::ON;
+		return is_closed() == CurrentPull::ON;
 	}
 
 
 	bool is_closed()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
 		return digitalRead(CLOSE_PIN) == CurrentPull::ON;
-	}
-
-
-	bool is_open()
-	{
-		return digitalRead(OPEN_PIN) == CurrentPull::ON;
 	}
 
 
 	// —————————————————————————————————————————————— POSITION::STATE  —————————————————————————————————————————————— //
 
 	// Gets the state (in form CurtainState) of the curtain based on hardware.
-	CurtainState current_hardware_state()
+	CurtainState state()
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
 	{
-		if(OPEN_ENDSTOP && is_open()) return OPEN;
-		else if(CLOSE_ENDSTOP && is_closed()) return CLOSE;
-		else if(BOTH_ENDSTOPS) return MIDDLE;
-		else return UNKNOWN;
+		if(is_closed())
+		{
+			return CLOSED;
+		}
+
+		return OPEN;
 	}
 }  // end namespace Hardware

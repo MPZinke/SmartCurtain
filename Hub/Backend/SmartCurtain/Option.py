@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
@@ -14,25 +14,98 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from SmartCurtain.DB import AttributeType, DBClass;
+from typing import Optional, TypeVar
 
 
-class Option(DBClass):
-	ATTRIBUTE_TYPES =	[
-							AttributeType("_id", int),
-							AttributeType("_name", str),
-							AttributeType("_description", str),
-							AttributeType("_is_current", int)
-						];
+from SmartCurtain.DB import DBFunctions
 
 
-	def __init__(self, **option_info):
-		DBClass.__init__(self, "UPDATE_Option", **option_info);
-
-		self.validate();
+Option = TypeVar("Option")
 
 
-	# ———————————————————————————————————————————————— GETTERS/SETTERS ————————————————————————————————————————————————
+class Option:
+	def __init__(self, *, id: int, description: str, is_deleted: bool, name: str):
+		self._id: int = id
+		self._description: str = description
+		self._is_deleted: bool = is_deleted
+		self._name: str = name
 
-	def id(self) -> int:
-		return self._id;
+
+	def __eq__(self, right: int|str) -> bool:
+		if(isinstance(right, str)):
+			return self._name == right
+		elif(isinstance(right, int)):
+			return self._id == right
+
+		raise NotImplemented
+
+
+	@staticmethod
+	def all() -> list[Option]:
+		return [Option(**option_data) for option_data in DBFunctions.SELECT_Options()]
+
+
+	# —————————————————————————————————————————————— GETTERS & SETTERS  —————————————————————————————————————————————— #
+	# ———————————————————————————————————————————————————————————————————————————————————————————————————————————————— #
+
+
+	def __iter__(self) -> dict:
+		yield from {
+			"id": self._id,
+			"description,": self._description,
+			"is_deleted": self._is_deleted,
+			"name": self._name
+		}.items()
+
+
+	def __repr__(self) -> str:
+		return str(self)
+
+
+	def __str__(self) -> str:
+		return json.dumps(dict(self), default=str)
+
+
+	# ———————————————————————————————————————— GETTERS & SETTERS::ATTRIBUTES  ———————————————————————————————————————— #
+
+	def id(self):
+		return self._id
+
+
+	def description(self, new_description: Optional[int]=None) -> Optional[int]:
+		if(new_description is None):
+			return self._description
+
+		if(not isinstance(new_description, int)):
+			value_type_str = type(new_description).__name__
+			raise Exception(f"'Home::description' must be of type '{int.__name__}' not '{value_type_str}'")
+
+		self._description = new_description
+
+
+	def is_deleted(self, new_is_deleted: Optional[int]=None) -> Optional[int]:
+		if(new_is_deleted is None):
+			return self._is_deleted
+
+		if(not isinstance(new_is_deleted, int)):
+			value_type_str = type(new_is_deleted).__name__
+			raise Exception(f"'Home::is_deleted' must be of type '{int.__name__}' not '{value_type_str}'")
+
+		self._is_deleted = new_is_deleted
+
+
+	def name(self, new_name: Optional[int]=None) -> Optional[int]:
+		if(new_name is None):
+			return self._name
+
+		if(not isinstance(new_name, int)):
+			value_type_str = type(new_name).__name__
+			raise Exception(f"'Home::name' must be of type '{int.__name__}' not '{value_type_str}'")
+
+		self._name = new_name
+
+
+	def Rooms(self):
+		return self._Rooms
+
+

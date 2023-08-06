@@ -11,6 +11,7 @@
 ***********************************************************************************************************************/
 
 
+
 #include <stdint.h>
 
 
@@ -32,15 +33,10 @@ namespace Hardware
 
 	namespace CurtainStates
 	{
-		extern const CurtainState UNKNOWN;
-		extern const CurtainState MIDDLE;
 		extern const CurtainState CLOSE;
 		extern const CurtainState CLOSED;  // alias of CLOSE for sugar
 		extern const CurtainState OPEN;
 	}
-
-
-	extern const uint32_t STEP_MASK;
 
 
 	void disable_motor();
@@ -49,6 +45,5 @@ namespace Hardware
 	void set_direction(CurtainState direction);
 	bool endstop_triggered();
 	bool is_closed();
-	bool is_open();
-	CurtainState current_hardware_state();
+	CurtainState state();
 }  // end namespace Hardware
