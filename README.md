@@ -120,3 +120,11 @@ edited by: MPZinke on 2023.05.03 to use MQTT.
 - TB6600 16x Micro stepping equates to ~80 steps/mm (I measured it to be ~80.5 steps/mm)
 - [Example for AMT10](https://hackaday.io/project/9914-open-robotics-eurobot/log/34812-amt10-encoder-setup)
 - [Example for Dual Core Arduino](https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/)
+
+
+<!-- 
+- Add reset function
+- Add event creation functions
+- Redo endpoints (again)
+- Repeated Events
+-->
