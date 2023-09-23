@@ -1,0 +1,9 @@
+[submodule "Frontend"]
+	path = Frontend
+	url = git@github.com:MPZinke/SmartCurtain-Frontend.git
+[submodule "Backend"]
+	path = Backend
+	url = git@github.com:MPZinke/SmartCurtain-Backend.git
+[submodule "Curtain"]
+	path = Curtain
+	url = git@github.com:MPZinke/SmartCurtain-Curtain.git
