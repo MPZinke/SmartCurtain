@@ -1,11 +1,11 @@
-#!/opt/homebrew/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = "MPZinke"
 
 ########################################################################################################################
 #                                                                                                                      #
 #   created by: MPZinke                                                                                                #
-#   on 2023.05.11                                                                                                      #
+#   on 2020.12.23                                                                                                      #
 #                                                                                                                      #
 #   DESCRIPTION:                                                                                                       #
 #   BUGS:                                                                                                              #
@@ -14,21 +14,19 @@ __author__ = "MPZinke"
 ########################################################################################################################
 
 
-from flask import Response
-import json
-from mpzinke import Server
+import asyncio
+from flask import render_template, session
+import httpx
 
 
-from Server.Routes import homes
-from Server.Routes import rooms
-from Server.Routes import curtains
-from SmartCurtain import SmartCurtain
+# —————————————————————————————————————————————————————— ROUTES —————————————————————————————————————————————————————— #
+
+async def GET():
+	async with httpx.AsyncClient() as client:
+		homes = (await client.get("http://localhost:8001/homes")).json()
+		print(homes)
+	return render_template("Index.j2", homes=homes, path="")
 
 
-# `GET /`
-def GET(server: Server) -> str:
-	"""
-	Lists all all backend endpoints.
-	"""
-	# Uses `json.dumps` to keep order
-	return Response(json.dumps(dict(server)), mimetype="application/json")
+def favicon():
+	return ""
