@@ -4,3 +4,6 @@
 [submodule "Curtain"]
 	path = Curtain
 	url = git@github.com:MPZinke/SmartCurtain-Curtain.git
+[submodule "Frontend"]
+	path = Frontend
+	url = git@github.com:MPZinke/SmartCurtain-Frontend.git
