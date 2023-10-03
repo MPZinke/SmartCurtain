@@ -18,9 +18,9 @@ import json
 import threading
 
 
-import Global
-import Event
-import Movement
+from . import Global
+from . import Event
+from . import Movement
 
 
 def process_message(message_size: int) -> None:

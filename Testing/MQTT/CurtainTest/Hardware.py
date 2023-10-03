@@ -17,7 +17,7 @@ __author__ = "MPZinke"
 import time
 
 
-import HardwareGlobal
+from . import HardwareGlobal
 
 
 CLOSE = False

@@ -70,7 +70,7 @@ class Curtain:
 		return self._room
 
 
-	def auto_correct(self, new_auto_correct: Optional[bool]) -> Optional[bool]:
+	def auto_correct(self, new_auto_correct: Optional[bool]=None) -> Optional[bool]:
 		if(new_auto_correct is None):
 			return self._auto_correct
 
@@ -106,7 +106,7 @@ class Curtain:
 
 
 	def __iadd__(self, request: dict):
-		import Global
+		from . import Global
 
 		if(self._home != request["Home.id"]):
 			if(self._home != 0):

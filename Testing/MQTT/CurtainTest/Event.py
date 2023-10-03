@@ -3,8 +3,8 @@
 from typing import Optional
 
 
-import Global
-from Hardware import CLOSE, OPEN
+from . import Global
+from .Hardware import CLOSE, OPEN
 
 
 class Event:

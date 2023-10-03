@@ -27,7 +27,7 @@ class MQTTClient(mqtt.Client):
 
 
 	def on_connect(self, client, userdata, flags, result_code) -> None:
-		import Global
+		from . import Global
 
 		print(f"Connected with result code {str(result_code)}")
 		self.subscribe("SmartCurtain/all/move")
@@ -48,5 +48,5 @@ class MQTTClient(mqtt.Client):
 
 		print("DEBUG", message.payload)
 
-		import Control
+		from . import Control
 		Control.process_message(len(message.payload))

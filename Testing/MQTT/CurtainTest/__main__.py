@@ -19,8 +19,7 @@ import sys
 from time import sleep
 
 
-import Global
-import Control
+from . import Control
 
 
 

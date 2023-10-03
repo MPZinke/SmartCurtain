@@ -17,8 +17,8 @@ __author__ = "MPZinke"
 import sys
 
 
-import Curtain
-import MQTT
+from . import Curtain
+from . import MQTT
 
 
 client = MQTT.MQTTClient()

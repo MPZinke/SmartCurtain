@@ -3,10 +3,10 @@
 from typing import TypeVar
 
 
-import Global
-from Hardware import CLOSE, OPEN
-import Hardware
-import Message
+from . import Global
+from .Hardware import CLOSE, OPEN
+from . import Hardware
+from . import Message
 
 
 Event = TypeVar("Event")
@@ -27,7 +27,7 @@ def move(event: Event) -> None:
 				else:
 					Global.curtain.update()
 					Hardware.set_direction(OPEN)
-					step(event.steps())
+					Unsecure.step(event.steps())
 		else:
 			Hardware.set_direction(event.direction())
 			Unsecure.step(event.steps())
