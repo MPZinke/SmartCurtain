@@ -33,13 +33,13 @@ def disable_motor():
 
 
 def is_closed():
-	import Global
+	from . import Global
 
 	return Global.curtain._virtual_physical_position == 0
 
 
 def pulse():
-	import Global
+	from . import Global
 
 	if(HardwareGlobal.MOTOR_ENABLED == False):
 		raise Exception("Motor is disabled")

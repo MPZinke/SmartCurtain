@@ -46,7 +46,7 @@ class MQTTClient(mqtt.Client):
 		self._Global_client_message = message.payload
 		self._Global_client_topic = message.topic
 
-		print("DEBUG", message.payload)
+		print(f"DEBUG[{message.topic}]", message.payload)
 
 		from . import Control
 		Control.process_message(len(message.payload))
