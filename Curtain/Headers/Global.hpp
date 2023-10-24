@@ -19,6 +19,7 @@
 
 
 #include <ArduinoMqttClient.h>
+#include <WiFiClient.h>
 
 
 namespace Curtain
@@ -31,9 +32,6 @@ namespace Exception
 {
 	class Exception;
 }
-
-
-class WiFiClient;
 
 
 // ——————————————————————————————————————————————————— NAMESPACED ——————————————————————————————————————————————————— //

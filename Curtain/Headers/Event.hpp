@@ -42,6 +42,9 @@ namespace Event
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
 
+			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
+			void percentage(uint8_t percentage);
+
 			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards
 			bool event_moves_to_an_end();

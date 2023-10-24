@@ -23,6 +23,7 @@
 
 
 #include <ArduinoJson.h>
+#include <EEPROM.h>
 #include <esp_wifi.h>
 #include <soc/rtc_wdt.h>
 #include <SPI.h>
@@ -41,6 +42,80 @@
 #include "Headers/Movement.hpp"
 
 
+void setup_wifi_credentials()
+{
+	char* SSID = (char*)Config::Network::WiFi::SSID;
+	for(uint8_t x = 0, character = EEPROM.read(x); x < 32 && character != '\0'; x++, character = EEPROM.read(x))
+	{
+		SSID[x] = character;
+		SSID[x+1] = '\0';
+	}
+
+	char* PASSWORD = (char*)Config::Network::WiFi::PASSWORD;
+	for(uint8_t x = 32, character = EEPROM.read(x); x < 64 && character != '\0'; x++, character = EEPROM.read(x))
+	{
+		PASSWORD[x] = character;
+		PASSWORD[x+1] = '\0';
+	}
+}
+
+
+bool setup_wifi()
+{
+	setup_wifi_credentials();
+	if(Config::Network::WiFi::SSID[0] == '\0')
+	{
+		return false;
+	}
+
+	WiFi.mode(WIFI_STA);
+	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::MAC_ADDRESS);
+
+	WiFi.begin(Config::Network::WiFi::SSID, Config::Network::WiFi::PASSWORD);
+	for(uint8_t x = 0; x < 30; x++)
+	{
+		if(WiFi.status() == WL_CONNECTED)
+		{
+			return true;
+		}
+
+		delay(500);
+	}
+
+	return false;
+}
+
+
+void setup_mqtt_credentials()
+{
+
+}
+
+
+bool setup_mqtt()
+{
+	for(uint8_t x = 0; x < 30; x++)
+	{
+		if(Global::mqtt_client.connect(Config::Network::MQTT::BROKER_DOMAIN, Config::Network::MQTT::PORT))
+		{
+			using namespace Message::Literal::MQTT;
+			Global::mqtt_client.onMessage(Control::process_message);
+			Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
+			Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
+			Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+MOVE_SUFFIX);
+			Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+STATUS_SUFFIX);
+			Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
+
+			return true;
+		}
+
+		delay(500);
+	}
+
+	return false;
+}
+
+
 void setup()
 {
 	// ———— GPIO SETUP ———— //
@@ -54,33 +129,15 @@ void setup()
 	
 		Hardware::disable_motor();  // don't burn up the motor
 	}
-	
-	// ———— WIFI ———— //
+
+	// ———— NETWORK SETUP ———— //
+	if(!setup_wifi() || !setup_mqtt())
 	{
-		using namespace Config::Network;
-		WiFi.mode(WIFI_STA);
-		esp_wifi_set_mac(WIFI_IF_STA, MAC_ADDRESS);
-		WiFi.begin(SSID, PASSWORD);
-		while(WiFi.status() != WL_CONNECTED)
-		{
-			delay(500);
-		}
+
 	}
-
-	// ———— MQTT ———— //
+	else
 	{
-		while(!Global::mqtt_client.connect(Config::Network::BROKER_DOMAIN, Config::Network::BROKER_PORT))
-		{
-			delay(500);
-		}
-
-		using namespace Message::Literal::MQTT;
-		Global::mqtt_client.onMessage(Control::process_message);
-		Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
-		Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
-		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+MOVE_SUFFIX);
-		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+STATUS_SUFFIX);
-		Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
+		// Server
 	}
 
 	// ———— Threads ———— //

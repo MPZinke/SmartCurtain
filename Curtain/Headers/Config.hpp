@@ -70,15 +70,21 @@ namespace Config
 
 	namespace Network
 	{
-		// MQTT
-		extern const char BROKER_DOMAIN[];
-		extern const uint16_t BROKER_PORT;
+		namespace MQTT
+		{
+			extern const char BROKER_DOMAIN[32];
+			extern const char USERNAME[24];
+			extern const char PASSWORD[24];
+			extern const uint16_t PORT;
+		}
 
 		// Network
 		extern const uint8_t MAC_ADDRESS[];
 
-		// WiFi
-		extern const char PASSWORD[];
-		extern const char SSID[];
+		namespace WiFi
+		{
+			extern const char PASSWORD[32];
+			extern const char SSID[32];
+		}
 	}  // end namespace Config::Network
 }  // end namespace Configure

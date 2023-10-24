@@ -151,4 +151,4 @@ On an update command, the curtain does not update the Hub, as not doing so give 
 
 
 ## Hardware
-![image](../Documentation/Images/Hardware/MQTTStateDiagram.png)
+![image](../Documentation/Images/MQTT/Hardware/MQTTStateDiagram.png)
