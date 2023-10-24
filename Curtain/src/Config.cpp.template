@@ -66,15 +66,24 @@ namespace Config
 
 	namespace Network
 	{
-		// MQTT
-		const char BROKER_DOMAIN[] = "hub";
-		const uint16_t BROKER_PORT = 1883;
+		namespace MQTT
+		{
+			const char BROKER_DOMAIN[] = "";
+			static_assert(sizeof(BROKER_DOMAIN) >= (1+1), "A valid MQTT broker must be specified");
+			const char USERNAME[] = "";
+			const char PASSWORD[] = "";
+			const uint16_t PORT = 1883;
+		}
 
 		// Network
-		uint8_t MAC_ADDRESS[] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
+		const uint8_t MAC_ADDRESS[6] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
 
-		// WiFi
-		const char PASSWORD[] = "";  // WiFi password
-		const char SSID[] = "";  // WiFi name
+		namespace WiFi
+		{
+			const char PASSWORD[] = "";
+			const char SSID[] = "";
+			static_assert(sizeof(PASSWORD) >= (8 + 1), "Valid WiFi PASSWORD's are at least 8 characters.");
+			static_assert(sizeof(SSID) >= (1 + 1), "Valid WiFi SSID's are at least 1 character.");
+		}
 	}  // end namespace Config::Network
 }  // end namespace Configure
