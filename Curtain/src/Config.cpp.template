@@ -18,7 +18,8 @@ namespace Config
 {
 	namespace Curtain
 	{
-		const uint16_t CURTAIN_ID = 1;
+		const char CURTAIN_ID[/* >=(24+1) */] = "1234567890abcdef12345678";  // Size commented to allow static assert
+		static_assert(sizeof(CURTAIN_ID) >= (24+1), "BSON ObjectID's must be exactly 24 characters.");
 
 		const uint32_t IGNORE_MOVEMENT_SIMILARITY = 10;  // max step difference to ignore event
 		const uint32_t POSITION_TOLLERANCE = 5;  // steps within ends to consider "close enough"
@@ -41,10 +42,8 @@ namespace Config
 		// ———————————————————————————————————— HARDWARE DICTATING  VALUES::PINS ———————————————————————————————————— //
 		const uint16_t PULSE_WAIT = 60;  // Wait between pulses for the stepper motor
 
-
 		// ——————————————————————————————————————— HARDWARE DETERMINED VALUES ——————————————————————————————————————— //
 		// —————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
 
 		// ————————————————————————————————————— PHYSICAL HARDWARE BASED VALUES ————————————————————————————————————— //
 		// These are determined by the hardware, as opposed to the hardware functionality being determined by these.  //
@@ -56,32 +55,26 @@ namespace Config
 		const bool SWITCH = true;  // true = LOW is ON or false = HIGH is ON (depends on electronic current directions)
 	}
 
-
-	namespace HTTP
-	{
-		const char AUTHORIZATION_VALUE[] = "";
-		const uint32_t AUTH_VALUE_LENGTH = (sizeof(AUTHORIZATION_VALUE) / sizeof(char)) - 1;
-	}
-
-
 	namespace Network
 	{
 		namespace MQTT
 		{
-			const char BROKER_DOMAIN[] = "";
+			const char BROKER_DOMAIN[/* >=(1+1) */] = "";
 			static_assert(sizeof(BROKER_DOMAIN) >= (1+1), "A valid MQTT broker must be specified");
 			const char USERNAME[] = "";
 			const char PASSWORD[] = "";
 			const uint16_t PORT = 1883;
 		}
 
-		// Network
-		const uint8_t MAC_ADDRESS[6] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
+		namespace Device
+		{
+			const uint8_t MAC_ADDRESS[6] = {0xDE, 0x43, 0x52, 0x54, 0x4E, 0x31};  // {'Z', 'C', 'R', 'T', 'N', '1'}
+		}
 
 		namespace WiFi
 		{
-			const char PASSWORD[] = "";
-			const char SSID[] = "";
+			const char PASSWORD[/* >=(8+1) */] = "";
+			const char SSID[/* >=(1+1) */] = "";
 			static_assert(sizeof(PASSWORD) >= (8 + 1), "Valid WiFi PASSWORD's are at least 8 characters.");
 			static_assert(sizeof(SSID) >= (1 + 1), "Valid WiFi SSID's are at least 1 character.");
 		}

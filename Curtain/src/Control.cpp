@@ -61,15 +61,15 @@ namespace Control
 			new Exception::Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
-		else if(type == Message::Literal::MQTT::MOVE_SUFFIX)
+		else if(type == MOVE_SUFFIX)
 		{
 			case_move(message_size);
 		}
-		else if(type == Message::Literal::MQTT::STATUS_SUFFIX)
+		else if(type == STATUS_SUFFIX)
 		{
 			case_status();
 		}
-		else if(type == Message::Literal::MQTT::UPDATE_SUFFIX)
+		else if(type == UPDATE_SUFFIX)
 		{
 			// Does not update hub to prevent possible ciruclar looping from possible bad programming :)
 			case_update_curtain(message_size);

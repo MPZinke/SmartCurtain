@@ -40,6 +40,7 @@
 #include "Headers/Hardware.hpp"
 #include "Headers/Message.hpp"
 #include "Headers/Movement.hpp"
+#include "Headers/StaticString.hpp"
 
 
 void setup_GPIO()
@@ -57,7 +58,7 @@ void setup_GPIO()
 bool setup_WiFi()
 {
 	WiFi.mode(WIFI_STA);
-	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::MAC_ADDRESS);
+	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::Device::MAC_ADDRESS);
 
 	WiFi.begin(Config::Network::WiFi::SSID, Config::Network::WiFi::PASSWORD);
 	while(WiFi.status() == WL_CONNECTED)
@@ -79,9 +80,13 @@ bool setup_MQTT()
 	Global::mqtt_client.onMessage(Control::process_message);
 	Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
 	Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
-	Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+MOVE_SUFFIX);
-	Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+STATUS_SUFFIX);
-	Global::mqtt_client.subscribe(String(CURTAIN_PATH_PREFIX)+Config::Curtain::CURTAIN_ID+UPDATE_SUFFIX);
+
+	// StaticString::write((char*)CURTAIN_MOVE, Global::curtain.id(), 17);
+	// StaticString::write((char*)CURTAIN_STATUS, Global::curtain.id(), 17);
+	// StaticString::write((char*)CURTAIN_UPDATE, Global::curtain.id(), 17);
+	Global::mqtt_client.subscribe((const char*)CURTAIN_MOVE);
+	Global::mqtt_client.subscribe((const char*)CURTAIN_STATUS);
+	Global::mqtt_client.subscribe((const char*)CURTAIN_UPDATE);
 }
 
 

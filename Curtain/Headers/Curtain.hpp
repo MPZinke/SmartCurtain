@@ -44,9 +44,9 @@ namespace Curtain
 		private:
 			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
-			uint16_t _id = Config::Curtain::CURTAIN_ID;
-			uint16_t _room_id = 0;
-			uint16_t _home_id = 0;
+			const char* _id = Config::Curtain::CURTAIN_ID;
+			const char _room_id[24+1] = "";
+			const char _home_id[24+1] = "";
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;
@@ -64,29 +64,29 @@ namespace Curtain
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
-			uint16_t id();
-			uint16_t room_id();
-			uint16_t home_id();
+			const char* id() const;
+			const char* room_id() const;
+			const char* home_id() const;
 
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
-			bool auto_correct();
+			bool auto_correct() const;
 
 			// ————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————— //
-			uint32_t length();
-			bool direction();
-			bool is_moving();
-			uint32_t percentage();
+			uint32_t length() const;
+			bool direction() const;
+			bool is_moving() const;
+			uint32_t percentage() const;
 
 			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
 			// CurtainState state();
-			operator String();
+			operator String() const;
 
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 			// ————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————— //
-			void room_id(uint16_t new_room_id);
-			void home_id(uint16_t new_home_id);
+			void room_id(const char* new_room_id);
+			void home_id(const char* new_home_id);
 
 			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
 			void direction(bool new_direction);
@@ -102,9 +102,6 @@ namespace Curtain
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 			void operator=(DeserializedJSON::DeserializedJSON& curtain_json);
 	};
-
-
-
 
 	inline String invalid_key_message(const char* key, const char* type_str);
 	bool validate(DeserializedJSON::DeserializedJSON& curtain_json);

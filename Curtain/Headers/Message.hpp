@@ -11,8 +11,22 @@
 ***********************************************************************************************************************/
 
 
+#pragma once
+
 
 #include <ArduinoJson.h>
+
+
+#include "StaticString.hpp"
+
+
+#define HOME_PREFIX "SmartCurtain/000000000000000000000000"
+#define ROOM_PREFIX "SmartCurtain/-/000000000000000000000000"
+#define CURTAIN_PREFIX "SmartCurtain/-/-/000000000000000000000000"
+
+#define MOVE_SUFFIX "/move"
+#define STATUS_SUFFIX "/status"
+#define UPDATE_SUFFIX "/update"
 
 
 namespace DeserializedJSON
@@ -27,15 +41,29 @@ namespace Message
 	{
 		namespace MQTT
 		{
-			extern const char PATH_PREFIX[];
-			extern const char CURTAIN_PATH_PREFIX[];
+		// 	extern const char HOME_MOVE[/* 42+1 */];
+		// 	extern const char HOME_UPDATE[/* 44+1 */];
+
+		// 	extern const char ROOM_MOVE[/* 44+1 */];
+		// 	extern const char ROOM_UPDATE[/* 46+1 */];
+
+		// 	extern const char ALL_CURTAINS_MOVE[];
+		// 	extern const char ALL_CURTAINS_STATUS[];
+		// 	extern const char CURTAIN_MOVE[/* 46+1 */];
+		// 	extern const char CURTAIN_STATUS[/* 48+1 */];
+		// 	extern const char CURTAIN_UPDATE[/* 48+1 */];
+			extern StaticString<sizeof(HOME_PREFIX)+sizeof(MOVE_SUFFIX)-1> HOME_MOVE;
+			extern StaticString<sizeof(HOME_PREFIX)+sizeof(UPDATE_SUFFIX)-1> HOME_UPDATE;
+
+			extern StaticString<sizeof(ROOM_PREFIX)+sizeof(MOVE_SUFFIX)-1> ROOM_MOVE;
+			extern StaticString<sizeof(ROOM_PREFIX)+sizeof(UPDATE_SUFFIX)-1> ROOM_UPDATE;
+
 			extern const char ALL_CURTAINS_MOVE[];
 			extern const char ALL_CURTAINS_STATUS[];
-			extern const char MOVE_SUFFIX[];
-			extern const char STATUS_SUFFIX[];
-			extern const char UPDATE_SUFFIX[];
-			extern const char HUB_UPDATE_TOPIC[];
-			extern const char HUB_ERROR_TOPIC[];
+
+			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(MOVE_SUFFIX)-1> CURTAIN_MOVE;
+			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(STATUS_SUFFIX)-1> CURTAIN_STATUS;
+			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(UPDATE_SUFFIX)-1> CURTAIN_UPDATE;
 		}  // end namespace MQTT
 
 
