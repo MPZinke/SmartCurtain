@@ -192,7 +192,7 @@ namespace Curtain
 
 	// ——————————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————————— //
 
-	Curtain::operator String() const
+	Curtain::operator StaticString<JSON_BUFFER_SIZE>() const
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -211,7 +211,7 @@ namespace Curtain
 		curtain_object[Message::Literal::JSON::Key::PERCENTAGE] = percentage();
 		curtain_object[Message::Literal::JSON::Key::AUTO_CORRECT] = _auto_correct;
 
-		return Message::convert_JsonObject_to_String(curtain_object);
+		return StaticString<JSON_BUFFER_SIZE>(curtain_object);
 	}
 
 

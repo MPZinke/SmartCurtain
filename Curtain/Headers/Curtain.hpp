@@ -30,6 +30,10 @@ namespace Event
 }
 
 
+template<size_t S>
+class StaticString;
+
+
 namespace Curtain
 {
 	using Movement::CurtainState;
@@ -78,8 +82,7 @@ namespace Curtain
 			uint32_t percentage() const;
 
 			// ——————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————— //
-			// CurtainState state();
-			operator String() const;
+			operator StaticString<JSON_BUFFER_SIZE>() const;
 
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //

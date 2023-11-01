@@ -16,6 +16,13 @@
 #include <Arduino.h>
 
 
+#include "Config.hpp"
+
+
+template<size_t S>
+class StaticString;
+
+
 namespace Exception
 {
 	extern void(*reset_function) (void);  // Move the program counter to 0x00
@@ -33,7 +40,7 @@ namespace Exception
 			Exception(uint32_t line, String file, const char* message);
 			~Exception();
 
-			operator String();
+			operator StaticString<JSON_BUFFER_SIZE>();
 
 			uint32_t line();
 			String file();

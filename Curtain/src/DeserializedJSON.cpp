@@ -15,9 +15,12 @@
 #include "../Headers/DeserializedJSON.hpp"
 
 
+#include "../Headers/StaticString.hpp"
+
+
 namespace DeserializedJSON
 {
-	DeserializedJSON::DeserializedJSON(String json)
+	DeserializedJSON::DeserializedJSON(StaticString<JSON_BUFFER_SIZE> json)
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -25,7 +28,7 @@ namespace DeserializedJSON
 	RETURNS: 
 	*/
 	{
-		_ok = !deserializeJson(_document, json);
+		_ok = !deserializeJson(_document, (const char*)json);
 	}
 
 

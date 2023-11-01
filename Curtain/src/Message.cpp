@@ -21,6 +21,7 @@
 #include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Exception.hpp"
+#include "../Headers/StaticString.hpp"
 
 
 using namespace Exception;
@@ -108,7 +109,7 @@ namespace Message
 	RETURNS: Returns the DeserializedJSON that holds the JSON and whether the message is a valid JSON.
 	*/
 	{
-		String message_buffer;
+		StaticString<JSON_BUFFER_SIZE> message_buffer;
 		for(register uint16_t x = 0; x < message_size; x++)
 		{
 			message_buffer += (char)Global::mqtt_client.read();
@@ -128,22 +129,22 @@ namespace Message
 	         topic. Otherwise it converts the curtain to a JSON and posts that to the hub's `.../update` topic.
 	*/
 	{
-		String message;
-		const char* topic;
 		if(Global::exception != NULL)
 		{
-			topic = Message::Literal::MQTT::HUB_ERROR_TOPIC;
-			message = (String)(*Global::exception);
+			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(*Global::exception);
 			delete Global::exception;
+
+			Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_ERROR_TOPIC);
+			Global::mqtt_client.print((const char*)message);
+			Global::mqtt_client.endMessage();
 		}
 		else
 		{
-			topic = Message::Literal::MQTT::HUB_UPDATE_TOPIC;
-			message = (String)(Global::curtain);
-		}
+			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(Global::curtain);
 
-		Global::mqtt_client.beginMessage(topic);
-		Global::mqtt_client.print(message);
-		Global::mqtt_client.endMessage();
+			Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
+			Global::mqtt_client.print((const char*)message);
+			Global::mqtt_client.endMessage();
+		}
 	}
 }

@@ -16,6 +16,7 @@
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
 #include "../Headers/Message.hpp"
+#include "../Headers/StaticString.hpp"
 
 
 namespace Exception
@@ -103,7 +104,7 @@ namespace Exception
 	}
 
 
-	Exception::operator String()
+	Exception::operator StaticString<JSON_BUFFER_SIZE>()
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -118,6 +119,6 @@ namespace Exception
 		error_object["line"] = _line;
 		error_object["file"] = _file;
 
-		return Message::convert_JsonObject_to_String(error_object);
+		return StaticString<JSON_BUFFER_SIZE>(error_object);
 	}
 }

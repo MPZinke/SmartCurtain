@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 
-#define JSON_BUFFER_SIZE 0x400
+#define JSON_BUFFER_SIZE 256  // 226 rounded up
 
 
 namespace Config

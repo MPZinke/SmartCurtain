@@ -18,6 +18,10 @@
 #include "Config.hpp"
 
 
+template<size_t S>
+class StaticString;
+
+
 namespace DeserializedJSON
 {
 	class DeserializedJSON
@@ -27,7 +31,7 @@ namespace DeserializedJSON
 			bool _ok;
 
 		public:
-			DeserializedJSON(String json);
+			DeserializedJSON(StaticString<JSON_BUFFER_SIZE> json);
 			bool ok();
 			StaticJsonDocument<JSON_BUFFER_SIZE> document();
 			JsonVariantConst operator[](int index) const;
