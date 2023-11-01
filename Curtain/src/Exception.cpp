@@ -15,7 +15,7 @@
 
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
-#include "../Headers/Message.hpp"
+#include "../Headers/MQTT.hpp"
 #include "../Headers/StaticString.hpp"
 
 
@@ -25,27 +25,6 @@ namespace Exception
 
 
 	// ————————————————————————————————————————————————— EXCEPTION  ————————————————————————————————————————————————— //
-
-	Exception::Exception(uint32_t line, String file, String message)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		if(Global::exception != NULL)
-		{
-			reset_function();
-		}
-
-		_line = line;
-		_file = file;
-		_message = message;
-
-		Global::exception = this;
-	}
-
 
 	Exception::Exception(uint32_t line, String file, const char* message)
 	/*

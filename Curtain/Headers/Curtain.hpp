@@ -106,6 +106,5 @@ namespace Curtain
 			void operator=(DeserializedJSON::DeserializedJSON& curtain_json);
 	};
 
-	inline String invalid_key_message(const char* key, const char* type_str);
 	bool validate(DeserializedJSON::DeserializedJSON& curtain_json);
 }

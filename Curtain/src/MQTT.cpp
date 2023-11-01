@@ -11,7 +11,7 @@
 ***********************************************************************************************************************/
 
 
-#include "../Headers/Message.hpp"
+#include "../Headers/MQTT.hpp"
 
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
@@ -27,75 +27,24 @@
 using namespace Exception;
 
 
-namespace Message
+namespace MQTT
 {
-	namespace Literal
-	{
-		namespace MQTT
-		{
-			// Sizes commented to allow static assert check
-			StaticString<sizeof(HOME_PREFIX)+sizeof(MOVE_SUFFIX)-1> HOME_MOVE(HOME_PREFIX MOVE_SUFFIX);
-			StaticString<sizeof(HOME_PREFIX)+sizeof(UPDATE_SUFFIX)-1> HOME_UPDATE(HOME_PREFIX UPDATE_SUFFIX);
+	// Sizes commented to allow static assert check
+	StaticString<sizeof(HOME_MOVE_STRING)> HOME_MOVE(HOME_MOVE_STRING);
+	StaticString<sizeof(HOME_UPDATE_STRING)> HOME_UPDATE(HOME_UPDATE_STRING);
 
-			StaticString<sizeof(ROOM_PREFIX)+sizeof(MOVE_SUFFIX)-1> ROOM_MOVE(ROOM_PREFIX MOVE_SUFFIX);
-			StaticString<sizeof(ROOM_PREFIX)+sizeof(UPDATE_SUFFIX)-1> ROOM_UPDATE(ROOM_PREFIX UPDATE_SUFFIX);
-			// static_assert(sizeof(ROOM_MOVE) >= (44+1), "ROOM_MOVE must be exactly 44 characters.");
-			// static_assert(sizeof(ROOM_UPDATE) >= (46+1), "ROOM_UPDATE must be exactly 46 characters.");
+	StaticString<sizeof(ROOM_MOVE_STRING)> ROOM_MOVE(ROOM_MOVE_STRING);
+	StaticString<sizeof(ROOM_UPDATE_STRING)> ROOM_UPDATE(ROOM_UPDATE_STRING);
 
-			const char ALL_CURTAINS_MOVE[] = "SmartCurtain/all/move";
-			const char ALL_CURTAINS_STATUS[] = "SmartCurtain/all/status";
+	const char ALL_CURTAINS_MOVE[] = "SmartCurtain/all/move";
+	const char ALL_CURTAINS_STATUS[] = "SmartCurtain/all/status";
 
-			StaticString<sizeof(CURTAIN_PREFIX)+sizeof(MOVE_SUFFIX)-1> CURTAIN_MOVE(CURTAIN_PREFIX MOVE_SUFFIX, Global::curtain.id(), 17);
-			StaticString<sizeof(CURTAIN_PREFIX)+sizeof(STATUS_SUFFIX)-1> CURTAIN_STATUS(CURTAIN_PREFIX STATUS_SUFFIX, Global::curtain.id(), 17);
-			StaticString<sizeof(CURTAIN_PREFIX)+sizeof(UPDATE_SUFFIX)-1> CURTAIN_UPDATE(CURTAIN_PREFIX UPDATE_SUFFIX, Global::curtain.id(), 17);
+	StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE(CURTAIN_MOVE_STRING, Global::curtain.id(), 17);
+	StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS(CURTAIN_STATUS_STRING, Global::curtain.id(), 17);
+	StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE(CURTAIN_UPDATE_STRING, Global::curtain.id(), 17);
 
-			// static_assert(sizeof(CURTAIN_MOVE) >= (46+1), "CURTAIN_MOVE must be exactly 46 characters.");
-			// static_assert(sizeof(CURTAIN_STATUS) >= (48+1), "CURTAIN_STATUS must be exactly 48 characters.");
-			// static_assert(sizeof(CURTAIN_UPDATE) >= (48+1), "CURTAIN_UPDATE must be exactly 48 characters.");
-
-			const char HUB_UPDATE_TOPIC[] = "SmartCurtain/hub/update";
-			const char HUB_ERROR_TOPIC[] = "SmartCurtain/hub/error";
-		}  // end namespace MQTT
-
-
-		namespace JSON
-		{
-			namespace Key
-			{
-				// CURTAIN
-				// Structure
-				const char CURTAIN_ID[] = "id";
-				const char HOME_ID[] = "Home.id";
-				const char ROOM_ID[] = "Room.id";
-
-				// Hardware describing/overriding values
-				const char LENGTH[] = "length";
-				const char PERCENTAGE[] = "percentage";
-
-				// Movement describing/overriding values
-				const char AUTO_CORRECT[] = "Auto Correct";
-
-				// Non-Overridable
-				const char IS_MOVING[] = "is_moving";
-			}
-		}
-	}
-
-
-	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
-
-	String convert_JsonObject_to_String(JsonObject& object)
-	/*
-	SUMMARY: Syntactic Sugar to convert a JsonObject to a String.
-	PARAMS:  Takes the JsonObject to convert
-	RETURNS: The String converted from the JsonObject
-	*/
-	{
-		String json_string;
-		serializeJson(object, json_string);
-
-		return json_string;
-	}
+	const char HUB_UPDATE_TOPIC[] = "SmartCurtain/hub/update";
+	const char HUB_ERROR_TOPIC[] = "SmartCurtain/hub/error";
 
 
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
@@ -134,7 +83,7 @@ namespace Message
 			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(*Global::exception);
 			delete Global::exception;
 
-			Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_ERROR_TOPIC);
+			Global::mqtt_client.beginMessage(MQTT::HUB_ERROR_TOPIC);
 			Global::mqtt_client.print((const char*)message);
 			Global::mqtt_client.endMessage();
 		}
@@ -142,7 +91,7 @@ namespace Message
 		{
 			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(Global::curtain);
 
-			Global::mqtt_client.beginMessage(Message::Literal::MQTT::HUB_UPDATE_TOPIC);
+			Global::mqtt_client.beginMessage(MQTT::HUB_UPDATE_TOPIC);
 			Global::mqtt_client.print((const char*)message);
 			Global::mqtt_client.endMessage();
 		}

@@ -19,7 +19,7 @@
 #include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Exception.hpp"
-#include "../Headers/Message.hpp"
+#include "../Headers/MQTT.hpp"
 
 
 using namespace Exception;
@@ -35,7 +35,7 @@ namespace Control
 	RETURNS: 
 	*/
 	{
-		Message::update_hub();
+		MQTT::update_hub();
 
 		while(1)
 		{
@@ -75,7 +75,7 @@ namespace Control
 			case_update_curtain(message_size);
 		}
 
-		Message::update_hub();
+		MQTT::update_hub();
 	}
 
 
@@ -95,7 +95,7 @@ namespace Control
 			return;
 		}
 
-		DeserializedJSON::DeserializedJSON event_json = Message::read_message(message_size);
+		DeserializedJSON::DeserializedJSON event_json = MQTT::read_message(message_size);
 		if(!event_json.ok())
 		{
 			new Exception::Exception(__LINE__, __FILE__, "Could not parse message as JSON");
@@ -135,7 +135,7 @@ namespace Control
 	RETURNS: 
 	*/
 	{
-		DeserializedJSON::DeserializedJSON update_json = Message::read_message(message_size);
+		DeserializedJSON::DeserializedJSON update_json = MQTT::read_message(message_size);
 		if(!update_json.ok())
 		{
 			return;

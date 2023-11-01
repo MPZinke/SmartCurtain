@@ -20,24 +20,16 @@
 #include "../Headers/Curtain.hpp"
 #include "../Headers/DeserializedJSON.hpp"
 #include "../Headers/Exception.hpp"
-#include "../Headers/Message.hpp"
+#include "../Headers/MQTT.hpp"
+#include "../Headers/StaticString.hpp"
+
+
+#define PERCENTAGE "percentage"
 
 
 namespace Event
 {
 	using namespace Curtain::CurtainStates;
-
-
-	inline String invalid_key_message(const char* key, const char* type_str)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return String("Curtain object must contain key '") + key + "' of type '" + type_str + "'";
-	}
 
 
 	bool validate(DeserializedJSON::DeserializedJSON& event_json)
@@ -48,12 +40,10 @@ namespace Event
 	RETURNS: 
 	*/
 	{
-		using namespace Message::Literal::JSON::Key;
-
 		// Validate structure
 		if(event_json.containsKey(PERCENTAGE) && !event_json[PERCENTAGE].is<int>())
 		{
-			new Exception::Exception(__LINE__, __FILE__, invalid_key_message(PERCENTAGE, "int"));
+			new Exception::Exception(__LINE__, __FILE__, "Event object requires key '"PERCENTAGE"' of type 'int'");
 			return false;
 		}
 
@@ -71,8 +61,6 @@ namespace Event
 	RETURNS: 
 	*/
 	{
-		using namespace Message::Literal::JSON::Key;
-
 		_percentage = event_json[PERCENTAGE];
 	}
 
@@ -95,7 +83,7 @@ namespace Event
 	// SUMMARY: Creates a String JSON for the Event.
 	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
 	//  Mallocs char* array for c_string. Serializes data to c_string.
-	Event::operator String()
+	Event::operator StaticString<JSON_BUFFER_SIZE>()
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -106,9 +94,9 @@ namespace Event
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject event_object = json_document.to<JsonObject>();
 
-		event_object[Message::Literal::JSON::Key::PERCENTAGE] = _percentage;
+		event_object[PERCENTAGE] = _percentage;
 
-		return Message::convert_JsonObject_to_String(event_object);
+		return StaticString<JSON_BUFFER_SIZE>(event_object);
 	}
 
 
@@ -130,7 +118,11 @@ namespace Event
 	RETURNS: 
 	*/
 	{
-		if(_percentage < Global::curtain.percentage()) return CLOSE;
+		if(_percentage < Global::curtain.percentage())
+		{
+			return CLOSE;
+		}
+
 		return OPEN;
 	}
 

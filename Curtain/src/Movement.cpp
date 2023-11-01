@@ -19,7 +19,7 @@
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Hardware.hpp"
-#include "../Headers/Message.hpp"
+#include "../Headers/MQTT.hpp"
 
 
 namespace Movement
@@ -50,7 +50,7 @@ namespace Movement
 		}
 
 		Global::curtain.is_moving(false);
-		Message::update_hub();
+		MQTT::update_hub();
 	}
 
 
@@ -102,7 +102,7 @@ namespace Movement
 
 		Global::curtain.percentage(event.percentage());
 		Global::curtain.is_moving(false);
-		Message::update_hub();
+		MQTT::update_hub();
 	}
 
 

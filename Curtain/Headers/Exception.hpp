@@ -36,7 +36,6 @@ namespace Exception
 			String _message;
 
 		public:
-			Exception(uint32_t line, String file, String message);
 			Exception(uint32_t line, String file, const char* message);
 			~Exception();
 

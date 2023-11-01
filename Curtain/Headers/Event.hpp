@@ -15,6 +15,7 @@
 #include <ArduinoJson.h>
 
 
+#include "Config.hpp"
 #include "Movement.hpp"
 
 
@@ -22,6 +23,10 @@ namespace DeserializedJSON
 {
 	class DeserializedJSON;
 }
+
+
+template<size_t S>
+class StaticString;
 
 
 namespace Event
@@ -37,7 +42,7 @@ namespace Event
 		public:
 			Event(DeserializedJSON::DeserializedJSON& event_json);
 
-			operator String();
+			operator StaticString<JSON_BUFFER_SIZE>();
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
@@ -52,7 +57,5 @@ namespace Event
 			uint32_t steps();
 	};
 
-
-	inline String invalid_key_message(const char* key, const char* type_str);
 	bool validate(DeserializedJSON::DeserializedJSON& event_json);
 }

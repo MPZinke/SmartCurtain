@@ -20,13 +20,26 @@
 #include "StaticString.hpp"
 
 
-#define HOME_PREFIX "SmartCurtain/000000000000000000000000"
-#define ROOM_PREFIX "SmartCurtain/-/000000000000000000000000"
-#define CURTAIN_PREFIX "SmartCurtain/-/-/000000000000000000000000"
+#define HOME_PREFIX "SmartCurtain/"
+#define ROOM_PREFIX "SmartCurtain/-/"
+#define CURTAIN_PREFIX "SmartCurtain/-/-/"
+
+#define BLANK_OBJECT_ID "000000000000000000000000"
 
 #define MOVE_SUFFIX "/move"
 #define STATUS_SUFFIX "/status"
 #define UPDATE_SUFFIX "/update"
+
+
+#define HOME_MOVE_STRING HOME_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
+#define HOME_UPDATE_STRING HOME_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
+
+#define ROOM_MOVE_STRING ROOM_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
+#define ROOM_UPDATE_STRING ROOM_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
+
+#define CURTAIN_MOVE_STRING CURTAIN_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
+#define CURTAIN_STATUS_STRING CURTAIN_PREFIX BLANK_OBJECT_ID STATUS_SUFFIX
+#define CURTAIN_UPDATE_STRING CURTAIN_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
 
 
 namespace DeserializedJSON
@@ -35,65 +48,25 @@ namespace DeserializedJSON
 }
 
 
-namespace Message
+namespace MQTT
 {
-	namespace Literal
-	{
-		namespace MQTT
-		{
-		// 	extern const char HOME_MOVE[/* 42+1 */];
-		// 	extern const char HOME_UPDATE[/* 44+1 */];
+	extern StaticString<sizeof(HOME_MOVE_STRING)> HOME_MOVE;
+	extern StaticString<sizeof(HOME_UPDATE_STRING)> HOME_UPDATE;
 
-		// 	extern const char ROOM_MOVE[/* 44+1 */];
-		// 	extern const char ROOM_UPDATE[/* 46+1 */];
+	extern StaticString<sizeof(ROOM_MOVE_STRING)> ROOM_MOVE;
+	extern StaticString<sizeof(ROOM_UPDATE_STRING)> ROOM_UPDATE;
 
-		// 	extern const char ALL_CURTAINS_MOVE[];
-		// 	extern const char ALL_CURTAINS_STATUS[];
-		// 	extern const char CURTAIN_MOVE[/* 46+1 */];
-		// 	extern const char CURTAIN_STATUS[/* 48+1 */];
-		// 	extern const char CURTAIN_UPDATE[/* 48+1 */];
-			extern StaticString<sizeof(HOME_PREFIX)+sizeof(MOVE_SUFFIX)-1> HOME_MOVE;
-			extern StaticString<sizeof(HOME_PREFIX)+sizeof(UPDATE_SUFFIX)-1> HOME_UPDATE;
+	extern const char ALL_CURTAINS_MOVE[];
+	extern const char ALL_CURTAINS_STATUS[];
 
-			extern StaticString<sizeof(ROOM_PREFIX)+sizeof(MOVE_SUFFIX)-1> ROOM_MOVE;
-			extern StaticString<sizeof(ROOM_PREFIX)+sizeof(UPDATE_SUFFIX)-1> ROOM_UPDATE;
+	extern StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE;
+	extern StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS;
+	extern StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE;
 
-			extern const char ALL_CURTAINS_MOVE[];
-			extern const char ALL_CURTAINS_STATUS[];
-
-			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(MOVE_SUFFIX)-1> CURTAIN_MOVE;
-			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(STATUS_SUFFIX)-1> CURTAIN_STATUS;
-			extern StaticString<sizeof(CURTAIN_PREFIX)+sizeof(UPDATE_SUFFIX)-1> CURTAIN_UPDATE;
-		}  // end namespace MQTT
-
-
-		namespace JSON
-		{
-			namespace Key
-			{
-				// CURTAIN
-				// Structure
-				extern const char CURTAIN_ID[];
-				extern const char HOME_ID[];
-				extern const char ROOM_ID[];
-
-				// Hardware describing/overriding values
-				extern const char LENGTH[];
-				extern const char PERCENTAGE[];
-
-				// Movement describing/overriding values
-				extern const char AUTO_CORRECT[];
-
-				// Non-Overridable
-				extern const char IS_MOVING[];
-			}  // end namespace Key
-		}  // end namespace JSON
-	}  // end namespace Literal
-
+	extern const char HUB_UPDATE_TOPIC[];
+	extern const char HUB_ERROR_TOPIC[];
 
 	// —————————————————————————————————————————————————— UTILITY  —————————————————————————————————————————————————— //
-	// ——————————————————————————————————————————————— JSON PRODUCERS ——————————————————————————————————————————————— //
-	String convert_JsonObject_to_String(JsonObject& object);
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 	DeserializedJSON::DeserializedJSON read_message(int message_size);
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //

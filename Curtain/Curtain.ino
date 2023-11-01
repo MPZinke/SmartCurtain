@@ -38,7 +38,7 @@
 #include "Headers/Event.hpp"
 #include "Headers/Exception.hpp"
 #include "Headers/Hardware.hpp"
-#include "Headers/Message.hpp"
+#include "Headers/MQTT.hpp"
 #include "Headers/Movement.hpp"
 #include "Headers/StaticString.hpp"
 
@@ -76,7 +76,7 @@ bool setup_MQTT()
 		delay(500);
 	}
 
-	using namespace Message::Literal::MQTT;
+	using namespace MQTT;
 	Global::mqtt_client.onMessage(Control::process_message);
 	Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
 	Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
