@@ -48,9 +48,9 @@ namespace Curtain
 		private:
 			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
-			const char* _id = Config::Curtain::CURTAIN_ID;
-			const char _room_id[24+1] = "";
-			const char _home_id[24+1] = "";
+			StaticString<sizeof(BLANK_OBJECT_ID)> _id(Config::Curtain::CURTAIN_ID);
+			StaticString<sizeof(BLANK_OBJECT_ID)> _room_id(BLANK_OBJECT_ID);
+			StaticString<sizeof(BLANK_OBJECT_ID)> _home_id(BLANK_OBJECT_ID);
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;

@@ -202,9 +202,9 @@ namespace Curtain
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
-		curtain_object[CURTAIN_ID] = _id;
-		curtain_object[ROOM_ID] = _room_id;
-		curtain_object[HOME_ID] = _home_id;
+		curtain_object[CURTAIN_ID] = (const char[])_id;
+		curtain_object[ROOM_ID] = (const char[])_room_id;
+		curtain_object[HOME_ID] = (const char[])_home_id;
 		curtain_object[IS_MOVING] = _is_moving;
 		curtain_object[LENGTH] = _length;
 		curtain_object[PERCENTAGE] = percentage();
@@ -227,7 +227,18 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		StaticString<0>::copy(new_room_id, (char*)_room_id);
+		if(_room_id != BLANK_OBJECT_ID)
+		{
+			Global::mqtt_client.unsubscribe(MQTT::ROOM_MOVE);
+			Global::mqtt_client.unsubscribe(MQTT::ROOM_UPDATE);
+		}
+
+		MQTT::ROOM_MOVE.overwrite(_room_id, new_room_id);
+		MQTT::ROOM_UPDATE.overwrite(_room_id, new_room_id);
+		Global::mqtt_client.subscribe(MQTT::ROOM_MOVE);
+		Global::mqtt_client.subscribe(MQTT::ROOM_UPDATE);
+
+		_room_id = new_room_id;
 	}
 
 
@@ -239,7 +250,18 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		StaticString<0>::copy(new_home_id, (char*)_home_id);
+		if(_home_id != BLANK_OBJECT_ID)
+		{
+			Global::mqtt_client.unsubscribe(MQTT::HOME_MOVE);
+			Global::mqtt_client.unsubscribe(MQTT::HOME_UPDATE);
+		}
+
+		MQTT::HOME_MOVE.overwrite(_home_id, new_home_id);
+		MQTT::HOME_UPDATE.overwrite(_home_id, new_home_id);
+		Global::mqtt_client.subscribe(MQTT::HOME_MOVE);
+		Global::mqtt_client.subscribe(MQTT::HOME_UPDATE);
+
+		_home_id = new_home_id;
 	}
 
 
@@ -257,18 +279,6 @@ namespace Curtain
 	}
 
 
-	void Curtain::length(uint32_t new_length)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		_length = new_length;
-	}
-
-
 	void Curtain::is_moving(bool new_is_moving)
 	/*
 	SUMMARY: 
@@ -278,6 +288,21 @@ namespace Curtain
 	*/
 	{
 		_is_moving = new_is_moving;
+	}
+
+
+	void Curtain::length(uint32_t new_length)
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
+	{
+		if(new_length < Config::Hardware::MAX_LENGTH)
+		{
+			_length = new_length;
+		}
 	}
 
 
@@ -342,44 +367,24 @@ namespace Curtain
 
 		if(update_json.containsKey(HOME_ID) && update_json[HOME_ID] != _home_id)
 		{
-			if(_home_id != 0)
-			{
-				Global::mqtt_client.unsubscribe(HOME_MOVE);
-				Global::mqtt_client.unsubscribe(HOME_UPDATE);
-			}
-
-			StaticString<0>::copy(update_json[HOME_ID], (char*)_home_id);
-			HOME_MOVE.write(_home_id, 13);
-			HOME_UPDATE.write(_home_id, 13);
-			Global::mqtt_client.subscribe(HOME_MOVE);
-			Global::mqtt_client.subscribe(HOME_UPDATE);
+			home_id(update_json[HOME_ID]);
 		}
 
 		if(update_json.containsKey(ROOM_ID) && update_json[ROOM_ID] != _room_id)
 		{
-			if(_room_id != 0)
-			{
-				Global::mqtt_client.unsubscribe(ROOM_MOVE);
-				Global::mqtt_client.unsubscribe(ROOM_UPDATE);
-			}
-
-			StaticString<0>::copy(update_json[ROOM_ID], (char*)_room_id);
-			ROOM_MOVE.write(_room_id, 15);
-			ROOM_UPDATE.write(_room_id, 15);
-			Global::mqtt_client.subscribe(ROOM_MOVE);
-			Global::mqtt_client.subscribe(ROOM_UPDATE);
+			room_id(update_json[ROOM_ID]);
 		}
 
 		// Validate hardware overriding values
 		if(update_json.containsKey(LENGTH) && update_json[LENGTH] < _length)
 		{
-			_length = update_json[LENGTH];
+			length(update_json[LENGTH]);
 		}
 
 		// Validate movement overriding values
 		if(update_json.containsKey(AUTO_CORRECT))
 		{
-			_auto_correct = update_json[AUTO_CORRECT];
+			auto_correct(update_json[AUTO_CORRECT]);
 		}
 	}
 }

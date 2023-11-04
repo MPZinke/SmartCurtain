@@ -17,13 +17,13 @@ namespace DeserializedJSON
 template<size_t S>
 class StaticString
 {
-	static_assert(S < 0xFFFF, "Size S of StaticString must be less than 0xFFFF");
+	// Don't allow empty string, because it is a waste of StaticString.
+	static_assert(0 < S && S-1 < 0xFFFF, "Size S must be greater than 0 and `S - 1` less than 0xFFFF");
 
 	public:
 		StaticString();
 		StaticString(JsonObject& json_object);
 		StaticString(const char* input);
-		StaticString(const char* input, const char* substring, uint16_t offset);
 
 		void write(const char* input, uint16_t offset=0);
 
@@ -34,11 +34,7 @@ class StaticString
 		operator const char*();
 		operator DeserializedJSON::DeserializedJSON();
 
-		static void copy(const char* source, char* destination, uint16_t max=0xFFFF);
-		static uint16_t length(const char* input);
-		static void write(char* string, const char* substring, uint16_t offset=0);
-
 	private:
 		uint16_t _length = 0;
-		const char _string[S];
+		const char _string[S+1];
 };

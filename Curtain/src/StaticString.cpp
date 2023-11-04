@@ -8,68 +8,112 @@
 #include <stdint.h>
 
 
+#include "../Headers/CString.hpp"
 #include "../Headers/DeserializedJSON.hpp"
 
 
 template<size_t S>
 class StaticString
 {
-	static_assert(S < 0xFFFF, "Size S of StaticString must be more than 0xFFFF");
+	// Don't allow empty string, because it is a waste of StaticString.
+	static_assert(0 < S && S-1 < 0xFFFF, "Size S must be greater than 0 and `S - 1` less than 0xFFFF");
 
 	public:
 		StaticString()
-		: _length{0}
 		{
-			if(0 < S)
-			{
-				((char*)_string)[0] = '\0';
-			}
+			inline char string[] = (char[])_string;  // Sugar
+			string[0] = '\0';
+			string[S] = '\0';  // Always have an absolute null terminator
 		}
 
 
 		StaticString(JsonObject& json_object)
 		{
-			serializeJson(json_object, (char*)_string, (size_t)JSON_BUFFER_SIZE);
+			inline char string[] = (char[])_string;  // Sugar
+			string[S] = '\0';  // Always have an absolute null terminator
+
+			serializeJson(json_object, string, (size_t)JSON_BUFFER_SIZE);
+			_length = CString::length(_string);
 		}
 
 
-		StaticString(const char* input)
+		StaticString(const char input[])
 		{
-			copy(input, (char*)_string);
+			inline char string[] = (char[])_string;  // Sugar
+			string[S] = '\0';  // Always have an absolute null terminator
+
+			_length = copy(input, string, S);
 		}
 
 
-		StaticString(const char* input, const char* substring, uint16_t offset)
+		template<size_t T>
+		uint16_t index_of(StaticString<T>& substring[])
 		{
-			copy(input, (char*)_string, offset);
-			copy(input, ((char*)_string)+offset);
-
-			uint16_t substring_length = length(substring);
-			copy(input+substring_length, ((char*)_string)+substring_length+offset);
-		}
-
-
-		void write(const char* source, uint16_t offset=0)
-		{
-			char current_char = source[0];
-			for(uint16_t x = 0; x < S && current_char; x++, current_char = source[x])
+			uint16_t x = 0;
+			uint16_t substring_length = substring.length();
+			uint16_t max_index = _length - substring_length;
+			for(char substring_char = substring._string[x]; x < max_index && substring_char; x++)
 			{
-				((char*)_string)[offset+x] = current_char;
+				for(uint16_t y = 0, remaining_characters = _length - x; y < remaining_characters; y++)
+				{
+					if(substring._string[y] == "\0")
+					{
+						return x;
+					}
+
+					if(_string[x+y] != substring._string[y])
+					{
+						break;
+					}
+				}
 			}
+
+			return _length;  // Returns the length of the string, indicating the substring has not been found
+		}
+
+
+		template<size_t T> 
+		bool overwrite(StaticString<T>& old_string, const char new_string[])
+		{
+			uint16_t new_string_length = CString::length(new_string);
+			assert(new_string_length <= S);
+
+			uint16_t offset = index_of(old_string);
+			if(_length <= offset)
+			{
+				return false;
+			}
+
+			assert(index + new_string_length <= S);
+			char last_character_copy = _string[offset+new_string_length]
+			for(uint16_t x = 0; x < new_string_length; x++)
+			{
+				_string[x+index] = new_string[x];
+			}
+			return true;
+		}
+
+
+		StaticString& operator=(const char right[])
+		{
+			CString::copy(right, (char[])_string, S);
+
+			return *this;
 		}
 
 
 		StaticString& operator+=(char right)
 		{
-			assert(_length < S-1);
-			((char*)_string)[_length] = right;
+			assert(_length < S);
+
+			((char[])_string)[_length] = right;
 			_length++;
 
 			return *this;
 		}
 
 
-		bool operator==(const char* right) const
+		bool operator==(const char right[]) const
 		{
 			char left_x = _string[0], right_x = right[0];
 			for(uint16_t x = 0; x < 0xFFFF && left_x && right_x; x++)
@@ -93,7 +137,7 @@ class StaticString
 		}
 
 
-		operator const char*()
+		operator const char[]()
 		{
 			return _string;
 		}
@@ -105,51 +149,12 @@ class StaticString
 		}
 
 
-		static void copy(const char* source, char* destination, uint16_t max=0xFFFF)
-		{
-			uint16_t x;
-			char current_char;
-			for(x = 0, current_char = source[0]; x < max && current_char; x++, current_char = source[x])
-			{
-				destination[x] = current_char;
-			}
-
-			destination[x] = '\0';
-		}
-
-
-		static uint16_t length(const char* source)
-		{
-			uint16_t x;
-			for(x = 0; x < 0xFFFF; x++)
-			{
-				if(source[x] == '\0')
-				{
-					return x;
-				}
-			}
-
-			return 0;
-		}
-
-
-		static void write(char* string, const char* substring, uint16_t offset=0)
-		{
-			char current_char = substring[0];
-			for(uint16_t x = 0; x < 0xFFFF && current_char; x++, current_char = substring[x])
-			{
-				string[offset+x] = current_char;
-			}
-		}
-
-
 	private:
 		uint16_t _length = 0;
-		const char _string[S] = {};
+		const char _string[S+1] = {};
 };
 
 
-template class StaticString<0>;
 template class StaticString<43>;
 template class StaticString<45>;
 template class StaticString<47>;
