@@ -39,9 +39,9 @@ namespace MQTT
 	const char ALL_CURTAINS_MOVE[] = "SmartCurtain/all/move";
 	const char ALL_CURTAINS_STATUS[] = "SmartCurtain/all/status";
 
-	StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE(CURTAIN_MOVE_STRING, Global::curtain.id(), 17);
-	StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS(CURTAIN_STATUS_STRING, Global::curtain.id(), 17);
-	StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE(CURTAIN_UPDATE_STRING, Global::curtain.id(), 17);
+	StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE(CURTAIN_MOVE_STRING, BLANK_OBJECT_ID, Global::curtain.id());
+	StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS(CURTAIN_STATUS_STRING, BLANK_OBJECT_ID, Global::curtain.id());
+	StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE(CURTAIN_UPDATE_STRING, BLANK_OBJECT_ID, Global::curtain.id());
 
 	const char HUB_UPDATE_TOPIC[] = "SmartCurtain/hub/update";
 	const char HUB_ERROR_TOPIC[] = "SmartCurtain/hub/error";

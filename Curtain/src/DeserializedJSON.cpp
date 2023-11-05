@@ -20,7 +20,7 @@
 
 namespace DeserializedJSON
 {
-	DeserializedJSON::DeserializedJSON(StaticString<JSON_BUFFER_SIZE> json)
+	DeserializedJSON::DeserializedJSON(StaticString<JSON_BUFFER_SIZE>& json)
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -41,18 +41,6 @@ namespace DeserializedJSON
 	*/
 	{
 		return _ok;
-	}
-
-
-	StaticJsonDocument<JSON_BUFFER_SIZE> DeserializedJSON::document()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return _document;
 	}
 
 

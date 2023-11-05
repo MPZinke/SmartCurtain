@@ -15,6 +15,7 @@
 
 
 #include "Config.hpp"
+#include "MQTT.hpp"
 #include "Movement.hpp"
 
 
@@ -48,9 +49,9 @@ namespace Curtain
 		private:
 			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
-			StaticString<sizeof(BLANK_OBJECT_ID)> _id(Config::Curtain::CURTAIN_ID);
-			StaticString<sizeof(BLANK_OBJECT_ID)> _room_id(BLANK_OBJECT_ID);
-			StaticString<sizeof(BLANK_OBJECT_ID)> _home_id(BLANK_OBJECT_ID);
+			StaticString<sizeof(BLANK_OBJECT_ID)> _id;
+			StaticString<sizeof(BLANK_OBJECT_ID)> _room_id;
+			StaticString<sizeof(BLANK_OBJECT_ID)> _home_id;
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;
@@ -68,9 +69,9 @@ namespace Curtain
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
-			const char* id() const;
-			const char* room_id() const;
-			const char* home_id() const;
+			StaticString<sizeof(BLANK_OBJECT_ID)> id() const;
+			StaticString<sizeof(BLANK_OBJECT_ID)> room_id() const;
+			StaticString<sizeof(BLANK_OBJECT_ID)> home_id() const;
 
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			bool auto_correct() const;

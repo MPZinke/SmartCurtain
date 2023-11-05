@@ -31,9 +31,9 @@ namespace DeserializedJSON
 			bool _ok;
 
 		public:
-			DeserializedJSON(StaticString<JSON_BUFFER_SIZE> json);
+			DeserializedJSON(StaticString<JSON_BUFFER_SIZE>& json);
 			bool ok();
-			StaticJsonDocument<JSON_BUFFER_SIZE> document();
+
 			JsonVariantConst operator[](int index) const;
 			JsonVariantConst operator[](const char* key) const;
 			bool containsKey(const char* key);
