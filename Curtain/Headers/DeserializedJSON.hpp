@@ -37,5 +37,6 @@ namespace DeserializedJSON
 			JsonVariantConst operator[](int index) const;
 			JsonVariantConst operator[](const char* key) const;
 			bool containsKey(const char* key);
+			bool is_valid_object_id(const char* key);
 	};
 }

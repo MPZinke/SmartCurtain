@@ -78,4 +78,25 @@ namespace DeserializedJSON
 	{
 		return _document.containsKey(key);
 	}
+
+
+	bool DeserializedJSON::is_valid_object_id(const char* key)
+	{
+		if(!_document[key].is<const char*>())
+		{
+			return false;
+		}
+
+		const char* value = _document[key];
+		for(uint16_t x = 0; x < 24; x++)
+		{
+			char character = value[x];
+			if(character < '0' || ('9' < character && character < 'a') || 'f' < character)
+			{
+				return false;
+			}
+		}
+
+		return value[24] == '\0';
+	}
 }

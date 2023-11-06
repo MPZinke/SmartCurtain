@@ -36,19 +36,19 @@ namespace Curtain
 	*/
 	{
 		// Validate structure
-		if(!curtain_json.containsKey(CURTAIN_ID_KEY) || !curtain_json[CURTAIN_ID_KEY].is<int>())
+		if(!curtain_json.containsKey(CURTAIN_ID_KEY) || !curtain_json.is_valid_object_id(CURTAIN_ID_KEY))
 		{
 			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"CURTAIN_ID_KEY"' of type 'int'");
 			return false;
 		}
 
-		else if(curtain_json.containsKey(HOME_ID_KEY) && !curtain_json[HOME_ID_KEY].is<int>())
+		else if(curtain_json.containsKey(HOME_ID_KEY) && !curtain_json.is_valid_object_id(HOME_ID_KEY))
 		{
 			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"HOME_ID_KEY"' of type 'int'");
 			return false;
 		}
 
-		else if(curtain_json.containsKey(ROOM_ID_KEY) && !curtain_json[ROOM_ID_KEY].is<int>())
+		else if(curtain_json.containsKey(ROOM_ID_KEY) && !curtain_json.is_valid_object_id(ROOM_ID_KEY))
 		{
 			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"ROOM_ID_KEY"' of type 'int'");
 			return false;
