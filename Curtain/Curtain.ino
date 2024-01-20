@@ -78,15 +78,12 @@ bool setup_MQTT()
 
 	using namespace MQTT;
 	Global::mqtt_client.onMessage(Control::process_message);
-	Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
-	Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
+	Global::mqtt_client.subscribe(Topics::Literals::STATUS);
+	Global::mqtt_client.subscribe(Topics::Literals::HOME_MOVE);
 
-	// StaticString::write((char*)CURTAIN_MOVE, Global::curtain.id(), 17);
-	// StaticString::write((char*)CURTAIN_STATUS, Global::curtain.id(), 17);
-	// StaticString::write((char*)CURTAIN_UPDATE, Global::curtain.id(), 17);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_MOVE);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_STATUS);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_UPDATE);
+	Global::mqtt_client.subscribe((const char*)Topics::ROOM_MOVE);
+	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_MOVE);
+	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_UPDATE);
 }
 
 

@@ -10,9 +10,8 @@
 
 
 // Structure
-#define CURTAIN_ID_KEY "id"
-#define HOME_ID_KEY "Home.id"
-#define ROOM_ID_KEY "Room.id"
+#define CURTAIN_NAME_KEY "name"
+#define ROOM_NAME_KEY "room"
 // Hardware describing/overriding values
 #define LENGTH_KEY "length"
 #define PERCENTAGE_KEY "percentage"
@@ -35,27 +34,8 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		// Validate structure
-		if(!curtain_json.containsKey(CURTAIN_ID_KEY) || !curtain_json.is_valid_object_id(CURTAIN_ID_KEY))
-		{
-			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"CURTAIN_ID_KEY"' of type 'int'");
-			return false;
-		}
-
-		else if(curtain_json.containsKey(HOME_ID_KEY) && !curtain_json.is_valid_object_id(HOME_ID_KEY))
-		{
-			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"HOME_ID_KEY"' of type 'int'");
-			return false;
-		}
-
-		else if(curtain_json.containsKey(ROOM_ID_KEY) && !curtain_json.is_valid_object_id(ROOM_ID_KEY))
-		{
-			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"ROOM_ID_KEY"' of type 'int'");
-			return false;
-		}
-
 		// Validate hardware overriding values
-		else if(curtain_json.containsKey(LENGTH_KEY) && !curtain_json[LENGTH_KEY].is<int>())
+		if(curtain_json.containsKey(LENGTH_KEY) && !curtain_json[LENGTH_KEY].is<int>())
 		{
 			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"LENGTH_KEY"' of type 'int'");
 			return false;
@@ -82,9 +62,8 @@ namespace Curtain
 	DETAILS: 
 	RETURNS: 
 	*/
-	: _id{StaticString<sizeof(BLANK_OBJECT_ID)>(Config::Curtain::CURTAIN_ID)},
-	  _room_id{StaticString<sizeof(BLANK_OBJECT_ID)>(BLANK_OBJECT_ID)},
-	  _home_id{StaticString<sizeof(BLANK_OBJECT_ID)>(BLANK_OBJECT_ID)}
+	: _name{StaticString<sizeof(Config::Curtain::NAME)>(Config::Curtain::NAME)},
+	  _room{StaticString<sizeof(Config::Curtain::ROOM)>(Config::Curtain::ROOM)}
 	{}
 
 
@@ -93,7 +72,7 @@ namespace Curtain
 
 	// ————————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————————— //
 
-	StaticString<sizeof(BLANK_OBJECT_ID)> Curtain::id() const
+	StaticString<sizeof(Config::Curtain::NAME)> Curtain::name() const
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -101,11 +80,11 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		return StaticString<sizeof(BLANK_OBJECT_ID)>(_id);
+		return StaticString<sizeof(Config::Curtain::NAME)>(_name);
 	}
 
 
-	StaticString<sizeof(BLANK_OBJECT_ID)> Curtain::room_id() const
+	StaticString<sizeof(Config::Curtain::ROOM)> Curtain::room() const
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -113,19 +92,7 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		return StaticString<sizeof(BLANK_OBJECT_ID)>(_room_id);
-	}
-
-
-	StaticString<sizeof(BLANK_OBJECT_ID)> Curtain::home_id() const
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return StaticString<sizeof(BLANK_OBJECT_ID)>(_home_id);
+		return StaticString<sizeof(Config::Curtain::ROOM)>(_room);
 	}
 
 
@@ -206,9 +173,8 @@ namespace Curtain
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
-		curtain_object[CURTAIN_ID_KEY] = (const char*)_id;
-		curtain_object[ROOM_ID_KEY] = (const char*)_room_id;
-		curtain_object[HOME_ID_KEY] = (const char*)_home_id;
+		curtain_object[CURTAIN_NAME_KEY] = (const char*)_name;
+		curtain_object[ROOM_NAME_KEY] = (const char*)_room;
 		curtain_object[IS_MOVING_KEY] = _is_moving;
 		curtain_object[LENGTH_KEY] = _length;
 		curtain_object[PERCENTAGE_KEY] = percentage();
@@ -220,54 +186,6 @@ namespace Curtain
 
 	// —————————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-	// ————————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————————— //
-
-	void Curtain::room_id(const char* new_room_id)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		if(_room_id != BLANK_OBJECT_ID)
-		{
-			Global::mqtt_client.unsubscribe(MQTT::ROOM_MOVE);
-			Global::mqtt_client.unsubscribe(MQTT::ROOM_UPDATE);
-		}
-
-		MQTT::ROOM_MOVE.overwrite((const char*)_room_id, new_room_id);
-		MQTT::ROOM_UPDATE.overwrite((const char*)_room_id, new_room_id);
-		Global::mqtt_client.subscribe(MQTT::ROOM_MOVE);
-		Global::mqtt_client.subscribe(MQTT::ROOM_UPDATE);
-
-		_room_id = new_room_id;
-	}
-
-
-	void Curtain::home_id(const char* new_home_id)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		if(_home_id != BLANK_OBJECT_ID)
-		{
-			Global::mqtt_client.unsubscribe(MQTT::HOME_MOVE);
-			Global::mqtt_client.unsubscribe(MQTT::HOME_UPDATE);
-		}
-
-		MQTT::HOME_MOVE.overwrite((const char*)_home_id, new_home_id);
-		MQTT::HOME_UPDATE.overwrite((const char*)_home_id, new_home_id);
-		Global::mqtt_client.subscribe(MQTT::HOME_MOVE);
-		Global::mqtt_client.subscribe(MQTT::HOME_UPDATE);
-
-		_home_id = new_home_id;
-	}
-
 
 	// ————————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————————— //
 
@@ -368,16 +286,6 @@ namespace Curtain
 	*/
 	{
 		using namespace MQTT;
-
-		if(update_json.containsKey(HOME_ID_KEY) && _home_id != (const char*)update_json[HOME_ID_KEY])
-		{
-			home_id(update_json[HOME_ID_KEY]);
-		}
-
-		if(update_json.containsKey(ROOM_ID_KEY) && _room_id != (const char*)update_json[ROOM_ID_KEY])
-		{
-			room_id(update_json[ROOM_ID_KEY]);
-		}
 
 		// Validate hardware overriding values
 		if(update_json.containsKey(LENGTH_KEY) && update_json[LENGTH_KEY] < _length)

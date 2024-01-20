@@ -17,29 +17,10 @@
 #include <ArduinoJson.h>
 
 
+#include "Config.hpp"
+
+
 #include "StaticString.hpp"
-
-
-#define HOME_PREFIX "SmartCurtain/"
-#define ROOM_PREFIX "SmartCurtain/-/"
-#define CURTAIN_PREFIX "SmartCurtain/-/-/"
-
-#define BLANK_OBJECT_ID "000000000000000000000000"
-
-#define MOVE_SUFFIX "/move"
-#define STATUS_SUFFIX "/status"
-#define UPDATE_SUFFIX "/update"
-
-
-#define HOME_MOVE_STRING HOME_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
-#define HOME_UPDATE_STRING HOME_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
-
-#define ROOM_MOVE_STRING ROOM_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
-#define ROOM_UPDATE_STRING ROOM_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
-
-#define CURTAIN_MOVE_STRING CURTAIN_PREFIX BLANK_OBJECT_ID MOVE_SUFFIX
-#define CURTAIN_STATUS_STRING CURTAIN_PREFIX BLANK_OBJECT_ID STATUS_SUFFIX
-#define CURTAIN_UPDATE_STRING CURTAIN_PREFIX BLANK_OBJECT_ID UPDATE_SUFFIX
 
 
 namespace DeserializedJSON
@@ -50,21 +31,40 @@ namespace DeserializedJSON
 
 namespace MQTT
 {
-	extern StaticString<sizeof(HOME_MOVE_STRING)> HOME_MOVE;
-	extern StaticString<sizeof(HOME_UPDATE_STRING)> HOME_UPDATE;
+	namespace Topics
+	{
+		namespace Literals
+		{
+			const char ERROR[] = "SmartCurtain/error";  // Home Assistant subscribed topic to know Curtain's error.
+			const char STATUS[] = "SmartCurtain/status";  // Home Assistant subscribed topic to know Curtain's status.
 
-	extern StaticString<sizeof(ROOM_MOVE_STRING)> ROOM_MOVE;
-	extern StaticString<sizeof(ROOM_UPDATE_STRING)> ROOM_UPDATE;
+			const char HOME_MOVE[] = "SmartCurtain/Home/move";
 
-	extern const char ALL_CURTAINS_MOVE[];
-	extern const char ALL_CURTAINS_STATUS[];
+			namespace Parts
+			{
+				const char ROOM[] = "SmartCurtain/Room/";
+				const char CURTAIN[] = "SmartCurtain/Curtain/";
+				const char MOVE[] = "move";
+				const char UPDATE[] = "update";
+			}
+		}
 
-	extern StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE;
-	extern StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS;
-	extern StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE;
+		namespace Sizes
+		{
+			using namespace ::MQTT::Topics::Literals::Parts;
 
-	extern const char HUB_UPDATE_TOPIC[];
-	extern const char HUB_ERROR_TOPIC[];
+			const uint16_t ROOM_MOVE = sizeof(ROOM) + sizeof(Config::Curtain::ROOM) + sizeof(MOVE) - 2;
+			const uint16_t CURTAIN_MOVE = sizeof(CURTAIN) + sizeof(Config::Curtain::NAME) + sizeof(MOVE) - 2;
+			const uint16_t CURTAIN_UPDATE = sizeof(CURTAIN) + sizeof(Config::Curtain::NAME) + sizeof(UPDATE) - 2;
+		}
+
+		using namespace Literals::Parts;
+
+		const StaticString<Sizes::ROOM_MOVE> ROOM_MOVE(ROOM, Config::Curtain::ROOM, MOVE);
+		const StaticString<Sizes::CURTAIN_MOVE> CURTAIN_MOVE(CURTAIN, Config::Curtain::NAME, MOVE);
+		const StaticString<Sizes::CURTAIN_UPDATE> CURTAIN_UPDATE(CURTAIN, Config::Curtain::NAME, UPDATE);
+	}
+
 
 	// —————————————————————————————————————————————————— UTILITY  —————————————————————————————————————————————————— //
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
@@ -72,3 +72,7 @@ namespace MQTT
 	// ————————————————————————————————————————————————— RESPONDING ————————————————————————————————————————————————— //
 	void update_hub();
 } // end namespace Message
+
+template class StaticString<MQTT::Topics::Sizes::ROOM_MOVE>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_MOVE>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_UPDATE>;

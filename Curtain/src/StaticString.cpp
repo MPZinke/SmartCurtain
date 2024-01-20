@@ -10,6 +10,7 @@
 
 #include "../Headers/CString.hpp"
 #include "../Headers/DeserializedJSON.hpp"
+// #include "../Headers/MQTT.hpp"
 
 
 template<size_t S>  // S is the total writable characters that may or may not be null terminated.
@@ -69,14 +70,24 @@ class StaticString
 		}
 
 
-		StaticString(const char input[], const char substring[], const char replacement[])
+		StaticString(const char input1[], const char input2[])
 		{
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
-			_length = CString::copy(input, string, S);
+			_length = CString::copy(input1, string, S);
+			_length += CString::copy(input2, string+_length, S-_length);
+		}
 
-			overwrite(substring, replacement);
+
+		StaticString(const char input1[], const char input2[], const char input3[])
+		{
+			char* string = (char*)_string;  // Sugar
+			string[S] = '\0';  // Always have an absolute null terminator
+
+			_length = CString::copy(input1, string, S);
+			_length += CString::copy(input2, string+_length, S-_length);
+			_length += CString::copy(input1, string+_length, S-_length);
 		}
 
 
@@ -137,6 +148,18 @@ class StaticString
 		}
 
 
+		StaticString& operator+=(const char right[])
+		{
+			uint16_t right_length = CString::length(right);
+			assert(_length+right_length < S);  //TODO: uncomment
+
+			CString::copy(right, ((char*)_string) + _length);
+			_length += right_length;
+
+			return *this;
+		}
+
+
 		bool operator==(const char right[]) const
 		{
 			char left_x = _string[0], right_x = right[0];
@@ -182,9 +205,12 @@ class StaticString
 };
 
 
+template class StaticString<24>;
 template class StaticString<25>;
 template class StaticString<43>;
 template class StaticString<45>;
+template class StaticString<46>;
 template class StaticString<47>;
 template class StaticString<49>;
+template class StaticString<51>;
 template class StaticString<JSON_BUFFER_SIZE>;

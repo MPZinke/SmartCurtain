@@ -27,7 +27,8 @@ class StaticString
 		StaticString(const StaticString& static_string);
 		StaticString(JsonObject& json_object);
 		StaticString(const char input[]);
-		StaticString(const char input[], const char substring[], const char replacement[]);
+		StaticString(const char input1[], const char input2[]);
+		StaticString(const char input1[], const char input2[], const char input3[]);
 
 		template<size_t T>
 		uint16_t index_of(const char substring[]);
@@ -37,6 +38,7 @@ class StaticString
 
 		StaticString& operator=(const char right[]);
 		StaticString& operator+=(char right);
+		StaticString& operator+=(const char right[]);
 		bool operator==(const char right[]) const;
 		bool operator!=(const char right[]) const;
 		operator const char*();

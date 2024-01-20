@@ -61,15 +61,11 @@ namespace Control
 			new Exception::Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
-		else if(type == MOVE_SUFFIX)
+		else if(type == MQTT::Topics::Literals::Parts::MOVE)
 		{
 			case_move(message_size);
 		}
-		else if(type == STATUS_SUFFIX)
-		{
-			case_status();
-		}
-		else if(type == UPDATE_SUFFIX)
+		else if(type == MQTT::Topics::Literals::Parts::UPDATE)
 		{
 			// Does not update hub to prevent possible ciruclar looping from possible bad programming :)
 			case_update_curtain(message_size);
@@ -112,18 +108,6 @@ namespace Control
 		Global::curtain.is_moving(true);
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
 		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 1, NULL, 1);
-	}
-
-
-	inline void case_status()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		Global::curtain.update();  // ensure curtain is up to date with hardware
 	}
 
 

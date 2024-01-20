@@ -15,8 +15,8 @@
 
 
 #include "Config.hpp"
-#include "MQTT.hpp"
 #include "Movement.hpp"
+#include "StaticString.hpp"
 
 
 namespace DeserializedJSON
@@ -31,8 +31,7 @@ namespace Event
 }
 
 
-template<size_t S>
-class StaticString;
+// template class StaticString<24>;
 
 
 namespace Curtain
@@ -49,9 +48,8 @@ namespace Curtain
 		private:
 			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
-			StaticString<sizeof(BLANK_OBJECT_ID)> _id;
-			StaticString<sizeof(BLANK_OBJECT_ID)> _room_id;
-			StaticString<sizeof(BLANK_OBJECT_ID)> _home_id;
+			StaticString<sizeof(Config::Curtain::NAME)> _name;
+			StaticString<sizeof(Config::Curtain::ROOM)> _room;
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;
@@ -69,9 +67,8 @@ namespace Curtain
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 
 			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
-			StaticString<sizeof(BLANK_OBJECT_ID)> id() const;
-			StaticString<sizeof(BLANK_OBJECT_ID)> room_id() const;
-			StaticString<sizeof(BLANK_OBJECT_ID)> home_id() const;
+			StaticString<sizeof(Config::Curtain::NAME)> name() const;
+			StaticString<sizeof(Config::Curtain::ROOM)> room() const;
 
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			bool auto_correct() const;
@@ -87,10 +84,6 @@ namespace Curtain
 
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-			// ————————————————————————————————————————— SETTERS::STRUCTURE ————————————————————————————————————————— //
-			void room_id(const char* new_room_id);
-			void home_id(const char* new_home_id);
 
 			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
 			void direction(bool new_direction);
