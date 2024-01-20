@@ -26,15 +26,9 @@ class StaticString
 		StaticString();
 		StaticString(const StaticString& static_string);  // Copy constructor
 		StaticString(JsonObject& json_object);
-		StaticString(const char input[]);
-		StaticString(const char input1[], const char input2[]);
 		StaticString(const char input1[], const char input2[], const char input3[]);
 
-		StaticString& operator=(const char right[]);
 		StaticString& operator+=(char right);
-		StaticString& operator+=(const char right[]);
-		bool operator==(const char right[]) const;
-		bool operator!=(const char right[]) const;
 		operator const char*();
 		operator const char*() const;
 		operator DeserializedJSON::DeserializedJSON();

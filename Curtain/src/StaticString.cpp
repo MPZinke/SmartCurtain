@@ -19,6 +19,10 @@ class StaticString
 	- CString::copy function will always null terminate at either the end of a c-string or the end of memory size.
 - Can be used to fit string exactly (including null terminator) by templating <sizeof()-1>, which indicates a knowledge
   of how it works. IE specify allocation of <sizeof()-1>+1 for null terminating string.
+- The premise of this class is to let you screw up your data, but not the program. The null terminator is partially
+  hidden, and you can utilize it if you know what you are doing, but if you don't (EG <sizeof()-2>) then it will clip
+  your string. However, to the lame man or just using it correctly and without trying to optimize, the only cost is an
+  extra null terminator.
 */
 {
 	// Don't allow empty string, because it is a waste of StaticString.
@@ -52,42 +56,14 @@ class StaticString
 		}
 
 
-		StaticString(const char input[])
-		{
-			char* string = (char*)_string;  // Sugar
-			string[S] = '\0';  // Always have an absolute null terminator
-
-			_length = CString::copy(input, string, S+1);
-		}
-
-
-		StaticString(const char input1[], const char input2[])
-		{
-			char* string = (char*)_string;  // Sugar
-			string[S] = '\0';  // Always have an absolute null terminator
-
-			_length = CString::copy(input1, string, S+1);  // +1 because +1 bytes always allocated.
-			_length += CString::copy(input2, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
-		}
-
-
 		StaticString(const char input1[], const char input2[], const char input3[])
 		{
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
 			_length = CString::copy(input1, string, S+1);  // +1 because +1 bytes always allocated.
-			_length += CString::copy(input2, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
-			_length += CString::copy(input1, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
-		}
-
-
-		StaticString& operator=(const char right[])
-		{
-			char* string = (char*)_string;  // Sugar
-			_length = CString::copy(right, (char*)_string, S+1);  // +1 because +1 bytes always allocated.
-
-			return *this;
+			_length += CString::copy(input2, string+_length, S+1-_length);  // +1 because +1 bytes always allocated.
+			_length += CString::copy(input1, string+_length, S+1-_length);  // +1 because +1 bytes always allocated.
 		}
 
 
@@ -96,44 +72,12 @@ class StaticString
 			assert(_length < S);
 
 			char* string = (char*)_string;  // Sugar
+
 			string[_length] = right;
 			_length++;
 			string[_length] = '\0';  // Always null terminate
 
 			return *this;
-		}
-
-
-		StaticString& operator+=(const char right[])
-		{
-			uint16_t right_length = CString::length(right, S+1);
-			// `_length <= _length+right_length` to ensure no overflow has happened.
-			assert(_length+right_length <= S && _length <= _length+right_length);
-
-			_length += CString::copy(right, ((char*)_string)+_length, S+1-right_length);
-
-			return *this;
-		}
-
-
-		bool operator==(const char right[]) const
-		{
-			char left_x = _string[0], right_x = right[0];
-			for(uint16_t x = 0; x < 0xFFFF && left_x == right_x; x++, left_x = _string[x], right_x = right[x])
-			{
-				if(left_x == '\0' /* && right_x == '\0' */)  // Implicit
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-
-		bool operator!=(const char right[]) const
-		{
-			return !(*this == right);
 		}
 
 

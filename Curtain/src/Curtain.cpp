@@ -189,18 +189,6 @@ namespace Curtain
 
 	// ————————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————————— //
 
-	void Curtain::direction(bool new_direction)
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		_direction = new_direction;
-	}
-
-
 	void Curtain::is_moving(bool new_is_moving)
 	/*
 	SUMMARY: 

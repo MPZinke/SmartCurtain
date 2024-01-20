@@ -78,7 +78,6 @@ namespace Curtain
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
 			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
-			void direction(bool new_direction);
 			void length(uint32_t new_length);
 			void is_moving(bool new_is_moving);
 			void percentage(uint32_t new_percentage);
