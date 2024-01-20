@@ -51,7 +51,7 @@ void setup_GPIO()
 	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
 	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
 
-	Hardware::disable_motor();  // don't burn up the motor
+	Hardware::disable_motor();  // Don't burn up the motor
 }
 
 

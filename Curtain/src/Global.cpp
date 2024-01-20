@@ -25,4 +25,4 @@ namespace Global
 	MqttClient mqtt_client(wifi_client);
 
 	Exception::Exception* exception = NULL;
-} // end namespace Global
+}  // end namespace Global

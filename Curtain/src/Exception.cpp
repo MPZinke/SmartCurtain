@@ -13,7 +13,9 @@
 
 #include "../Headers/Exception.hpp"
 
+
 #include "../Headers/Config.hpp"
+#include "../Headers/CString.hpp"
 #include "../Headers/Global.hpp"
 #include "../Headers/MQTT.hpp"
 #include "../Headers/StaticString.hpp"
@@ -26,22 +28,23 @@ namespace Exception
 
 	// ————————————————————————————————————————————————— EXCEPTION  ————————————————————————————————————————————————— //
 
-	Exception::Exception(uint32_t line, String file, const char* message)
+	Exception::Exception(uint32_t line, const char* file, const char* message)
 	/*
 	SUMMARY: 
 	PARAMS:  
 	DETAILS: 
 	RETURNS: 
 	*/
+	: _line{line}, _file{file}, _message{new char[CString::length(message, 0xFFFF-1)+1]}
 	{
 		if(Global::exception != NULL)
 		{
 			reset_function();
 		}
 
-		_line = line;
-		_file = file;
-		_message = String(message);
+		// If I write an error message that needs all 0xFFFF characters, then this deserves to fail.
+		//  +1 for null terminator. -1 to allow room for null terminator room while not overflowing copy.
+		CString::copy(message, (char*)_message, 0xFFFF);
 
 		Global::exception = this;
 	}
@@ -55,31 +58,8 @@ namespace Exception
 	RETURNS: 
 	*/
 	{
+		delete[] _message;
 		Global::exception = NULL;
-	}
-
-
-	uint32_t Exception::line()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return _line;
-	}
-
-
-	String Exception::file()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return _file;
 	}
 
 

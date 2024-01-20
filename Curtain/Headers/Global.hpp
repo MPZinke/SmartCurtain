@@ -44,5 +44,5 @@ namespace Global
 	extern MqttClient mqtt_client;
 
 	extern Exception::Exception* exception;
-} // end namespace Global
+}  // end namespace Global
 

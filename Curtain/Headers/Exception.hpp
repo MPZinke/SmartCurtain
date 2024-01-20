@@ -32,17 +32,13 @@ namespace Exception
 	{
 		protected:
 			uint32_t _line;
-			String _file;
-			String _message;
+			const char* _file;
+			const char* _message;
 
 		public:
-			Exception(uint32_t line, String file, const char* message);
+			Exception(uint32_t line, const char* file, const char* message);
 			~Exception();
 
 			operator StaticString<JSON_BUFFER_SIZE>();
-
-			uint32_t line();
-			String file();
-			String message();
 	};
 }  // end namespace Exceptions

@@ -24,17 +24,11 @@ class StaticString
 
 	public:
 		StaticString();
-		StaticString(const StaticString& static_string);
+		StaticString(const StaticString& static_string);  // Copy constructor
 		StaticString(JsonObject& json_object);
 		StaticString(const char input[]);
 		StaticString(const char input1[], const char input2[]);
 		StaticString(const char input1[], const char input2[], const char input3[]);
-
-		template<size_t T>
-		uint16_t index_of(const char substring[]);
-		void overwrite(const char old_string[], const char new_string[]);
-		template<size_t T>
-		void overwrite(StaticString<T>& old_string, const char new_string[]);
 
 		StaticString& operator=(const char right[]);
 		StaticString& operator+=(char right);
@@ -47,6 +41,6 @@ class StaticString
 
 
 	private:
-		uint16_t _length = 0;  // Length will be a max of S.
+		uint16_t _length = 0;  // The number of human readable characters (a max of S).
 		const char _string[S+1];
 };

@@ -80,11 +80,7 @@ namespace Movement
 				// If failed to reach non-zero state without hitting 0 and allowed to correct self:
 				if(!Secure::move_towards_closed(event.steps()))
 				{
-					if(!Global::curtain.auto_correct())
-					{
-						event.percentage(0);  // GENERIC: event.percentage(100 * (event.direction != CLOSE));
-					}
-					else
+					if(Global::curtain.auto_correct())
 					{
 						Global::curtain.update();  // ensure curtain is up to date with hardware
 						Hardware::set_direction(OPEN);

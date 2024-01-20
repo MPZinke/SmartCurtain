@@ -24,10 +24,6 @@ namespace Config
 	{
 		extern const char NAME[24];
 		extern const char ROOM[24];
-
-		extern const uint32_t IGNORE_MOVEMENT_SIMILARITY;  // max step difference to ignore event
-		extern const uint32_t POSITION_TOLLERANCE;  // steps within ends to consider "close enough"
-		extern const uint32_t STEPS_FOR_CALIBRATION;  // how picky the program should be to commence recalibration
 	}
 
 

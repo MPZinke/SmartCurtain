@@ -31,9 +31,6 @@ namespace Event
 }
 
 
-// template class StaticString<24>;
-
-
 namespace Curtain
 {
 	using Movement::CurtainState;
@@ -45,11 +42,12 @@ namespace Curtain
 
 	class Curtain
 	{
+		friend class Event::Event;
+
 		private:
-			friend class Event::Event;
 			// ————————————————————————————————————————————— STRUCTURE  ————————————————————————————————————————————— //
-			StaticString<sizeof(Config::Curtain::NAME)> _name;
-			StaticString<sizeof(Config::Curtain::ROOM)> _room;
+			const char* _name = Config::Curtain::NAME;
+			const char* _room = Config::Curtain::ROOM;
 
 			// —————————————————————————————————————————————— HARDWARE —————————————————————————————————————————————— //
 			bool _direction = Config::Hardware::DIRECTION_SWITCH;
@@ -65,11 +63,6 @@ namespace Curtain
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-			// ————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————— //
-			StaticString<sizeof(Config::Curtain::NAME)> name() const;
-			StaticString<sizeof(Config::Curtain::ROOM)> room() const;
-
 			// —————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————— //
 			bool auto_correct() const;
 
@@ -84,7 +77,6 @@ namespace Curtain
 
 			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
 			// —————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
 			// ————————————————————————————————————————— SETTERS::HARDWARE  ————————————————————————————————————————— //
 			void direction(bool new_direction);
 			void length(uint32_t new_length);

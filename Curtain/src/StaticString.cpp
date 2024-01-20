@@ -10,30 +10,21 @@
 
 #include "../Headers/CString.hpp"
 #include "../Headers/DeserializedJSON.hpp"
-// #include "../Headers/MQTT.hpp"
 
 
 template<size_t S>  // S is the total writable characters that may or may not be null terminated.
 class StaticString
+/*
+- Adds safety by guaranteeing a null terminator at the index S.
+	- CString::copy function will always null terminate at either the end of a c-string or the end of memory size.
+- Can be used to fit string exactly (including null terminator) by templating <sizeof()-1>, which indicates a knowledge
+  of how it works. IE specify allocation of <sizeof()-1>+1 for null terminating string.
+*/
 {
 	// Don't allow empty string, because it is a waste of StaticString.
-	static_assert(0 < S && S+1 < 0xFFFF, "Size S must be greater than 0 and `S + 1` less than 0xFFFF");
+	static_assert(0 < S && S+1 <= 0xFFFF, "Size S must be greater than 0 and `S + 1` less than or equal to 0xFFFF");
 
 	public:
-		void overwrite(const char old_string[], const char new_string[])
-		{
-			// Using `_length+1` to trivially test if the string is too long and not wasting possible excess cycles.
-			uint16_t old_string_length = CString::length(old_string, _length+1);
-			uint16_t new_string_length = CString::length(new_string, _length+1);
-			assert(old_string_length == new_string_length);
-
-			uint16_t old_string_index = index_of(old_string);
-			assert(old_string_index != _length);  // Ensure the old_string is found
-
-			CString::copy(new_string, ((char*)_string)+old_string_index, new_string_length);
-		}
-
-
 		StaticString()
 		{
 			char* string = (char*)_string;  // Sugar
@@ -47,7 +38,7 @@ class StaticString
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
-			_length = CString::copy(static_string._string, string, S);
+			_length = CString::copy(static_string._string, string, S+1);
 		}
 
 
@@ -57,7 +48,7 @@ class StaticString
 			string[S] = '\0';  // Always have an absolute null terminator
 
 			serializeJson(json_object, string, (size_t)JSON_BUFFER_SIZE);
-			_length = CString::length(_string);
+			_length = CString::length(string, S+1);
 		}
 
 
@@ -66,7 +57,7 @@ class StaticString
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
-			_length = CString::copy(input, string, S);
+			_length = CString::copy(input, string, S+1);
 		}
 
 
@@ -75,8 +66,8 @@ class StaticString
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
-			_length = CString::copy(input1, string, S);
-			_length += CString::copy(input2, string+_length, S-_length);
+			_length = CString::copy(input1, string, S+1);  // +1 because +1 bytes always allocated.
+			_length += CString::copy(input2, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
 		}
 
 
@@ -85,53 +76,16 @@ class StaticString
 			char* string = (char*)_string;  // Sugar
 			string[S] = '\0';  // Always have an absolute null terminator
 
-			_length = CString::copy(input1, string, S);
-			_length += CString::copy(input2, string+_length, S-_length);
-			_length += CString::copy(input1, string+_length, S-_length);
-		}
-
-
-		uint16_t index_of(const char substring[])
-		{
-			uint16_t substring_length = CString::length(substring, _length+1);
-			// If the substring is longer than the StaticString's length, return out of bounds
-			if(substring_length >= _length)
-			{
-				return _length;
-			}
-
-			uint16_t x = 0;
-			for(uint16_t max_search_index = _length - substring_length; x < max_search_index && _string[x]; x++)
-			{
-				for(uint16_t y = 0, remaining_characters = _length - x; y < remaining_characters; y++)
-				{
-					char substring_char = substring[y];
-					if(substring_char == '\0')
-					{
-						return x;
-					}
-
-					if(_string[x+y] != substring_char)
-					{
-						break;
-					}
-				}
-			}
-
-			return _length;  // Returns the length of the string, indicating the substring has not been found
-		}
-
-
-		template<size_t T>
-		void overwrite(StaticString<T>& old_string, const char new_string[])
-		{
-			overwrite(old_string._string, new_string);
+			_length = CString::copy(input1, string, S+1);  // +1 because +1 bytes always allocated.
+			_length += CString::copy(input2, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
+			_length += CString::copy(input1, string+_length, S-_length+1);  // +1 because +1 bytes always allocated.
 		}
 
 
 		StaticString& operator=(const char right[])
 		{
-			CString::copy(right, (char*)_string, S);
+			char* string = (char*)_string;  // Sugar
+			_length = CString::copy(right, (char*)_string, S+1);  // +1 because +1 bytes always allocated.
 
 			return *this;
 		}
@@ -141,8 +95,10 @@ class StaticString
 		{
 			assert(_length < S);
 
-			((char*)_string)[_length] = right;
+			char* string = (char*)_string;  // Sugar
+			string[_length] = right;
 			_length++;
+			string[_length] = '\0';  // Always null terminate
 
 			return *this;
 		}
@@ -150,11 +106,11 @@ class StaticString
 
 		StaticString& operator+=(const char right[])
 		{
-			uint16_t right_length = CString::length(right);
-			assert(_length+right_length < S);  //TODO: uncomment
+			uint16_t right_length = CString::length(right, S+1);
+			// `_length <= _length+right_length` to ensure no overflow has happened.
+			assert(_length+right_length <= S && _length <= _length+right_length);
 
-			CString::copy(right, ((char*)_string) + _length);
-			_length += right_length;
+			_length += CString::copy(right, ((char*)_string)+_length, S+1-right_length);
 
 			return *this;
 		}
@@ -200,17 +156,14 @@ class StaticString
 
 
 	private:
-		uint16_t _length = 0;
+		uint16_t _length = 0;  // The number of human readable characters (a max of S).
 		const char _string[S+1] = {};
 };
 
 
-template class StaticString<24>;
-template class StaticString<25>;
-template class StaticString<43>;
 template class StaticString<45>;
 template class StaticString<46>;
-template class StaticString<47>;
-template class StaticString<49>;
-template class StaticString<51>;
+template class StaticString<48>;
+template class StaticString<50>;
+template class StaticString<52>;
 template class StaticString<JSON_BUFFER_SIZE>;

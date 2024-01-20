@@ -79,3 +79,8 @@ namespace MQTT
 		}
 	}
 }
+
+
+template class StaticString<MQTT::Topics::Sizes::ROOM_MOVE-1>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_MOVE-1>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_UPDATE-1>;

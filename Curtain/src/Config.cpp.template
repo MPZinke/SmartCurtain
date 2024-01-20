@@ -20,10 +20,6 @@ namespace Config
 	{
 		const char NAME[25] = "";
 		const char ROOM[25] = "";
-
-		const uint32_t IGNORE_MOVEMENT_SIMILARITY = 10;  // max step difference to ignore event
-		const uint32_t POSITION_TOLLERANCE = 5;  // steps within ends to consider "close enough"
-		const uint32_t STEPS_FOR_CALIBRATION = 5;  // how picky the program should be to commence recalibration
 	}
 
 

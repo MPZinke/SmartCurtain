@@ -9,21 +9,49 @@
 #include "../Headers/StaticString.hpp"
 
 
-// Structure
-#define CURTAIN_NAME_KEY "name"
-#define ROOM_NAME_KEY "room"
-// Hardware describing/overriding values
-#define LENGTH_KEY "length"
-#define PERCENTAGE_KEY "percentage"
-// Movement describing/overriding values
-#define AUTO_CORRECT_KEY "auto_correct"
-// Non-Overridable
-#define IS_MOVING_KEY "is_moving"
-
-
 namespace Curtain
 {
 	using namespace Movement::CurtainStates;
+
+
+	namespace Keys
+	{
+		// Structure
+		const char CURTAIN_NAME[] = "name";
+		const char ROOM_NAME[] = "room";
+		// Hardware describing/overriding values
+		const char LENGTH[] = "length";
+		const char PERCENTAGE[] = "percentage";
+		// Movement describing/overriding values
+		const char AUTO_CORRECT[] = "auto correct";
+		// Non-Overridable
+		const char IS_MOVING[] = "is moving";
+	}
+
+
+	namespace Errors
+	{
+		namespace Literals
+		{
+			const char ERROR_START[] = "Curtain object requires key '";
+			const char BOOL_ERROR_END[] = "' of type 'bool'";
+			const char INT_ERROR_END[] = "' of type 'int'";
+		}
+
+		namespace Sizes
+		{
+			using namespace ::Curtain::Keys;
+			using namespace ::Curtain::Errors::Literals;
+
+			const uint16_t AUTO_CORRECT = sizeof(ERROR_START) + sizeof(AUTO_CORRECT) + sizeof(BOOL_ERROR_END) - 2;
+			const uint16_t LENGTH = sizeof(ERROR_START) + sizeof(LENGTH) + sizeof(INT_ERROR_END) - 2;
+		}
+
+		using namespace Literals;
+
+		StaticString<Sizes::AUTO_CORRECT-1> AUTO_CORRECT(ERROR_START, ::Curtain::Keys::AUTO_CORRECT, BOOL_ERROR_END);
+		StaticString<Sizes::LENGTH-1> LENGTH(ERROR_START, ::Curtain::Keys::LENGTH, INT_ERROR_END);
+	}
 
 
 	bool validate(DeserializedJSON::DeserializedJSON& curtain_json)
@@ -34,17 +62,17 @@ namespace Curtain
 	RETURNS: 
 	*/
 	{
-		// Validate hardware overriding values
-		if(curtain_json.containsKey(LENGTH_KEY) && !curtain_json[LENGTH_KEY].is<int>())
+		// Validate movement overriding values
+		if(curtain_json.containsKey(Keys::AUTO_CORRECT) && !curtain_json[Keys::AUTO_CORRECT].is<bool>())
 		{
-			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"LENGTH_KEY"' of type 'int'");
+			new Exception::Exception(__LINE__, __FILE__, (const char*)Errors::AUTO_CORRECT);
 			return false;
 		}
 
-		// Validate movement overriding values
-		else if(curtain_json.containsKey(AUTO_CORRECT_KEY) && !curtain_json[AUTO_CORRECT_KEY].is<bool>())
+		// Validate hardware overriding values
+		else if(curtain_json.containsKey(Keys::LENGTH) && !curtain_json[Keys::LENGTH].is<int>())
 		{
-			new Exception::Exception(__LINE__, __FILE__, "Curtain object requires key '"AUTO_CORRECT_KEY"' of type 'bool'");
+			new Exception::Exception(__LINE__, __FILE__, (const char*)Errors::LENGTH);
 			return false;
 		}
 
@@ -62,39 +90,11 @@ namespace Curtain
 	DETAILS: 
 	RETURNS: 
 	*/
-	: _name{StaticString<sizeof(Config::Curtain::NAME)>(Config::Curtain::NAME)},
-	  _room{StaticString<sizeof(Config::Curtain::ROOM)>(Config::Curtain::ROOM)}
 	{}
 
 
 	// —————————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————————— //
 	// —————————————————————————————————————————————————————————————————————————————————————————————————————————————— //
-
-	// ————————————————————————————————————————————— GETTERS::STRUCTURE ————————————————————————————————————————————— //
-
-	StaticString<sizeof(Config::Curtain::NAME)> Curtain::name() const
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return StaticString<sizeof(Config::Curtain::NAME)>(_name);
-	}
-
-
-	StaticString<sizeof(Config::Curtain::ROOM)> Curtain::room() const
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return StaticString<sizeof(Config::Curtain::ROOM)>(_room);
-	}
-
 
 	// —————————————————————————————————————————————— GETTERS::OPTIONS —————————————————————————————————————————————— //
 
@@ -111,18 +111,6 @@ namespace Curtain
 
 
 	// ————————————————————————————————————————————— GETTERS::HARDWARE  ————————————————————————————————————————————— //
-
-	uint32_t Curtain::length() const
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		return _length;
-	}
-
 
 	bool Curtain::direction() const
 	/*
@@ -145,6 +133,18 @@ namespace Curtain
 	*/
 	{
 		return _is_moving;
+	}
+
+
+	uint32_t Curtain::length() const
+	/*
+	SUMMARY: 
+	PARAMS:  
+	DETAILS: 
+	RETURNS: 
+	*/
+	{
+		return _length;
 	}
 
 
@@ -173,12 +173,12 @@ namespace Curtain
 		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
 		JsonObject curtain_object = json_document.to<JsonObject>();
 
-		curtain_object[CURTAIN_NAME_KEY] = (const char*)_name;
-		curtain_object[ROOM_NAME_KEY] = (const char*)_room;
-		curtain_object[IS_MOVING_KEY] = _is_moving;
-		curtain_object[LENGTH_KEY] = _length;
-		curtain_object[PERCENTAGE_KEY] = percentage();
-		curtain_object[AUTO_CORRECT_KEY] = _auto_correct;
+		curtain_object[Keys::CURTAIN_NAME] = (const char*)_name;
+		curtain_object[Keys::ROOM_NAME] = (const char*)_room;
+		curtain_object[Keys::IS_MOVING] = _is_moving;
+		curtain_object[Keys::LENGTH] = _length;
+		curtain_object[Keys::PERCENTAGE] = percentage();
+		curtain_object[Keys::AUTO_CORRECT] = _auto_correct;
 
 		return StaticString<JSON_BUFFER_SIZE>(curtain_object);
 	}
@@ -288,15 +288,19 @@ namespace Curtain
 		using namespace MQTT;
 
 		// Validate hardware overriding values
-		if(update_json.containsKey(LENGTH_KEY) && update_json[LENGTH_KEY] < _length)
+		if(update_json.containsKey(Keys::LENGTH) && update_json[Keys::LENGTH] < _length)
 		{
-			length(update_json[LENGTH_KEY]);
+			length(update_json[Keys::LENGTH]);
 		}
 
 		// Validate movement overriding values
-		if(update_json.containsKey(AUTO_CORRECT_KEY))
+		if(update_json.containsKey(Keys::AUTO_CORRECT))
 		{
-			auto_correct(update_json[AUTO_CORRECT_KEY]);
+			auto_correct(update_json[Keys::AUTO_CORRECT]);
 		}
 	}
 }
+
+
+template class StaticString<Curtain::Errors::Sizes::AUTO_CORRECT-1>;
+template class StaticString<Curtain::Errors::Sizes::LENGTH-1>;

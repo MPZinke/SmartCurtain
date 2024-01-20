@@ -22,7 +22,7 @@
 #include "../Headers/MQTT.hpp"
 
 
-using namespace Exception;
+// using namespace Exception;
 
 
 namespace Control
@@ -61,11 +61,11 @@ namespace Control
 			new Exception::Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
-		else if(type == MQTT::Topics::Literals::Parts::MOVE)
+		else if(type == MQTT::Topics::Parts::MOVE)
 		{
 			case_move(message_size);
 		}
-		else if(type == MQTT::Topics::Literals::Parts::UPDATE)
+		else if(type == MQTT::Topics::Parts::UPDATE)
 		{
 			// Does not update hub to prevent possible ciruclar looping from possible bad programming :)
 			case_update_curtain(message_size);

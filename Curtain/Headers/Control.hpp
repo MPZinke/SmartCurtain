@@ -21,6 +21,5 @@ namespace Control
 	void process_message(int);
 
 	inline void case_move(int message_size);
-	inline void case_status();
 	inline void case_update_curtain(int message_size);
 }
