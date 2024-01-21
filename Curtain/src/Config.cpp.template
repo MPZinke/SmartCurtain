@@ -18,8 +18,8 @@ namespace Config
 {
 	namespace Curtain
 	{
-		const char NAME[25] = "";
-		const char ROOM[25] = "";
+		const char NAME[] = "";
+		const char ROOM[] = "";
 	}
 
 

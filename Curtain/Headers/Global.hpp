@@ -38,6 +38,8 @@ namespace Exception
 
 namespace Global
 {
+	extern unsigned long last_hub_update;
+
 	extern Curtain::Curtain curtain;
 
 	extern WiFiClient wifi_client;

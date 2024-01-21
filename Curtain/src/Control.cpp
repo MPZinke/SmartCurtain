@@ -40,6 +40,14 @@ namespace Control
 		while(1)
 		{
 			Global::mqtt_client.poll();
+
+			if(millis() - Global::last_hub_update >= 10000)
+			{
+				Global::curtain.update();
+				MQTT::update_hub();
+
+				Global::last_hub_update = millis();
+			}
 		}
 	}
 
