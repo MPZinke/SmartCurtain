@@ -89,6 +89,11 @@ namespace Event
 	}
 
 
+	Event::Event(uint8_t percentage)
+	: _percentage{percentage}
+	{}
+
+
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
 
 	uint8_t Event::percentage()

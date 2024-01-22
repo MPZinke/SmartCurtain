@@ -47,4 +47,3 @@ namespace Global
 
 	extern Exception::Exception* exception;
 }  // end namespace Global
-

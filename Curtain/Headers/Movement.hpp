@@ -32,8 +32,7 @@ namespace Movement
 	using Hardware::CurtainState;
 	namespace CurtainStates = Hardware::CurtainStates;  // Alias so that other parts can use it as conceptually movement
 
-
-	void move(Event::Event event);
+	void move(Event::Event* event);
 	void reset();
 
 	namespace Secure

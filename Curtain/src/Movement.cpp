@@ -16,6 +16,7 @@
 #include "../Headers/Config.hpp"
 #include "../Headers/Global.hpp"
 
+#include "../Headers/Control.hpp"
 #include "../Headers/Curtain.hpp"
 #include "../Headers/Event.hpp"
 #include "../Headers/Hardware.hpp"
@@ -36,8 +37,10 @@ namespace Movement
 	         to the other direction.
 	*/
 	{
+		Serial.println("Starting reset");
 		if(Hardware::state() == CLOSED)
 		{
+		Serial.println("Curtain already closed");
 			Global::curtain.percentage(0);
 		}
 		else
@@ -50,11 +53,15 @@ namespace Movement
 		}
 
 		Global::curtain.is_moving(false);
+		Serial.println("Done moving");
 		MQTT::update_hub();
+		Serial.println("Finishing reset");
+
+		Control::loop();
 	}
 
 
-	void move(Event::Event event)
+	void move(Event::Event* event)
 	/*
 	NOTES: Expects that curtain._is_moving is true.
 	*/
@@ -67,24 +74,26 @@ namespace Movement
 			return;
 		}
 
+		Serial.println(String("Moving to: ") + String(event->percentage()));
+
 		Global::curtain.update();  // ensure curtain is up to date with hardware
-		if(Global::curtain.percentage() != event.percentage())
+		if(Global::curtain.percentage() != event->percentage())
 		{
-			if(event.percentage() == 0)
+			if(event->percentage() == 0)
 			{
 				Secure::move_until_closed();
 			}
 			// Move towards a closed position
-			else if(event.direction() == CLOSE)
+			else if(event->direction() == CLOSE)
 			{
 				// If failed to reach non-zero state without hitting 0 and allowed to correct self:
-				if(!Secure::move_towards_closed(event.steps()))
+				if(!Secure::move_towards_closed(event->steps()))
 				{
 					if(Global::curtain.auto_correct())
 					{
 						Global::curtain.update();  // ensure curtain is up to date with hardware
 						Hardware::set_direction(OPEN);
-						Unsecure::step(event.steps());
+						Unsecure::step(event->steps());
 					}
 				}
 			}
@@ -92,13 +101,15 @@ namespace Movement
 			else
 			{
 				Hardware::set_direction(OPEN);
-				Unsecure::step(event.steps());
+				Unsecure::step(event->steps());
 			}
 		}
 
-		Global::curtain.percentage(event.percentage());
+		Global::curtain.percentage(event->percentage());
 		Global::curtain.is_moving(false);
 		MQTT::update_hub();
+
+		Control::loop();
 	}
 
 
@@ -122,6 +133,14 @@ namespace Movement
 				Hardware::pulse();
 			}
 
+			if(steps_not_taken == 0)
+			{
+				Serial.println("steps_not_taken == 0");
+			}
+			else
+			{
+				Serial.println(String("steps_not_taken == ") + String(steps_not_taken));
+			}
 			Hardware::disable_motor();
 			return 0xFFFFFFFF - steps_not_taken;
 		}

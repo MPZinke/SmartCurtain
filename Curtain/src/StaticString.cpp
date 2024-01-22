@@ -62,8 +62,11 @@ class StaticString
 			string[S] = '\0';  // Always have an absolute null terminator
 
 			_length = CString::copy(input1, string, S+1);  // +1 because +1 bytes always allocated.
+			Serial.println(String("Length 1: ") + String(_length));
 			_length += CString::copy(input2, string+_length, S+1-_length);  // +1 because +1 bytes always allocated.
-			_length += CString::copy(input1, string+_length, S+1-_length);  // +1 because +1 bytes always allocated.
+			Serial.println(String("Length 2: ") + String(_length));
+			_length += CString::copy(input3, string+_length, S+1-_length);  // +1 because +1 bytes always allocated.
+			Serial.println(String("Length 3: ") + String(_length));
 		}
 
 
@@ -107,7 +110,7 @@ class StaticString
 
 template class StaticString<45>;
 template class StaticString<46>;
-template class StaticString<48>;
-template class StaticString<50>;
+template class StaticString<49>;
+template class StaticString<51>;
 template class StaticString<52>;
 template class StaticString<JSON_BUFFER_SIZE>;

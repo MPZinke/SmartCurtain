@@ -18,6 +18,7 @@
 namespace Control
 {
 	void loop();
+	void main();
 	void process_message(int);
 
 	inline void case_move(int message_size);

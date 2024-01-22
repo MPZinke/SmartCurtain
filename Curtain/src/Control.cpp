@@ -28,6 +28,15 @@
 namespace Control
 {
 	void loop()
+	{
+		while(true)
+		{
+			delay(0xFFFFFFFF);
+		}
+	}
+
+
+	void main()
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -35,7 +44,9 @@ namespace Control
 	RETURNS: 
 	*/
 	{
+		Serial.println(String("File: ") + __FILE__ + " " + __LINE__);
 		MQTT::update_hub();
+		Serial.println(String("File: ") + __FILE__ + " " + __LINE__);
 
 		while(1)
 		{
@@ -43,6 +54,7 @@ namespace Control
 
 			if(millis() - Global::last_hub_update >= 10000)
 			{
+				Serial.println(String("File: ") + __FILE__ + " " + __LINE__);
 				Global::curtain.update();
 				MQTT::update_hub();
 
@@ -60,8 +72,12 @@ namespace Control
 	RETURNS: 
 	*/
 	{
+		Serial.println("process_message");
+		Serial.println(String("message_size: ") + String(message_size));
 		String topic = Global::mqtt_client.messageTopic();
 		String type = topic.substring(topic.lastIndexOf('/'));
+
+		Serial.println(topic);
 
 		if(JSON_BUFFER_SIZE < message_size)
 		{
@@ -95,6 +111,7 @@ namespace Control
 	{
 		if(Global::curtain.is_moving())
 		{
+			Serial.println("Calling exception");
 			new Exception::Exception(__LINE__, __FILE__, "The curtain is already moving");
 			return;
 		}
@@ -113,9 +130,10 @@ namespace Control
 		}
 
 		static Event::Event event(event_json);
+		Serial.println(String("Event.percentage(): ") + String(event.percentage()));
 		Global::curtain.is_moving(true);
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
-		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 1, NULL, 1);
+		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 2, NULL, 1);
 	}
 
 

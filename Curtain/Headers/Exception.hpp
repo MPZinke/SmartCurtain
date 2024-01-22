@@ -33,7 +33,7 @@ namespace Exception
 		protected:
 			uint32_t _line;
 			const char* _file;
-			const char* _message;
+			String _message;
 
 		public:
 			Exception(uint32_t line, const char* file, const char* message);

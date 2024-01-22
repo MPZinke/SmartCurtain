@@ -35,18 +35,18 @@ namespace Exception
 	DETAILS: 
 	RETURNS: 
 	*/
-	: _line{line}, _file{file}, _message{new char[CString::length(message, 0xFFFF-1)+1]}
+	: _line{line}, _file{file}, _message{String(message)}
 	{
+		Serial.println("Creating exception");
+
 		if(Global::exception != NULL)
 		{
+			Serial.println("Calling reset_function");
 			reset_function();
 		}
 
-		// If I write an error message that needs all 0xFFFF characters, then this deserves to fail.
-		//  +1 for null terminator. -1 to allow room for null terminator room while not overflowing copy.
-		CString::copy(message, (char*)_message, 0xFFFF);
-
 		Global::exception = this;
+		Serial.println("Created exception");
 	}
 
 
@@ -58,7 +58,8 @@ namespace Exception
 	RETURNS: 
 	*/
 	{
-		delete[] _message;
+		Serial.println("Deleting _message");
+		Serial.println("Deleted _message");
 		Global::exception = NULL;
 	}
 

@@ -45,8 +45,8 @@ namespace MQTT
 		{
 			const char ROOM[] = "SmartCurtain/Room/";
 			const char CURTAIN[] = "SmartCurtain/Curtain/";
-			const char MOVE[] = "move";
-			const char UPDATE[] = "update";
+			const char MOVE[] = "/move";
+			const char UPDATE[] = "/update";
 		}
 
 		namespace Sizes

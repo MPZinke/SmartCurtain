@@ -42,6 +42,7 @@ namespace Event
 
 		public:
 			Event(DeserializedJSON::DeserializedJSON& event_json);
+			Event(uint8_t percentage);
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
