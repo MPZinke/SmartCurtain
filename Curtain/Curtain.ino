@@ -83,11 +83,6 @@ void setup_MQTT()
 	Global::mqtt_client.subscribe((const char*)Topics::ROOM_MOVE);
 	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_MOVE);
 	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_UPDATE);
-
-	Serial.println(String("Subscribed to: ") + Topics::Literals::HOME_MOVE);
-	Serial.println(String("Subscribed to: ") + (const char*)Topics::ROOM_MOVE);
-	Serial.println(String("Subscribed to: ") + (const char*)Topics::CURTAIN_MOVE);
-	Serial.println(String("Subscribed to: ") + (const char*)Topics::CURTAIN_UPDATE);
 }
 
 
@@ -105,14 +100,11 @@ void setup_threading()
 	// Reset Curtain
 	Global::curtain.is_moving(true);
 	xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
-	Serial.println("Done setting up");
 }
 
 
 void setup()
 {
-	Serial.begin(9600);
-	Serial.println("Starting set up");
 	setup_GPIO();
 
 	setup_WiFi();
@@ -123,6 +115,4 @@ void setup()
 
 
 void loop()
-{
-	// Control::loop();
-}
+{}

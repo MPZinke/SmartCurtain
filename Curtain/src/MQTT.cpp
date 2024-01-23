@@ -63,9 +63,7 @@ namespace MQTT
 		if(Global::exception != NULL)
 		{
 			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(*Global::exception);
-			Serial.println(String("Error message: ") + (const char*)message);
 			delete Global::exception;
-			Serial.println("Deleted exception");
 
 			Global::mqtt_client.beginMessage(MQTT::Topics::Literals::ERROR);
 			Global::mqtt_client.print((const char*)message);

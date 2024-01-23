@@ -37,15 +37,14 @@ namespace Movement
 	         to the other direction.
 	*/
 	{
-		Serial.println("Starting reset");
 		if(Hardware::state() == CLOSED)
 		{
-		Serial.println("Curtain already closed");
 			Global::curtain.percentage(0);
 		}
 		else
 		{
 			uint32_t steps = Secure::move_and_count_to_closed();
+
 			Hardware::set_direction(OPEN);
 			Unsecure::step(steps);
 			uint8_t curtain_percentage = steps * 100 / Global::curtain.length();
@@ -53,9 +52,7 @@ namespace Movement
 		}
 
 		Global::curtain.is_moving(false);
-		Serial.println("Done moving");
 		MQTT::update_hub();
-		Serial.println("Finishing reset");
 
 		Control::loop();
 	}
@@ -73,8 +70,6 @@ namespace Movement
 		{
 			return;
 		}
-
-		Serial.println(String("Moving to: ") + String(event->percentage()));
 
 		Global::curtain.update();  // ensure curtain is up to date with hardware
 		if(Global::curtain.percentage() != event->percentage())
@@ -127,22 +122,16 @@ namespace Movement
 		{
 			Hardware::set_direction(CLOSED);
 			Hardware::enable_motor();
+
+			uint32_t length = Global::curtain.length();
 			uint32_t steps_not_taken;
-			for(steps_not_taken = 0xFFFFFFFF; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
+			for(steps_not_taken = length; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();
 			}
 
-			if(steps_not_taken == 0)
-			{
-				Serial.println("steps_not_taken == 0");
-			}
-			else
-			{
-				Serial.println(String("steps_not_taken == ") + String(steps_not_taken));
-			}
 			Hardware::disable_motor();
-			return 0xFFFFFFFF - steps_not_taken;
+			return length - steps_not_taken;
 		}
 
 

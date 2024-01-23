@@ -37,16 +37,12 @@ namespace Exception
 	*/
 	: _line{line}, _file{file}, _message{String(message)}
 	{
-		Serial.println("Creating exception");
-
 		if(Global::exception != NULL)
 		{
-			Serial.println("Calling reset_function");
 			reset_function();
 		}
 
 		Global::exception = this;
-		Serial.println("Created exception");
 	}
 
 
@@ -58,8 +54,6 @@ namespace Exception
 	RETURNS: 
 	*/
 	{
-		Serial.println("Deleting _message");
-		Serial.println("Deleted _message");
 		Global::exception = NULL;
 	}
 
