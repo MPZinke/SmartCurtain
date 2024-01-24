@@ -44,6 +44,10 @@ namespace Movement
 		else
 		{
 			uint32_t steps = Secure::move_and_count_to_closed();
+			if(steps > Global::curtain.length())
+			{
+				steps = Global::curtain.length();
+			}
 
 			Hardware::set_direction(OPEN);
 			Unsecure::step(steps);
@@ -123,15 +127,14 @@ namespace Movement
 			Hardware::set_direction(CLOSED);
 			Hardware::enable_motor();
 
-			uint32_t length = Global::curtain.length();
-			uint32_t steps_not_taken;
-			for(steps_not_taken = length; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
+			uint32_t steps_not_taken = UINT32_MAX;
+			for(; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();
 			}
 
 			Hardware::disable_motor();
-			return length - steps_not_taken;
+			return UINT32_MAX - steps_not_taken;
 		}
 
 
@@ -165,7 +168,7 @@ namespace Movement
 			Hardware::set_direction(CLOSE);
 			Hardware::enable_motor();
 
-			for(uint32_t x = 0xFFFFFFFF; 0 < x && !Hardware::is_closed(); x--)
+			for(uint32_t x = UINT32_MAX; 0 < x && !Hardware::is_closed(); x--)
 			{
 				Hardware::pulse();
 			}
