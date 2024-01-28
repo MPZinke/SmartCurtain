@@ -24,12 +24,31 @@
 #include "../Headers/StaticString.hpp"
 
 
-#define PERCENTAGE "percentage"
-
-
 namespace Event
 {
 	using namespace Curtain::CurtainStates;
+
+
+	namespace Errors
+	{
+		namespace Literals
+		{
+			const char ERROR_START[] = "Event object requires key '";
+			const char INT_ERROR_END[] = "' of type 'int'";
+		}
+
+		namespace Sizes
+		{
+			using namespace ::Event::Keys;
+			using namespace ::Event::Errors::Literals;
+
+			const uint16_t PERCENTAGE_KEY = sizeof(ERROR_START) +sizeof(PERCENTAGE) + sizeof(INT_ERROR_END) - 2;
+		}
+
+		using namespace Literals;
+
+		StaticString<Sizes::PERCENTAGE_KEY-1> PERCENTAGE(ERROR_START, ::Event::Keys::PERCENTAGE, INT_ERROR_END);
+	}
 
 
 	bool validate(DeserializedJSON::DeserializedJSON& event_json)
@@ -41,9 +60,14 @@ namespace Event
 	*/
 	{
 		// Validate structure
-		if(event_json.containsKey(PERCENTAGE) && !event_json[PERCENTAGE].is<int>())
+		if(event_json.containsKey(Keys::PERCENTAGE) && !event_json[Keys::PERCENTAGE].is<int>())
 		{
-			new Exception::Exception(__LINE__, __FILE__, "Event object requires key '"PERCENTAGE"' of type 'int'");
+			const char error_start[] = "Event object requires key '";
+			const char error_end[] = "' of type 'int'";
+			const uint16_t error_size = sizeof(error_start) + sizeof(Keys::PERCENTAGE) + sizeof(error_end) - 3;
+			StaticString<error_size> error(error_start, Keys::PERCENTAGE, error_end);
+
+			new Exception::Exception(__LINE__, __FILE__, error);
 			return false;
 		}
 
@@ -61,8 +85,13 @@ namespace Event
 	RETURNS: 
 	*/
 	{
-		_percentage = event_json[PERCENTAGE];
+		_percentage = event_json[Keys::PERCENTAGE];
 	}
+
+
+	Event::Event(uint8_t percentage)
+	: _percentage{percentage}
+	{}
 
 
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //
@@ -76,35 +105,6 @@ namespace Event
 	*/
 	{
 		return _percentage;
-	}
-
-	// ——————————————————————————————————————————————— GETTERS::OTHER ——————————————————————————————————————————————— //
-
-	// SUMMARY: Creates a String JSON for the Event.
-	// DETAILS: Called when a Curtain object is attempted to be converted to a char*. Converts object to a JsonObject.
-	//  Mallocs char* array for c_string. Serializes data to c_string.
-	Event::operator StaticString<JSON_BUFFER_SIZE>()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		StaticJsonDocument<JSON_BUFFER_SIZE> json_document;
-		JsonObject event_object = json_document.to<JsonObject>();
-
-		event_object[PERCENTAGE] = _percentage;
-
-		return StaticString<JSON_BUFFER_SIZE>(event_object);
-	}
-
-
-	// ——————————————————————————————————————————————————— SETTER ——————————————————————————————————————————————————— //
-
-	void Event::percentage(uint8_t percentage)
-	{
-		_percentage = percentage;
 	}
 
 
@@ -156,3 +156,6 @@ namespace Event
 		return percentage_delta * Global::curtain._length / 100;
 	}
 }  // end namespace Event
+
+
+template class StaticString<Event::Errors::Sizes::PERCENTAGE_KEY-1>;

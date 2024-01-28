@@ -51,11 +51,11 @@ void setup_GPIO()
 	pinMode(Config::Hardware::ENABLE_PIN, OUTPUT);
 	pinMode(Config::Hardware::PULSE_PIN, OUTPUT);
 
-	Hardware::disable_motor();  // don't burn up the motor
+	Hardware::disable_motor();  // Don't burn up the motor
 }
 
 
-bool setup_WiFi()
+void setup_WiFi()
 {
 	WiFi.mode(WIFI_STA);
 	esp_wifi_set_mac(WIFI_IF_STA, Config::Network::Device::MAC_ADDRESS);
@@ -68,7 +68,7 @@ bool setup_WiFi()
 }
 
 
-bool setup_MQTT()
+void setup_MQTT()
 {
 	Global::mqtt_client.setUsernamePassword(Config::Network::MQTT::USERNAME, Config::Network::MQTT::PASSWORD);
 	while(!Global::mqtt_client.connect(Config::Network::MQTT::BROKER_DOMAIN, Config::Network::MQTT::PORT))
@@ -78,31 +78,28 @@ bool setup_MQTT()
 
 	using namespace MQTT;
 	Global::mqtt_client.onMessage(Control::process_message);
-	Global::mqtt_client.subscribe(ALL_CURTAINS_MOVE);
-	Global::mqtt_client.subscribe(ALL_CURTAINS_STATUS);
+	Global::mqtt_client.subscribe(Topics::Literals::HOME_MOVE);
 
-	// StaticString::write((char*)CURTAIN_MOVE, Global::curtain.id(), 17);
-	// StaticString::write((char*)CURTAIN_STATUS, Global::curtain.id(), 17);
-	// StaticString::write((char*)CURTAIN_UPDATE, Global::curtain.id(), 17);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_MOVE);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_STATUS);
-	Global::mqtt_client.subscribe((const char*)CURTAIN_UPDATE);
+	Global::mqtt_client.subscribe((const char*)Topics::ROOM_MOVE);
+	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_MOVE);
+	Global::mqtt_client.subscribe((const char*)Topics::CURTAIN_UPDATE);
 }
 
 
 void setup_threading()
 {
 	// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
-	xTaskCreatePinnedToCore((TaskFunction_t)Control::loop, "MQTT", 10000, NULL, 2, NULL, 0);
-	// Reset Curtain
-	Global::curtain.is_moving(true);
-	xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
+	xTaskCreatePinnedToCore((TaskFunction_t)Control::main, "MQTT", 10000, NULL, 2, NULL, 0);
 
 	// Prevent infinite loop detection
 	rtc_wdt_protect_off();
 	rtc_wdt_disable();
 	disableCore0WDT();
 	disableLoopWDT();
+
+	// Reset Curtain
+	Global::curtain.is_moving(true);
+	xTaskCreatePinnedToCore((TaskFunction_t)Movement::reset, "Resetting", 10000, NULL, 2, NULL, 1);
 }
 
 

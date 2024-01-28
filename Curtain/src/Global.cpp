@@ -19,10 +19,12 @@
 
 namespace Global
 {
+	unsigned long last_hub_update = millis();
+
 	Curtain::Curtain curtain;
 
 	WiFiClient wifi_client;
 	MqttClient mqtt_client(wifi_client);
 
 	Exception::Exception* exception = NULL;
-} // end namespace Global
+}  // end namespace Global

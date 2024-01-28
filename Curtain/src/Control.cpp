@@ -22,12 +22,21 @@
 #include "../Headers/MQTT.hpp"
 
 
-using namespace Exception;
+// using namespace Exception;
 
 
 namespace Control
 {
 	void loop()
+	{
+		while(true)
+		{
+			delay(0xFFFFFFFF);
+		}
+	}
+
+
+	void main()
 	/*
 	SUMMARY: 
 	PARAMS:  
@@ -40,14 +49,22 @@ namespace Control
 		while(1)
 		{
 			Global::mqtt_client.poll();
+
+			if(millis() - Global::last_hub_update >= 10000)
+			{
+				Global::curtain.update();
+				MQTT::update_hub();
+
+				Global::last_hub_update = millis();
+			}
 		}
 	}
 
 
 	void process_message(int message_size)
 	/*
-	SUMMARY: 
-	PARAMS:  
+	SUMMARY: The function called by the MQTT Client when a message is received.
+	PARAMS:  The size of the message received.
 	DETAILS: 
 	RETURNS: 
 	*/
@@ -61,17 +78,12 @@ namespace Control
 			new Exception::Exception(__LINE__, __FILE__, "Data length is too large for JSON Buffer");
 		}
 
-		else if(type == MOVE_SUFFIX)
+		else if(type == MQTT::Topics::Parts::MOVE)
 		{
 			case_move(message_size);
 		}
-		else if(type == STATUS_SUFFIX)
+		else if(type == MQTT::Topics::Parts::UPDATE)
 		{
-			case_status();
-		}
-		else if(type == UPDATE_SUFFIX)
-		{
-			// Does not update hub to prevent possible ciruclar looping from possible bad programming :)
 			case_update_curtain(message_size);
 		}
 
@@ -109,21 +121,10 @@ namespace Control
 		}
 
 		static Event::Event event(event_json);
+
 		Global::curtain.is_moving(true);
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
-		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 1, NULL, 1);
-	}
-
-
-	inline void case_status()
-	/*
-	SUMMARY: 
-	PARAMS:  
-	DETAILS: 
-	RETURNS: 
-	*/
-	{
-		Global::curtain.update();  // ensure curtain is up to date with hardware
+		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 2, NULL, 1);
 	}
 
 

@@ -15,7 +15,6 @@
 #include <ArduinoJson.h>
 
 
-#include "Config.hpp"
 #include "Movement.hpp"
 
 
@@ -25,13 +24,15 @@ namespace DeserializedJSON
 }
 
 
-template<size_t S>
-class StaticString;
-
-
 namespace Event
 {
 	using Movement::CurtainState;
+
+
+	namespace Keys
+	{
+		const char PERCENTAGE[] = "percentage";
+	}
 
 
 	class Event
@@ -41,14 +42,10 @@ namespace Event
 
 		public:
 			Event(DeserializedJSON::DeserializedJSON& event_json);
-
-			operator StaticString<JSON_BUFFER_SIZE>();
+			Event(uint8_t percentage);
 
 			// —————————————————————————————————————————————— GETTERS  —————————————————————————————————————————————— //
 			uint8_t percentage();
-
-			// —————————————————————————————————————————————— SETTERS  —————————————————————————————————————————————— //
-			void percentage(uint8_t percentage);
 
 			// —————————————————————————————————————————————— MOVEMENT —————————————————————————————————————————————— //
 			CurtainState direction();  // The direction the curtain will move towards

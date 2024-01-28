@@ -38,11 +38,12 @@ namespace Exception
 
 namespace Global
 {
+	extern unsigned long last_hub_update;
+
 	extern Curtain::Curtain curtain;
 
 	extern WiFiClient wifi_client;
 	extern MqttClient mqtt_client;
 
 	extern Exception::Exception* exception;
-} // end namespace Global
-
+}  // end namespace Global

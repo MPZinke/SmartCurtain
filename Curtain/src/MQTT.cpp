@@ -29,24 +29,6 @@ using namespace Exception;
 
 namespace MQTT
 {
-	// Sizes commented to allow static assert check
-	StaticString<sizeof(HOME_MOVE_STRING)> HOME_MOVE(HOME_MOVE_STRING);
-	StaticString<sizeof(HOME_UPDATE_STRING)> HOME_UPDATE(HOME_UPDATE_STRING);
-
-	StaticString<sizeof(ROOM_MOVE_STRING)> ROOM_MOVE(ROOM_MOVE_STRING);
-	StaticString<sizeof(ROOM_UPDATE_STRING)> ROOM_UPDATE(ROOM_UPDATE_STRING);
-
-	const char ALL_CURTAINS_MOVE[] = "SmartCurtain/all/move";
-	const char ALL_CURTAINS_STATUS[] = "SmartCurtain/all/status";
-
-	StaticString<sizeof(CURTAIN_MOVE_STRING)> CURTAIN_MOVE(CURTAIN_MOVE_STRING, BLANK_OBJECT_ID, Global::curtain.id());
-	StaticString<sizeof(CURTAIN_STATUS_STRING)> CURTAIN_STATUS(CURTAIN_STATUS_STRING, BLANK_OBJECT_ID, Global::curtain.id());
-	StaticString<sizeof(CURTAIN_UPDATE_STRING)> CURTAIN_UPDATE(CURTAIN_UPDATE_STRING, BLANK_OBJECT_ID, Global::curtain.id());
-
-	const char HUB_UPDATE_TOPIC[] = "SmartCurtain/hub/update";
-	const char HUB_ERROR_TOPIC[] = "SmartCurtain/hub/error";
-
-
 	// ———————————————————————————————————————————————— RECEIVE DATA ———————————————————————————————————————————————— //
 
 	DeserializedJSON::DeserializedJSON read_message(int message_size)
@@ -83,7 +65,7 @@ namespace MQTT
 			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(*Global::exception);
 			delete Global::exception;
 
-			Global::mqtt_client.beginMessage(MQTT::HUB_ERROR_TOPIC);
+			Global::mqtt_client.beginMessage(MQTT::Topics::Literals::ERROR);
 			Global::mqtt_client.print((const char*)message);
 			Global::mqtt_client.endMessage();
 		}
@@ -91,9 +73,14 @@ namespace MQTT
 		{
 			StaticString<JSON_BUFFER_SIZE> message = (StaticString<JSON_BUFFER_SIZE>)(Global::curtain);
 
-			Global::mqtt_client.beginMessage(MQTT::HUB_UPDATE_TOPIC);
+			Global::mqtt_client.beginMessage(MQTT::Topics::Literals::STATUS);
 			Global::mqtt_client.print((const char*)message);
 			Global::mqtt_client.endMessage();
 		}
 	}
 }
+
+
+template class StaticString<MQTT::Topics::Sizes::ROOM_MOVE-1>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_MOVE-1>;
+template class StaticString<MQTT::Topics::Sizes::CURTAIN_UPDATE-1>;
