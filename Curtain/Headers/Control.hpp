@@ -17,7 +17,6 @@
 
 namespace Control
 {
-	void loop();
 	void main();
 	void process_message(int);
 

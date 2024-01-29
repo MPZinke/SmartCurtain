@@ -27,15 +27,6 @@
 
 namespace Control
 {
-	void loop()
-	{
-		while(true)
-		{
-			delay(0xFFFFFFFF);
-		}
-	}
-
-
 	void main()
 	/*
 	SUMMARY: 
@@ -52,7 +43,12 @@ namespace Control
 
 			if(millis() - Global::last_hub_update >= 10000)
 			{
-				Global::curtain.update();
+				// Make sure the curtain isn't moving, otherwise the setting of percentage here may mess with the
+				//  movement.
+				if(!Global::curtain.is_moving())
+				{
+					Global::curtain.update();
+				}
 				MQTT::update_hub();
 
 				Global::last_hub_update = millis();

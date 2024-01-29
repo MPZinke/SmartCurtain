@@ -54,7 +54,7 @@ namespace Movement
 		Global::curtain.is_moving(false);
 		MQTT::update_hub();
 
-		Control::loop();
+		vTaskDelete(NULL);
 	}
 
 
@@ -104,7 +104,7 @@ namespace Movement
 		Global::curtain.is_moving(false);
 		MQTT::update_hub();
 
-		Control::loop();
+		vTaskDelete(NULL);
 	}
 
 
