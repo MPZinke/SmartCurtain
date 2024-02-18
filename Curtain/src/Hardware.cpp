@@ -57,7 +57,7 @@ namespace Hardware
 	RETURNS: 
 	*/
 	{
-		digitalWrite(ENABLE_PIN, CurrentPull::ON);
+		digitalWrite(ENABLE_PIN, CurrentPull::OFF);
 	}
 
 
@@ -69,7 +69,7 @@ namespace Hardware
 	RETURNS: 
 	*/
 	{
-		digitalWrite(ENABLE_PIN, CurrentPull::OFF);
+		digitalWrite(ENABLE_PIN, CurrentPull::ON);
 	}
 
 

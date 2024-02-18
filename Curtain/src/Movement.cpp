@@ -51,7 +51,7 @@ namespace Movement
 
 			Hardware::set_direction(OPEN);
 			Unsecure::step(steps);
-			uint8_t curtain_percentage = steps * 100 / Global::curtain.length();
+			uint8_t curtain_percentage = steps * 100ul / Global::curtain.length();
 			Global::curtain.percentage(curtain_percentage);
 		}
 
@@ -127,7 +127,7 @@ namespace Movement
 			Hardware::set_direction(CLOSED);
 			Hardware::enable_motor();
 
-			uint32_t steps_not_taken = UINT32_MAX;
+			uint32_t steps_not_taken = 0b11111111111111111111111111111111;
 			for(; steps_not_taken != 0 && !Hardware::is_closed(); steps_not_taken--)
 			{
 				Hardware::pulse();

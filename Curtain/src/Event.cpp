@@ -147,13 +147,13 @@ namespace Event
 	RETURNS: 
 	*/
 	{
-		uint8_t percentage_delta = Global::curtain.percentage() - _percentage;
+		int16_t percentage_delta = (int16_t)Global::curtain.percentage() - (int16_t)_percentage;
 		if(percentage_delta < 0)
 		{
 			percentage_delta *= -1;
 		}
 
-		return percentage_delta * Global::curtain._length / 100;
+		return (uint32_t)percentage_delta * Global::curtain._length / 100;
 	}
 }  // end namespace Event
 
