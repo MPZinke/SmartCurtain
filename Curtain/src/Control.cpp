@@ -43,6 +43,7 @@ namespace Control
 
 			if(millis() - Global::last_hub_update >= 10000)
 			{
+				Serial.println(String(__FILE__) + ": " + __LINE__);
 				// Make sure the curtain isn't moving, otherwise the setting of percentage here may mess with the
 				//  movement.
 				if(!Global::curtain.is_moving())
@@ -116,9 +117,12 @@ namespace Control
 			return;
 		}
 
-		static Event::Event event(event_json);
+		static Event::Event event;
+		event = event_json;
+		// Serial.println(String(__FILE__) + ": " + __LINE__+" Event Percentage: " + event.percentage());
 
 		Global::curtain.is_moving(true);
+		// Global::curtain.update();
 		// function, name, stack size, send the bytes as a parameter, priority, task handler, core (0, 1)
 		xTaskCreatePinnedToCore((TaskFunction_t)Movement::move, "Move", 10000, (void*)&event, 2, NULL, 1);
 	}

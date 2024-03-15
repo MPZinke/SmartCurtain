@@ -76,6 +76,9 @@ namespace Event
 
 	// ————————————————————————————————————————— CONSTRUCTORS && CONVERTERS ————————————————————————————————————————— //
 
+	Event::Event()
+	{}
+
 
 	Event::Event(DeserializedJSON::DeserializedJSON& event_json)
 	/*
@@ -92,6 +95,13 @@ namespace Event
 	Event::Event(uint8_t percentage)
 	: _percentage{percentage}
 	{}
+
+
+	Event& Event::operator=(DeserializedJSON::DeserializedJSON& event_json)
+	{
+		_percentage = event_json[Keys::PERCENTAGE];
+		return *this;
+	}
 
 
 	// ——————————————————————————————————————————————————— GETTER ——————————————————————————————————————————————————— //

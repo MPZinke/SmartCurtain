@@ -105,12 +105,14 @@ void setup_threading()
 
 void setup()
 {
+	Serial.begin(9600);
 	setup_GPIO();
 
 	setup_WiFi();
 	setup_MQTT();
 
 	setup_threading();
+	// Serial.println("Setup complete");
 }
 
 
