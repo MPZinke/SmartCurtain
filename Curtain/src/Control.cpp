@@ -43,7 +43,6 @@ namespace Control
 
 			if(millis() - Global::last_hub_update >= 10000)
 			{
-				Serial.println(String(__FILE__) + ": " + __LINE__);
 				// Make sure the curtain isn't moving, otherwise the setting of percentage here may mess with the
 				//  movement.
 				if(!Global::curtain.is_moving())
@@ -119,7 +118,6 @@ namespace Control
 
 		static Event::Event event;
 		event = event_json;
-		// Serial.println(String(__FILE__) + ": " + __LINE__+" Event Percentage: " + event.percentage());
 
 		Global::curtain.is_moving(true);
 		// Global::curtain.update();
