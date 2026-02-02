@@ -1,4 +1,4 @@
-# `~/SmartCurtain/Node/`
+# SmartCurtain-Curtain
 
 ---
 
