@@ -1,4 +1,4 @@
-# SmartCurtain-Curtain
+# SmartCurtain
 
 ---
 
@@ -142,13 +142,13 @@ On an update command, the curtain does not update the Hub, as not doing so give 
 ## Software
 
 ### Architecture
-![image](../Documentation/Images/Software/ADS_Node.jpg)
+![image](https://github.com/MPZinke/SmartCurtain/tree/main/Documentation/Images/Software/ADS_Node.jpg)
 
 
 ### Sequencing
-![image](../Documentation/Images/Software/CurtainMovementStateDiagram.jpg)
+![image](https://github.com/MPZinke/SmartCurtain/tree/main/Documentation/Images/Software/CurtainMovementStateDiagram.jpg)
 
 
 
 ## Hardware
-![image](../Documentation/Images/MQTT/Hardware/MQTTStateDiagram.png)
+![image](https://github.com/MPZinke/SmartCurtain/tree/main/Documentation/Images/MQTT/Hardware/MQTTStateDiagram.png)
